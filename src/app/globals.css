@@ -24,3 +24,354 @@ body {
   color: var(--foreground);
   font-family: Arial, Helvetica, sans-serif;
 }
+
+/* Estilos customizados para o carrossel */
+.carousel-container .slick-slide {
+  padding: 0 8px;
+}
+
+.carousel-container .slick-dots {
+  bottom: -40px;
+}
+
+.carousel-container .slick-dots li button:before {
+  color: rgb(148, 163, 184);
+  font-size: 12px;
+  opacity: 0.5;
+}
+
+.carousel-container .slick-dots li.slick-active button:before {
+  color: rgb(59, 130, 246);
+  opacity: 1;
+}
+
+.carousel-container .slick-prev,
+.carousel-container .slick-next {
+  z-index: 10;
+  width: 40px;
+  height: 40px;
+}
+
+.carousel-container .slick-prev {
+  left: -20px;
+}
+
+.carousel-container .slick-next {
+  right: -20px;
+}
+
+.carousel-container .slick-prev:before,
+.carousel-container .slick-next:before {
+  font-size: 40px;
+  color: rgb(59, 130, 246);
+  opacity: 0.8;
+}
+
+.carousel-container .slick-prev:hover:before,
+.carousel-container .slick-next:hover:before {
+  opacity: 1;
+}
+
+@media (max-width: 640px) {
+  .carousel-container .slick-prev {
+    left: -10px;
+  }
+
+  .carousel-container .slick-next {
+    right: -10px;
+  }
+
+  .carousel-container .slick-prev:before,
+  .carousel-container .slick-next:before {
+    font-size: 30px;
+  }
+}
+
+/* Dark mode para o carrossel */
+@media (prefers-color-scheme: dark) {
+  .carousel-container .slick-dots li button:before {
+    color: rgb(203, 213, 225);
+  }
+
+  .carousel-container .slick-dots li.slick-active button:before {
+    color: rgb(96, 165, 250);
+  }
+
+  .carousel-container .slick-prev:before,
+  .carousel-container .slick-next:before {
+    color: rgb(96, 165, 250);
+  }
+}
+
+/* Estilos customizados para o React DatePicker */
+.react-datepicker-wrapper {
+  width: 100%;
+}
+
+.react-datepicker {
+  font-family: inherit;
+  border: 1px solid rgb(203, 213, 225);
+  border-radius: 0.75rem;
+  box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+}
+
+.react-datepicker__header {
+  background: linear-gradient(to right, rgb(147, 51, 234), rgb(219, 39, 119));
+  border-bottom: none;
+  border-radius: 0.75rem 0.75rem 0 0;
+  padding-top: 0.75rem;
+}
+
+.react-datepicker__current-month {
+  color: white;
+  font-weight: 600;
+  font-size: 0.875rem;
+  padding-bottom: 0.5rem;
+}
+
+.react-datepicker__day-name {
+  color: rgba(255, 255, 255, 0.9);
+  font-weight: 500;
+  font-size: 0.75rem;
+  width: 2rem;
+  line-height: 2rem;
+  margin: 0.25rem;
+}
+
+.react-datepicker__day {
+  color: rgb(51, 65, 85);
+  width: 2rem;
+  line-height: 2rem;
+  margin: 0.25rem;
+  border-radius: 0.5rem;
+  transition: all 0.2s;
+}
+
+.react-datepicker__day:hover {
+  background-color: rgb(237, 233, 254);
+  border-radius: 0.5rem;
+}
+
+.react-datepicker__day--selected,
+.react-datepicker__day--keyboard-selected {
+  background: linear-gradient(to right, rgb(147, 51, 234), rgb(219, 39, 119));
+  color: white;
+  font-weight: 600;
+  border-radius: 0.5rem;
+}
+
+.react-datepicker__day--selected:hover {
+  background: linear-gradient(to right, rgb(126, 34, 206), rgb(190, 24, 93));
+}
+
+.react-datepicker__day--disabled {
+  color: rgb(203, 213, 225);
+  cursor: not-allowed;
+}
+
+.react-datepicker__day--today {
+  font-weight: 600;
+  border: 2px solid rgb(147, 51, 234);
+}
+
+.react-datepicker__navigation {
+  top: 1rem;
+}
+
+.react-datepicker__navigation-icon::before {
+  border-color: white;
+  border-width: 2px 2px 0 0;
+}
+
+.react-datepicker__time-container {
+  border-left: 1px solid rgb(203, 213, 225);
+}
+
+.react-datepicker__time-container .react-datepicker__time {
+  background: white;
+  border-radius: 0 0 0.75rem 0.75rem;
+}
+
+.react-datepicker__time-container .react-datepicker__time .react-datepicker__time-box {
+  border-radius: 0 0 0.75rem 0.75rem;
+}
+
+.react-datepicker__time-list-item {
+  height: 2.5rem;
+  line-height: 2.5rem;
+  transition: all 0.2s;
+}
+
+.react-datepicker__time-list-item:hover {
+  background-color: rgb(237, 233, 254);
+}
+
+.react-datepicker__time-list-item--selected {
+  background: linear-gradient(to right, rgb(147, 51, 234), rgb(219, 39, 119));
+  color: white;
+  font-weight: 600;
+}
+
+/* Dark mode para DatePicker */
+@media (prefers-color-scheme: dark) {
+  .react-datepicker {
+    background-color: rgb(30, 41, 59);
+    border-color: rgb(51, 65, 85);
+    color: rgb(241, 245, 249);
+  }
+
+  .react-datepicker__day {
+    color: rgb(203, 213, 225);
+  }
+
+  .react-datepicker__day:hover {
+    background-color: rgb(51, 65, 85);
+  }
+
+  .react-datepicker__day--disabled {
+    color: rgb(71, 85, 105);
+  }
+
+  .react-datepicker__day--today {
+    border-color: rgb(147, 51, 234);
+  }
+
+  .react-datepicker__time-container {
+    border-left-color: rgb(51, 65, 85);
+  }
+
+  .react-datepicker__time-container .react-datepicker__time {
+    background: rgb(30, 41, 59);
+  }
+
+  .react-datepicker__time-list-item {
+    color: rgb(203, 213, 225);
+  }
+
+  .react-datepicker__time-list-item:hover {
+    background-color: rgb(51, 65, 85);
+  }
+}
+
+/* Animações elegantes para modais */
+@keyframes fade-in {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+@keyframes slide-in-from-bottom-4 {
+  from {
+    opacity: 0;
+    transform: translateY(1rem) scale(0.95);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+/* Scrollbars elegantes e customizadas */
+.scrollbar-elegant {
+  scrollbar-width: thin;
+  scrollbar-color: rgb(203 213 225 / 0.5) transparent;
+}
+
+.scrollbar-elegant::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+
+.scrollbar-elegant::-webkit-scrollbar-track {
+  background: transparent;
+  border-radius: 10px;
+}
+
+.scrollbar-elegant::-webkit-scrollbar-thumb {
+  background: rgb(203 213 225 / 0.5);
+  border-radius: 10px;
+  border: 2px solid transparent;
+  background-clip: padding-box;
+  transition: all 0.2s ease;
+}
+
+.scrollbar-elegant::-webkit-scrollbar-thumb:hover {
+  background: rgb(148 163 184 / 0.8);
+  background-clip: padding-box;
+}
+
+.scrollbar-elegant::-webkit-scrollbar-thumb:active {
+  background: rgb(100 116 139 / 0.9);
+  background-clip: padding-box;
+}
+
+/* Dark mode para scrollbars */
+@media (prefers-color-scheme: dark) {
+  .scrollbar-elegant {
+    scrollbar-color: rgb(71 85 105 / 0.5) transparent;
+  }
+
+  .scrollbar-elegant::-webkit-scrollbar-thumb {
+    background: rgb(71 85 105 / 0.5);
+    background-clip: padding-box;
+  }
+
+  .scrollbar-elegant::-webkit-scrollbar-thumb:hover {
+    background: rgb(100 116 139 / 0.7);
+    background-clip: padding-box;
+  }
+
+  .scrollbar-elegant::-webkit-scrollbar-thumb:active {
+    background: rgb(148 163 184 / 0.8);
+    background-clip: padding-box;
+  }
+}
+
+/* Scrollbar mais fina para textarea */
+.scrollbar-thin {
+  scrollbar-width: thin;
+  scrollbar-color: rgb(203 213 225 / 0.4) transparent;
+}
+
+.scrollbar-thin::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+
+.scrollbar-thin::-webkit-scrollbar-track {
+  background: transparent;
+  border-radius: 10px;
+}
+
+.scrollbar-thin::-webkit-scrollbar-thumb {
+  background: rgb(203 213 225 / 0.4);
+  border-radius: 10px;
+  border: 1px solid transparent;
+  background-clip: padding-box;
+  transition: all 0.2s ease;
+}
+
+.scrollbar-thin::-webkit-scrollbar-thumb:hover {
+  background: rgb(148 163 184 / 0.6);
+  background-clip: padding-box;
+}
+
+/* Dark mode para scrollbar fina */
+@media (prefers-color-scheme: dark) {
+  .scrollbar-thin {
+    scrollbar-color: rgb(71 85 105 / 0.4) transparent;
+  }
+
+  .scrollbar-thin::-webkit-scrollbar-thumb {
+    background: rgb(71 85 105 / 0.4);
+    background-clip: padding-box;
+  }
+
+  .scrollbar-thin::-webkit-scrollbar-thumb:hover {
+    background: rgb(100 116 139 / 0.6);
+    background-clip: padding-box;
+  }
+}

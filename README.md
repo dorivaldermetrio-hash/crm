@@ -1,36 +1,84 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# WhatsApp CRM
 
-## Getting Started
+Sistema de CRM para gerenciamento de conversas e contatos do WhatsApp usando a API oficial do WhatsApp Business.
 
-First, run the development server:
+## 🚀 Iniciando o projeto
+
+Primeiro, instale as dependências:
+
+```bash
+npm install
+```
+
+Depois, inicie o servidor de desenvolvimento:
 
 ```bash
 npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+Abra [http://localhost:3000](http://localhost:3000) no navegador para ver o resultado.
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+## 📡 Configurando o ngrok
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+Para expor o projeto publicamente e configurar webhooks do WhatsApp, você precisa do ngrok.
 
-## Learn More
+**Instruções completas:** Veja [NGROK_SETUP.md](./NGROK_SETUP.md)
 
-To learn more about Next.js, take a look at the following resources:
+**Resumo rápido:**
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+1. Instale o ngrok (veja instruções no arquivo acima)
+2. Inicie o servidor: `npm run dev`
+3. Em outro terminal: `npm run ngrok`
+4. Use a URL pública gerada para configurar o webhook
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+## 🛠️ Scripts disponíveis
 
-## Deploy on Vercel
+- `npm run dev` - Inicia o servidor de desenvolvimento
+- `npm run build` - Cria a build de produção
+- `npm run start` - Inicia o servidor de produção
+- `npm run ngrok` - Inicia o ngrok para expor o projeto
+- `npm run ngrok:url` - Obtém a URL pública do ngrok
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+## 📡 Webhook do WhatsApp
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+O projeto está configurado para receber mensagens do WhatsApp Business API através de webhook.
+
+**URL do webhook:** `https://SUA_URL_NGROK.ngrok-free.app/api/webhook`
+
+**Instruções completas:** Veja [WEBHOOK_SETUP.md](./WEBHOOK_SETUP.md)
+
+**Resumo rápido:**
+
+1. Configure `WHATSAPP_VERIFY_TOKEN` no `.env.local`
+2. Inicie o servidor e ngrok
+3. Configure o webhook no Meta for Developers
+4. As mensagens recebidas aparecerão no console
+
+## 📚 Tecnologias
+
+- [Next.js](https://nextjs.org) - Framework React
+- [TypeScript](https://www.typescriptlang.org) - Tipagem estática
+- [Tailwind CSS](https://tailwindcss.com) - Estilização
+- [ngrok](https://ngrok.com) - Túnel público para webhooks
+
+## 🤖 Respostas Automáticas com Ollama
+
+O sistema pode responder automaticamente às mensagens usando IA local via Ollama.
+
+**Instruções completas:** Veja [OLLAMA_INTEGRATION.md](./OLLAMA_INTEGRATION.md)
+
+**Resumo rápido:**
+
+1. Instale o Ollama: https://ollama.ai
+2. Baixe o modelo: `ollama pull llama3.1:8b`
+3. Configure no `.env.local`: `OLLAMA_AUTO_REPLY_ENABLED=true`
+4. As respostas serão geradas automaticamente!
+
+## 📖 Documentação
+
+- [NGROK_SETUP.md](./NGROK_SETUP.md) - Configuração do ngrok
+- [WEBHOOK_SETUP.md](./WEBHOOK_SETUP.md) - Configuração do webhook do WhatsApp
+- [MONGODB_SETUP.md](./MONGODB_SETUP.md) - Configuração do MongoDB
+- [OLLAMA_INTEGRATION.md](./OLLAMA_INTEGRATION.md) - Integração com Ollama (IA local)
+- [Next.js Documentation](https://nextjs.org/docs)
+- [WhatsApp Business API](https://developers.facebook.com/docs/whatsapp)

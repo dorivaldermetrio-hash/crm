@@ -1,0 +1,350 @@
+'use client';
+
+import { useEffect, useState } from 'react';
+import Sidebar from '@/components/Sidebar';
+import { useSidebar } from '@/contexts/SidebarContext';
+import CriarProdutoModal from '@/components/CriarProdutoModal';
+import EditarProdutoModal from '@/components/EditarProdutoModal';
+import ConfirmarExclusaoModal from '@/components/ConfirmarExclusaoModal';
+import { Search, Plus, X, Edit, Trash2 } from 'lucide-react';
+
+interface Produto {
+  id: string;
+  nome: string;
+  descBreve: string;
+  descCompleta: string;
+  ativado: string;
+  valor: string;
+  duracao: string;
+  createdAt: string | null;
+}
+
+export default function ProdutosServicosPage() {
+  const { isOpen, isMobile } = useSidebar();
+  const [produtos, setProdutos] = useState<Produto[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+  const [searchTerm, setSearchTerm] = useState('');
+  const [modalAberto, setModalAberto] = useState(false);
+  const [produtoEditando, setProdutoEditando] = useState<Produto | null>(null);
+  const [produtoExcluindo, setProdutoExcluindo] = useState<Produto | null>(null);
+  const [excluindo, setExcluindo] = useState(false);
+
+  useEffect(() => {
+    fetchProdutos();
+  }, []);
+
+  const fetchProdutos = async () => {
+    try {
+      setLoading(true);
+      setError(null);
+
+      const response = await fetch('/api/produtos');
+      const data = await response.json();
+
+      if (data.success) {
+        setProdutos(data.produtos || []);
+      } else {
+        setError(data.error || 'Erro ao carregar produtos');
+      }
+    } catch (err) {
+      console.error('Erro ao buscar produtos:', err);
+      setError('Erro ao conectar com o servidor');
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  // Calcula o margin-left baseado no estado do sidebar
+  const getMainMargin = () => {
+    if (isMobile) {
+      return 'ml-0';
+    }
+    return isOpen ? 'ml-64' : 'ml-20';
+  };
+
+  // Filtra os produtos por texto
+  const produtosFiltrados = produtos.filter((produto) => {
+    if (!searchTerm) return true;
+    const searchLower = searchTerm.toLowerCase();
+    return (
+      produto.nome.toLowerCase().includes(searchLower) ||
+      produto.descBreve.toLowerCase().includes(searchLower) ||
+      produto.descCompleta.toLowerCase().includes(searchLower) ||
+      produto.valor.toLowerCase().includes(searchLower) ||
+      produto.duracao.toLowerCase().includes(searchLower)
+    );
+  });
+
+  // Cores do avatar baseado na primeira letra
+  const getAvatarColor = (letra: string) => {
+    const cores = [
+      'bg-gradient-to-br from-blue-500 to-blue-600',
+      'bg-gradient-to-br from-purple-500 to-purple-600',
+      'bg-gradient-to-br from-pink-500 to-pink-600',
+      'bg-gradient-to-br from-indigo-500 to-indigo-600',
+      'bg-gradient-to-br from-teal-500 to-teal-600',
+      'bg-gradient-to-br from-orange-500 to-orange-600',
+      'bg-gradient-to-br from-green-500 to-green-600',
+      'bg-gradient-to-br from-red-500 to-red-600',
+    ];
+    return cores[letra.charCodeAt(0) % cores.length];
+  };
+
+  const handleEditar = (produto: Produto) => {
+    setProdutoEditando(produto);
+  };
+
+  const handleExcluir = (produto: Produto) => {
+    setProdutoExcluindo(produto);
+  };
+
+  const handleConfirmarExclusao = async () => {
+    if (!produtoExcluindo) return;
+
+    setExcluindo(true);
+    try {
+      const response = await fetch(`/api/produtos/${produtoExcluindo.id}`, {
+        method: 'DELETE',
+      });
+
+      const data = await response.json();
+
+      if (!response.ok || !data.success) {
+        throw new Error(data.error || 'Erro ao excluir produto');
+      }
+
+      setProdutoExcluindo(null);
+      fetchProdutos();
+    } catch (error: any) {
+      console.error('Erro ao excluir produto:', error);
+      alert(error.message || 'Erro ao excluir produto. Tente novamente.');
+    } finally {
+      setExcluindo(false);
+    }
+  };
+
+  return (
+    <div className="flex min-h-screen bg-slate-50 dark:bg-slate-900">
+      <Sidebar />
+      <main className={`flex-1 ${getMainMargin()} p-4 sm:p-6 lg:p-8 transition-all duration-300`}>
+        <div className="max-w-7xl mx-auto">
+          {/* Header */}
+          <div className="mb-6">
+            <h1 className="text-2xl sm:text-3xl font-bold text-slate-900 dark:text-white mb-2">
+              Produtos e Serviços
+            </h1>
+            <p className="text-slate-600 dark:text-slate-400 text-sm sm:text-base">
+              {loading
+                ? 'Carregando...'
+                : produtosFiltrados.length === 0
+                ? 'Nenhum produto encontrado'
+                : `${produtosFiltrados.length} ${produtosFiltrados.length === 1 ? 'produto encontrado' : 'produtos encontrados'}`}
+              {produtos.length !== produtosFiltrados.length && (
+                <span className="text-slate-500 dark:text-slate-500">
+                  {' '}de {produtos.length} total
+                </span>
+              )}
+            </p>
+          </div>
+
+          {/* Barra de Busca e Botão Adicionar */}
+          <div className="mb-6 flex gap-3">
+            <div className="relative flex-1">
+              <Search className="absolute left-4 top-1/2 transform -translate-y-1/2 w-5 h-5 text-slate-400" />
+              <input
+                type="text"
+                value={searchTerm}
+                onChange={(e) => setSearchTerm(e.target.value)}
+                placeholder="Buscar produtos..."
+                className="w-full pl-12 pr-12 py-3 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl text-slate-900 dark:text-white placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all shadow-sm hover:shadow-md"
+              />
+              {searchTerm && (
+                <button
+                  onClick={() => setSearchTerm('')}
+                  className="absolute right-4 top-1/2 transform -translate-y-1/2 p-1 rounded-lg text-slate-400 hover:text-slate-600 dark:hover:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-700 transition-colors"
+                >
+                  <X className="w-4 h-4" />
+                </button>
+              )}
+            </div>
+            <button
+              onClick={() => setModalAberto(true)}
+              className="px-6 py-3 bg-gradient-to-r from-blue-600 via-indigo-600 to-purple-600 text-white rounded-xl font-semibold hover:from-blue-700 hover:via-indigo-700 hover:to-purple-700 transition-all duration-300 shadow-lg hover:shadow-xl flex items-center gap-2 whitespace-nowrap"
+            >
+              <Plus className="w-5 h-5" />
+              Adicionar Produto
+            </button>
+          </div>
+
+          {/* Loading State */}
+          {loading && (
+            <div className="flex items-center justify-center py-12">
+              <div className="flex flex-col items-center gap-4">
+                <div className="w-12 h-12 border-4 border-blue-500 border-t-transparent rounded-full animate-spin" />
+                <p className="text-slate-600 dark:text-slate-400">Carregando produtos...</p>
+              </div>
+            </div>
+          )}
+
+          {/* Error State */}
+          {error && !loading && (
+            <div className="bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 rounded-xl p-4 mb-6">
+              <p className="text-red-800 dark:text-red-200 text-sm">{error}</p>
+              <button
+                onClick={fetchProdutos}
+                className="mt-2 text-red-600 dark:text-red-400 hover:text-red-700 dark:hover:text-red-300 text-sm font-medium underline"
+              >
+                Tentar novamente
+              </button>
+            </div>
+          )}
+
+          {/* Empty State */}
+          {!loading && !error && produtosFiltrados.length === 0 && (
+            <div className="bg-white dark:bg-slate-800 rounded-xl p-12 text-center border border-slate-200 dark:border-slate-700">
+              <div className="text-6xl mb-4">📦</div>
+              <h3 className="text-lg font-semibold text-slate-900 dark:text-white mb-2">
+                {produtos.length === 0 ? 'Nenhum produto ainda' : 'Nenhum produto encontrado'}
+              </h3>
+              <p className="text-slate-600 dark:text-slate-400 text-sm mb-4">
+                {produtos.length === 0
+                  ? 'Comece adicionando seu primeiro produto ou serviço.'
+                  : 'Tente ajustar o termo de busca.'}
+              </p>
+              {produtos.length === 0 && (
+                <button
+                  onClick={() => setModalAberto(true)}
+                  className="px-4 py-2 bg-blue-600 text-white rounded-lg font-medium hover:bg-blue-700 transition-colors text-sm"
+                >
+                  Adicionar Primeiro Produto
+                </button>
+              )}
+            </div>
+          )}
+
+          {/* Grid de Produtos */}
+          {!loading && !error && produtosFiltrados.length > 0 && (
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
+              {produtosFiltrados.map((produto) => {
+                const primeiraLetra = produto.nome.charAt(0).toUpperCase();
+
+                return (
+                  <div
+                    key={produto.id}
+                    className="group relative bg-white dark:bg-slate-800 rounded-xl p-5 border border-slate-200 dark:border-slate-700 shadow-sm hover:shadow-xl transition-all duration-300 hover:scale-[1.02]"
+                  >
+                    {/* Header do Card */}
+                    <div className="flex items-start gap-4 mb-4">
+                      {/* Avatar */}
+                      <div
+                        className={`${getAvatarColor(primeiraLetra)} w-14 h-14 rounded-full flex items-center justify-center text-white font-bold text-xl shadow-lg flex-shrink-0`}
+                      >
+                        {primeiraLetra}
+                      </div>
+
+                      {/* Nome */}
+                      <div className="flex-1 min-w-0">
+                        <h3 className="font-semibold text-slate-900 dark:text-white text-base truncate mb-1">
+                          {produto.nome}
+                        </h3>
+                        {produto.ativado && (
+                          <span
+                            className={`inline-block px-2 py-1 rounded-lg text-[10px] font-medium ${
+                              produto.ativado.toLowerCase() === 'sim'
+                                ? 'bg-green-100 dark:bg-green-900/30 text-green-700 dark:text-green-300'
+                                : 'bg-red-100 dark:bg-red-900/30 text-red-700 dark:text-red-300'
+                            }`}
+                          >
+                            {produto.ativado === 'sim' ? 'Ativado' : 'Desativado'}
+                          </span>
+                        )}
+                      </div>
+                    </div>
+
+                    {/* Descrição Breve */}
+                    {produto.descBreve && (
+                      <p className="text-sm text-slate-600 dark:text-slate-400 mb-3 line-clamp-2">
+                        {produto.descBreve}
+                      </p>
+                    )}
+
+                    {/* Informações */}
+                    <div className="space-y-2 mb-3">
+                      {produto.valor && (
+                        <div className="flex items-center gap-2 text-sm">
+                          <span className="font-medium text-slate-700 dark:text-slate-300">
+                            Valor:
+                          </span>
+                          <span className="text-slate-600 dark:text-slate-400">{produto.valor}</span>
+                        </div>
+                      )}
+                      {produto.duracao && (
+                        <div className="flex items-center gap-2 text-sm">
+                          <span className="font-medium text-slate-700 dark:text-slate-300">
+                            Duração:
+                          </span>
+                          <span className="text-slate-600 dark:text-slate-400">{produto.duracao}</span>
+                        </div>
+                      )}
+                    </div>
+
+                    {/* Botões de ação no hover */}
+                    <div className="absolute bottom-0 left-0 right-0 p-4 bg-gradient-to-t from-white/95 dark:from-slate-800/95 to-transparent rounded-b-xl opacity-0 group-hover:opacity-100 transition-opacity duration-200 flex items-center justify-center gap-3">
+                      <button
+                        onClick={() => handleEditar(produto)}
+                        className="p-2.5 rounded-lg bg-blue-500 hover:bg-blue-600 text-white transition-colors shadow-lg hover:shadow-xl"
+                        aria-label="Editar produto"
+                      >
+                        <Edit className="w-5 h-5" />
+                      </button>
+                      <button
+                        onClick={() => handleExcluir(produto)}
+                        className="p-2.5 rounded-lg bg-red-500 hover:bg-red-600 text-white transition-colors shadow-lg hover:shadow-xl"
+                        aria-label="Excluir produto"
+                      >
+                        <Trash2 className="w-5 h-5" />
+                      </button>
+                    </div>
+
+                    {/* Efeito hover sutil */}
+                    <div className="absolute inset-0 rounded-xl bg-gradient-to-r from-transparent via-white/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-200 pointer-events-none" />
+                  </div>
+                );
+              })}
+            </div>
+          )}
+        </div>
+      </main>
+
+      {/* Modal Criar Produto */}
+      <CriarProdutoModal
+        isOpen={modalAberto}
+        onClose={() => setModalAberto(false)}
+        onSuccess={() => {
+          fetchProdutos();
+        }}
+      />
+
+      {/* Modal Editar Produto */}
+      <EditarProdutoModal
+        isOpen={produtoEditando !== null}
+        onClose={() => setProdutoEditando(null)}
+        onSuccess={() => {
+          fetchProdutos();
+        }}
+        produto={produtoEditando}
+      />
+
+      {/* Modal Confirmar Exclusão */}
+      <ConfirmarExclusaoModal
+        isOpen={produtoExcluindo !== null}
+        onClose={() => setProdutoExcluindo(null)}
+        onConfirm={handleConfirmarExclusao}
+        nomeProduto={produtoExcluindo?.nome || ''}
+        excluindo={excluindo}
+      />
+    </div>
+  );
+}
+

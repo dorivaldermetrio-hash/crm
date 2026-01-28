@@ -1,0 +1,320 @@
+/* Estilos customizados para FullCalendar - Tema Escuro */
+.fc {
+  font-family: inherit;
+  direction: ltr;
+  text-align: left;
+  color: rgb(241, 245, 249);
+  background: rgb(30, 41, 59);
+}
+
+.fc-theme-standard td,
+.fc-theme-standard th {
+  border: 1px solid rgb(51, 65, 85);
+}
+
+.fc-theme-standard .fc-scrollgrid {
+  border: 1px solid rgb(51, 65, 85);
+  background: rgb(30, 41, 59);
+}
+
+.fc-scrollgrid {
+  border-collapse: collapse;
+  border-spacing: 0;
+  width: 100%;
+  height: 100%;
+}
+
+.fc-scrollgrid-sync-table {
+  width: 100%;
+  min-height: 100%;
+}
+
+.fc-col-header-cell {
+  padding: 0.5rem;
+  text-align: center;
+  background: rgb(30, 41, 59);
+  border-color: rgb(51, 65, 85);
+}
+
+.fc-daygrid-day-frame {
+  min-height: 100px;
+  background: rgb(30, 41, 59);
+}
+
+.fc-daygrid-day {
+  position: relative;
+  background: rgb(30, 41, 59);
+  border-color: rgb(51, 65, 85);
+}
+
+.fc-daygrid-day-number {
+  padding: 0.5rem;
+  font-weight: 500;
+  color: rgb(203, 213, 225);
+}
+
+.fc-event {
+  border: none;
+  padding: 0.25rem 0.5rem;
+  border-radius: 0.375rem;
+  cursor: pointer;
+  color: white;
+  /* A cor de fundo será definida pela propriedade color do evento */
+}
+
+.fc-button {
+  padding: 0.5rem 1rem;
+  border-radius: 0.5rem;
+  font-weight: 500;
+  cursor: pointer;
+  border: 1px solid rgb(71, 85, 105);
+  background: rgb(51, 65, 85);
+  color: rgb(241, 245, 249);
+}
+
+.fc-button-group {
+  display: inline-flex;
+  vertical-align: middle;
+}
+
+.fc-button-group > .fc-button {
+  margin: 0 0 0 -1px;
+}
+
+.fc-button-group > .fc-button:first-child {
+  margin-left: 0;
+  border-top-left-radius: 0.5rem;
+  border-bottom-left-radius: 0.5rem;
+}
+
+.fc-button-group > .fc-button:last-child {
+  border-top-right-radius: 0.5rem;
+  border-bottom-right-radius: 0.5rem;
+}
+
+.fc-toolbar {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+}
+
+.fc-toolbar-title {
+  font-size: 1.5rem;
+  font-weight: 700;
+  margin: 0 0.5rem;
+}
+
+.fc-timegrid-slot {
+  height: 2.5rem;
+  border-bottom: 1px solid rgb(51, 65, 85);
+}
+
+.fc-timegrid-axis {
+  padding: 0 0.5rem;
+  text-align: right;
+  color: rgb(148, 163, 184);
+  background: rgb(30, 41, 59);
+}
+
+.fc-timegrid-col {
+  position: relative;
+  background: rgb(30, 41, 59);
+}
+
+.fc-timegrid-event {
+  position: absolute;
+  z-index: 3;
+  border-radius: 0.375rem;
+  padding: 0.25rem 0.5rem;
+  color: white;
+  border: none;
+  /* A cor de fundo será definida pela propriedade backgroundColor do evento */
+}
+
+.fc-header-toolbar {
+  margin-bottom: 1.5rem;
+  padding: 0.5rem;
+  border-radius: 0.75rem;
+  background: rgb(30, 41, 59);
+  border: 1px solid rgb(51, 65, 85);
+}
+
+.fc-toolbar-title {
+  font-size: 1.5rem;
+  font-weight: 700;
+  color: rgb(241, 245, 249);
+}
+
+.fc-button {
+  background: rgb(51, 65, 85) !important;
+  border: 1px solid rgb(71, 85, 105) !important;
+  color: rgb(241, 245, 249) !important;
+  padding: 0.5rem 1rem;
+  border-radius: 0.5rem;
+  font-weight: 500;
+  transition: all 0.2s;
+}
+
+.fc-button:hover {
+  background: rgb(71, 85, 105) !important;
+  transform: translateY(-1px);
+  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.3);
+}
+
+.fc-button:active {
+  transform: translateY(0);
+}
+
+.fc-button-primary:not(:disabled):active,
+.fc-button-primary:not(:disabled).fc-button-active {
+  background: linear-gradient(to right, rgb(59, 130, 246), rgb(37, 99, 235)) !important;
+  border-color: rgb(59, 130, 246) !important;
+  color: white !important;
+}
+
+.fc-button:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.fc-daygrid-day {
+  background: rgb(30, 41, 59) !important;
+  border-color: rgb(51, 65, 85) !important;
+}
+
+.fc-daygrid-day-top {
+  color: rgb(203, 213, 225);
+}
+
+.fc-col-header-cell {
+  background: rgb(30, 41, 59) !important;
+  border-color: rgb(51, 65, 85) !important;
+  padding: 0.75rem 0.5rem;
+}
+
+.fc-col-header-cell-cushion {
+  color: rgb(203, 213, 225) !important;
+  font-weight: 600;
+  font-size: 0.875rem;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+.fc-daygrid-day-number {
+  color: rgb(203, 213, 225) !important;
+  padding: 0.5rem;
+  font-weight: 500;
+}
+
+.fc-day-today {
+  background: rgba(59, 130, 246, 0.15) !important;
+}
+
+.fc-day-today .fc-daygrid-day-number {
+  color: rgb(96, 165, 250) !important;
+  font-weight: 700;
+}
+
+.fc-event {
+  border-radius: 0.375rem;
+  padding: 0.25rem 0.5rem;
+  border: none;
+  cursor: pointer;
+  transition: all 0.2s;
+  /* Não define background aqui - será definido pela propriedade color/backgroundColor do evento */
+}
+
+.fc-event .fc-event-title {
+  color: white !important;
+}
+
+.fc-event:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.3);
+  opacity: 0.9;
+}
+
+.fc-event-title {
+  font-weight: 500;
+  font-size: 0.875rem;
+  color: white !important;
+}
+
+.fc-daygrid-event {
+  margin: 0.125rem 0.25rem;
+}
+
+.fc-daygrid-more-link {
+  color: rgb(148, 163, 184) !important;
+  font-size: 0.75rem;
+  font-weight: 500;
+}
+
+.fc-daygrid-more-link:hover {
+  color: rgb(203, 213, 225) !important;
+}
+
+.fc-scrollgrid {
+  border-color: rgb(51, 65, 85) !important;
+  background: rgb(30, 41, 59);
+}
+
+.fc-scrollgrid-section-header > td {
+  border-color: rgb(51, 65, 85) !important;
+  background: rgb(30, 41, 59);
+}
+
+.fc-timegrid-slot {
+  border-color: rgb(51, 65, 85) !important;
+}
+
+.fc-timegrid-axis {
+  color: rgb(148, 163, 184) !important;
+  background: rgb(30, 41, 59);
+}
+
+.fc-timegrid-col {
+  background: rgb(30, 41, 59) !important;
+}
+
+.fc-timegrid-event {
+  border-radius: 0.375rem;
+  border: none;
+  padding: 0.25rem 0.5rem;
+  color: white !important;
+  /* A cor de fundo será definida pela propriedade color do evento */
+}
+
+.fc-timegrid-event-title {
+  font-weight: 500;
+  font-size: 0.875rem;
+  color: white !important;
+}
+
+.fc-daygrid-day-frame {
+  background: rgb(30, 41, 59);
+}
+
+.fc-scrollgrid-sync-table {
+  background: rgb(30, 41, 59);
+}
+
+/* Responsividade */
+@media (max-width: 768px) {
+  .fc-header-toolbar {
+    flex-direction: column;
+    gap: 0.5rem;
+  }
+
+  .fc-toolbar-title {
+    font-size: 1.25rem;
+  }
+
+  .fc-button {
+    padding: 0.375rem 0.75rem;
+    font-size: 0.875rem;
+  }
+}
+

@@ -1,0 +1,96 @@
+/**
+ * Geração de prompt de resposta para status "Proposta"
+ */
+
+import { getFormattedHistory } from '../generatePrompt';
+import { getProductByName } from '../getProductByName';
+import connectDB from '@/lib/db';
+import Contato from '@/lib/models/Contato';
+
+/**
+ * Gera o prompt de resposta para contatos com status "Proposta"
+ * @param contatoId - ID do contato
+ * @param mensagemRecebida - Mensagem atual do cliente
+ * @returns Prompt formatado para envio ao Ollama
+ */
+export async function generatePromptProposta(
+  contatoId: string,
+  mensagemRecebida: string
+): Promise<string> {
+  try {
+    // 1. Busca histórico formatado (mais antigas primeiro)
+    const historicoFormatado = await getFormattedHistory(contatoId, 10, true);
+
+    // 2. Verifica se tem histórico
+    const temHistorico =
+      historicoFormatado &&
+      historicoFormatado !== 'Nenhuma mensagem anterior.' &&
+      historicoFormatado !== 'Erro ao buscar histórico de mensagens.';
+
+    // 3. Conta quantas mensagens existem no histórico
+    const quantidadeMensagens = temHistorico
+      ? historicoFormatado.split('\n').filter((line) => line.trim() !== '').length
+      : 0;
+
+    // 4. Busca informações do produto de interesse do cliente
+    await connectDB();
+    const contato = await Contato.findById(contatoId).lean();
+    let informacoesProduto = '';
+
+    if (contato) {
+      const produtoInteresse = (contato as any).produtoInteresse;
+      if (produtoInteresse && produtoInteresse.trim() !== '' && produtoInteresse.trim() !== 'DESCONHECIDO') {
+        const produto = await getProductByName(produtoInteresse.trim());
+        
+        if (produto) {
+          informacoesProduto = `Nome: ${produto.nome}\n`;
+          if (produto.descBreve) {
+            informacoesProduto += `Descrição breve: ${produto.descBreve}\n`;
+          }
+          if (produto.descCompleta) {
+            informacoesProduto += `Descrição completa: ${produto.descCompleta}\n`;
+          }
+          if (produto.valor) {
+            informacoesProduto += `Valor: ${produto.valor}\n`;
+          }
+          if (produto.duracao) {
+            informacoesProduto += `Duração: ${produto.duracao}\n`;
+          }
+        }
+      }
+    }
+
+    // 5. Monta o prompt completo
+    let prompt = `status: Proposta\n\n`;
+    prompt += `quantidade de mensagens: ${quantidadeMensagens + 1}\n\n`;
+    prompt += `Nesse momento, você deve apresentar o produto ou serviço para o cliente. Informando seu valor/preço ou média de custo que esse produto costuma ter.\n\n`;
+    prompt += `REGRAS\n`;
+    prompt += `Você deve apresentar o produto de forma breve, e que se encaixe no contexto da conversa. Você também pode responder dúvidas sobre o produto, respondendo sempre com as informações fornecidas abaixo.\n\n`;
+
+    if (informacoesProduto) {
+      prompt += `Produto de interesse do cliente\n\n`;
+      prompt += `[informações do produto]\n`;
+      prompt += `${informacoesProduto}\n\n`;
+    }
+
+    if (temHistorico) {
+      prompt += `Primeiro avalie o histórico da conversa (mais antiga primeiro)\n\n`;
+      prompt += `[historico mensagens]\n`;
+      prompt += `${historicoFormatado}\n\n`;
+    }
+
+    prompt += `Agora avalie a ultima mensagem enviada para você pelo cliente:\n\n`;
+    prompt += `[ultima mensagem]\n`;
+    prompt += `"${mensagemRecebida.trim()}"\n\n`;
+
+    prompt += `Responda a ultima mensagem contextualizada com o historico de mensagens. O objetivo é que sua resposta de sequência a conversa.\n\n`;
+    prompt += `RESPOSTA OBRIGATÓRIA EM JSON (apenas o objeto, sem markdown, sem texto extra):\n`;
+    prompt += `{\n  "resposta": "sua_resposta_aqui"\n}`;
+
+    return prompt.trim();
+  } catch (error) {
+    console.error('❌ Erro ao gerar prompt Proposta:', error);
+    throw error;
+  }
+}
+
