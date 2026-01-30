@@ -1054,12 +1054,25 @@ export async function POST(request: NextRequest) {
 
             // 4.4. Atualiza a propriedade do contato usando gerenciadorDeConversa
             if (verificacao.propriedadeParaAtualizar) {
-              await gerenciadorDeConversa(
-                contatoId,
-                verificacao.propriedadeParaAtualizar,
-                false
-              );
-              console.log(`✅ Propriedade ${verificacao.propriedadeParaAtualizar} atualizada para true`);
+              // Verifica se a propriedade é suportada pelo gerenciadorDeConversa
+              const propriedadesSuportadas: Array<'saudacao' | 'pedidoResumo' | 'confirmacaoResumo' | 'urgenciaDefinida'> = 
+                ['saudacao', 'pedidoResumo', 'confirmacaoResumo', 'urgenciaDefinida'];
+              
+              if (propriedadesSuportadas.includes(verificacao.propriedadeParaAtualizar as any)) {
+                await gerenciadorDeConversa(
+                  contatoId,
+                  verificacao.propriedadeParaAtualizar as 'saudacao' | 'pedidoResumo' | 'confirmacaoResumo' | 'urgenciaDefinida',
+                  false
+                );
+                console.log(`✅ Propriedade ${verificacao.propriedadeParaAtualizar} atualizada para true`);
+              } else {
+                // Para propriedades não suportadas (como 'selecionandoData'), usa setContactProperty diretamente
+                const ContatoModel = (await import('@/lib/models/Contato')).default;
+                await ContatoModel.findByIdAndUpdate(contatoId, {
+                  $set: { [verificacao.propriedadeParaAtualizar]: true },
+                });
+                console.log(`✅ Propriedade ${verificacao.propriedadeParaAtualizar} atualizada para true (direto no banco)`);
+              }
             }
           }
           } catch (error) {
