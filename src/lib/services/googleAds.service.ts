@@ -1,4 +1,4 @@
-import { GoogleAdsApi, CustomerInstance, enums } from 'google-ads-api';
+import { GoogleAdsApi, enums } from 'google-ads-api';
 import connectDB from '@/lib/db';
 import GoogleAdsAccount from '@/lib/models/GoogleAdsAccount';
 
@@ -104,7 +104,7 @@ async function getRefreshTokenFromDB(userId: string, customerId: string): Promis
  * @param customerId - ID da conta do Google Ads (formato: 1234567890, sem hífens)
  * @returns Instância do Customer configurada
  */
-export async function getCustomer(userId: string, customerId: string): Promise<CustomerInstance> {
+export async function getCustomer(userId: string, customerId: string) {
   // Valida parâmetros
   if (!userId || userId.trim() === '') {
     throw new Error('userId é obrigatório');
