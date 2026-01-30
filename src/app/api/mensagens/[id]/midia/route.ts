@@ -72,7 +72,9 @@ export async function GET(
     console.log(`   Primeiros bytes: ${Array.from(firstBytes).map(b => '0x' + b.toString(16).padStart(2, '0')).join(' ')}`);
 
     // Retorna o arquivo com headers apropriados
-    return new NextResponse(fileData.buffer, {
+    // Converte Buffer para Uint8Array para compatibilidade com NextResponse
+    const uint8Array = new Uint8Array(fileData.buffer);
+    return new NextResponse(uint8Array, {
       status: 200,
       headers: {
         'Content-Type': fileData.contentType,
