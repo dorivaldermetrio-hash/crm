@@ -58,7 +58,12 @@ export async function POST(request: NextRequest) {
     const emailSubject = subject || 'Campanha de Email';
 
     // Envia emails em lote
-    const results = [];
+    const results: Array<{
+      email: string;
+      success: boolean;
+      messageId?: string;
+      error?: string;
+    }> = [];
     
     for (const email of emails) {
       try {
