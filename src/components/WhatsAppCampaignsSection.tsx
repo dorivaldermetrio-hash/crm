@@ -51,7 +51,8 @@ function ContatoCampaignCard({ contato, isSelected, onToggle }: ContatoCampaignC
 
   const getTagColor = () => {
     if (!contato.tags || contato.tags.length === 0) return null;
-    const tagPriority = ['Urgente', 'Importante', 'Seguimento', 'Cliente', 'Prospecto'];
+    const tagPriority: Array<'Urgente' | 'Importante' | 'Seguimento' | 'Cliente' | 'Prospecto'> = 
+      ['Urgente', 'Importante', 'Seguimento', 'Cliente', 'Prospecto'];
     
     for (const priorityTag of tagPriority) {
       if (contato.tags?.includes(priorityTag)) {
