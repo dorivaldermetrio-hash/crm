@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { connectDB } from '@/lib/db';
+import connectDB from '@/lib/db';
 import PushSubscription from '@/lib/models/PushSubscription';
 
 export async function POST(request: NextRequest) {
