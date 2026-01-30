@@ -195,7 +195,7 @@ export function extractDataInstagram(body: InstagramWebhookBody): ExtractedDataI
 
             if (message.attachments && message.attachments.length > 0) {
               const attachment = message.attachments[0];
-              mediaUrl = attachment.payload?.url || attachment.image_url || attachment.video_url;
+              mediaUrl = attachment.payload?.url;
               mediaId = mediaUrl;
               tipo = attachment.type === 'image' ? 'imagem' : attachment.type === 'video' ? 'video' : 'documento';
               mensagem = mensagem || `[${tipo}]`;
