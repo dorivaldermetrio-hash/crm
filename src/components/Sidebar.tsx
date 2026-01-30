@@ -16,7 +16,8 @@ import {
   HiOutlineEnvelope,
   HiOutlineChatBubbleLeft,
   HiOutlineCalendarDays,
-  HiOutlineCurrencyDollar
+  HiOutlineCurrencyDollar,
+  HiOutlineArrowDownTray
 } from 'react-icons/hi2';
 import { RiRobotLine, RiInstagramLine } from 'react-icons/ri';
 import { IconType } from 'react-icons';
@@ -43,6 +44,7 @@ const menuItems: MenuItem[] = [
   { id: 'comentarios', label: 'Comentários', icon: HiOutlineChatBubbleLeft, href: '/comentarios' },
   { id: 'relatorios', label: 'Relatórios', icon: HiOutlineDocumentChartBar, href: '/relatorios' },
   { id: 'configuracoes', label: 'Configurações', icon: HiOutlineCog6Tooth, href: '/configuracoes' },
+  { id: 'download-app', label: 'Download App', icon: HiOutlineArrowDownTray, href: '/download-app' },
 ];
 
 export default function Sidebar() {

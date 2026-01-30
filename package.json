@@ -3,7 +3,7 @@
   "version": "0.1.0",
   "private": true,
   "scripts": {
-    "dev": "next dev",
+    "dev": "next dev --webpack",
     "build": "next build",
     "start": "next start",
     "ngrok": "node scripts/ngrok-setup.js",
@@ -39,6 +39,7 @@
     "@types/react-dom": "^19",
     "@types/react-slick": "^0.23.13",
     "babel-plugin-react-compiler": "1.0.0",
+    "next-pwa": "^5.6.0",
     "tailwindcss": "^4",
     "typescript": "^5"
   },
