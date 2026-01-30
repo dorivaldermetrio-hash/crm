@@ -79,7 +79,8 @@ export default function ContatoCard({
     if (!tags || tags.length === 0) return null;
 
     // Prioridade de cores (primeira tag encontrada nesta ordem)
-    const tagPriority = ['Urgente', 'Importante', 'Seguimento', 'Cliente', 'Prospecto'];
+    const tagPriority: Array<'Urgente' | 'Importante' | 'Seguimento' | 'Cliente' | 'Prospecto'> = 
+      ['Urgente', 'Importante', 'Seguimento', 'Cliente', 'Prospecto'];
     
     for (const priorityTag of tagPriority) {
       if (tags.includes(priorityTag)) {
