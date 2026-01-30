@@ -71,9 +71,9 @@ export async function transcribeAudio(midiaId: string): Promise<string | null> {
     const formData = new FormData();
     const filename = `audio.${fileExtension}`;
     
-    // No Node.js 18+, FormData aceita Buffer diretamente quando usado com File ou Blob
-    // Vamos usar Blob que está disponível globalmente no Node.js 18+
-    const blob = new Blob([fileData.buffer], { type: contentType });
+    // Converte Buffer para Uint8Array para compatibilidade com Blob
+    const uint8Array = new Uint8Array(fileData.buffer);
+    const blob = new Blob([uint8Array], { type: contentType });
     formData.append('file', blob, filename);
     formData.append('model', OPENAI_TRANSCRIBE_MODEL);
     formData.append('language', 'pt'); // Português
