@@ -18,6 +18,7 @@ import { sendWhatsAppMessage } from '@/lib/utils/sendWhatsAppMessage';
 import { saveSystemMessage } from '@/lib/utils/saveSystemMessage';
 import { emitEvent } from '@/app/api/events/route';
 import { scheduleAIProcessing } from '@/lib/utils/messageDebouncer';
+import { sendMessageNotification } from '@/lib/push/sendNotification';
 
 // Token de verificação do webhook (configure no Meta Developers)
 // Em produção, use variável de ambiente
@@ -76,6 +77,26 @@ export async function POST(request: NextRequest) {
           tipo: extractedData.tipo,
         },
       });
+
+      // Envia notificação push quando recebe mensagem do WhatsApp
+      // Só envia para mensagens de texto ou áudio (com texto na notificação)
+      if (extractedData.tipo === 'texto' || extractedData.tipo === 'audio') {
+        try {
+          const contatoNome = extractedData.contatoNome || extractedData.wa_id || 'Contato';
+          const mensagemTexto = extractedData.tipo === 'audio' 
+            ? 'Nova mensagem de áudio' 
+            : extractedData.mensagem || 'Nova mensagem';
+          
+          await sendMessageNotification(
+            contatoNome,
+            mensagemTexto,
+            result.contatoId
+          );
+        } catch (error) {
+          // Não interrompe o fluxo se houver erro na notificação
+          console.error('Erro ao enviar notificação push:', error);
+        }
+      }
     }
 
     // Agenda processamento de IA para mensagens de texto ou áudio (com transcrição)

@@ -5,6 +5,7 @@ import Sidebar from '@/components/Sidebar';
 import { useSidebar } from '@/contexts/SidebarContext';
 import { HiOutlineArrowDownTray, HiOutlineDevicePhoneMobile, HiOutlineCheckCircle } from 'react-icons/hi2';
 import { X } from 'lucide-react';
+import NotificationPermission from '@/components/NotificationPermission';
 
 interface BeforeInstallPromptEvent extends Event {
   prompt: () => Promise<void>;
@@ -207,6 +208,9 @@ export default function DownloadAppPage() {
               </div>
             </div>
           )}
+
+          {/* Ativar Notificações */}
+          <NotificationPermission />
 
           {/* Informações Adicionais */}
           <div className="bg-white dark:bg-slate-800 rounded-xl p-6 border border-slate-200 dark:border-slate-700 shadow-sm">
