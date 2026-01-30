@@ -86,10 +86,11 @@ export async function POST(request: NextRequest) {
         await new Promise(resolve => setTimeout(resolve, 2000));
       }
 
+      const contatoId = result.contatoId; // Garante que contatoId é string
       // Agenda o processamento da IA com debounce de 10 segundos
       // Isso evita múltiplas respostas quando o cliente envia várias mensagens rapidamente
       scheduleAIProcessing(
-        result.contatoId,
+        contatoId,
         'whatsapp',
         async () => {
           try {
@@ -101,7 +102,7 @@ export async function POST(request: NextRequest) {
             if (extractedData.tipo === 'audio') {
               // Busca a mensagem de áudio recém-criada para pegar a transcrição
               const MensagemModel = (await import('@/lib/models/Mensagem')).default;
-              const mensagemDoc = await MensagemModel.findOne({ contatoID: result.contatoId }).lean();
+              const mensagemDoc = await MensagemModel.findOne({ contatoID: contatoId }).lean();
               
               if (mensagemDoc && mensagemDoc.mensagens) {
                 // Encontra a última mensagem de áudio (a que acabou de ser recebida)
@@ -117,7 +118,7 @@ export async function POST(request: NextRequest) {
                   // Aguarda mais um pouco e tenta novamente
                   await new Promise(resolve => setTimeout(resolve, 3000));
                   
-                  const mensagemDocRetry = await MensagemModel.findOne({ contatoID: result.contatoId }).lean();
+                  const mensagemDocRetry = await MensagemModel.findOne({ contatoID: contatoId }).lean();
                   if (mensagemDocRetry && mensagemDocRetry.mensagens) {
                     const ultimaMensagemAudioRetry = mensagemDocRetry.mensagens
                       .filter((msg: any) => msg.tipo === 'audio' && msg.mensagemWhatsAppId === extractedData.messageId)
@@ -142,7 +143,7 @@ export async function POST(request: NextRequest) {
             }
 
           // 1. Verifica o estado da conversa e decide qual prompt executar
-          const verificacao = await verificadorDeConversa(result.contatoId, false);
+          const verificacao = await verificadorDeConversa(contatoId, false);
 
           if (!verificacao) {
             console.log('⚠️ Nenhum prompt a ser executado para este contato no momento.');
@@ -162,13 +163,13 @@ export async function POST(request: NextRequest) {
             // 3. Processa as variáveis de atendimento no prompt
             // Busca a última mensagem do contato para usar no prompt (ao invés de extractedData.mensagem que pode estar desatualizado)
             const ContatoModel = (await import('@/lib/models/Contato')).default;
-            const contatoAtualizado = await ContatoModel.findById(result.contatoId).lean();
+            const contatoAtualizado = await ContatoModel.findById(contatoId).lean();
             // Para áudio, usa a transcrição; para texto, usa a mensagem normal
             const ultimaMensagemTexto = mensagemParaIA || contatoAtualizado?.ultimaMensagem || extractedData.mensagem;
             
             const promptProcessado = await processPromptVariables(
               promptDoc.prompt,
-              result.contatoId,
+              contatoId,
               ultimaMensagemTexto
             );
 
@@ -191,7 +192,7 @@ export async function POST(request: NextRequest) {
 
             const promptValidacaoAgendamentoProcessado = await processPromptVariables(
               promptValidacaoAgendamento.prompt,
-              result.contatoId,
+              contatoId,
               mensagemParaIA
             );
 
@@ -244,7 +245,7 @@ export async function POST(request: NextRequest) {
               // primeiroHorario.horario está no formato HH:MM
 
               // 4.3. Busca contato para obter nomeCompleto e resumoCaso
-              const contato = await (await import('@/lib/models/Contato')).default.findById(result.contatoId).lean();
+              const contato = await (await import('@/lib/models/Contato')).default.findById(contatoId).lean();
               if (!contato) {
                 console.error('❌ Contato não encontrado');
                 return;
@@ -284,7 +285,7 @@ export async function POST(request: NextRequest) {
 
               const promptAgendamentoAceitoProcessado = await processPromptVariables(
                 promptAgendamentoAceito.prompt,
-                result.contatoId,
+                contatoId,
                 mensagemParaIA
               );
 
@@ -303,12 +304,12 @@ export async function POST(request: NextRequest) {
                 return;
               }
 
-              await saveSystemMessage(result.contatoId, mensagemAgendamentoAceito, whatsappResult.messageId, false);
+              await saveSystemMessage(contatoId, mensagemAgendamentoAceito, whatsappResult.messageId, false);
               
               // Emite evento SSE para atualizar frontend após resposta da IA
               emitEvent({
                 type: 'mensagem_enviada',
-                contatoId: result.contatoId,
+                contatoId: contatoId,
                 contato: (contato as any).contato,
                 data: {
                   mensagem: mensagemAgendamentoAceito,
@@ -316,7 +317,7 @@ export async function POST(request: NextRequest) {
               });
               
               // 4.6. Altera confirmaAgendamento para true
-              await setContactProperty(result.contatoId, 'confirmaAgendamento', true, false);
+              await setContactProperty(contatoId, 'confirmaAgendamento', true, false);
               console.log('✅ confirmaAgendamento atualizado para true');
             } else {
               // Agendamento não aceito: executa Agendamento Não Aceito
@@ -325,7 +326,7 @@ export async function POST(request: NextRequest) {
               // Adiciona tag 'Importante' ao contato antes de executar o prompt
               const ContatoModel = (await import('@/lib/models/Contato')).default;
               await ContatoModel.findByIdAndUpdate(
-                result.contatoId,
+                contatoId,
                 { $addToSet: { tags: 'Importante' } },
                 { new: true }
               );
@@ -339,7 +340,7 @@ export async function POST(request: NextRequest) {
 
               const promptAgendamentoNaoAceitoProcessado = await processPromptVariables(
                 promptAgendamentoNaoAceito.prompt,
-                result.contatoId,
+                contatoId,
                 mensagemParaIA
               );
 
@@ -352,7 +353,7 @@ export async function POST(request: NextRequest) {
               console.log(mensagemAgendamentoNaoAceito);
               console.log('========================================\n');
 
-              const contato = await (await import('@/lib/models/Contato')).default.findById(result.contatoId).lean();
+              const contato = await (await import('@/lib/models/Contato')).default.findById(contatoId).lean();
               if (!contato) {
                 console.error('❌ Contato não encontrado');
                 return;
@@ -364,12 +365,12 @@ export async function POST(request: NextRequest) {
                 return;
               }
 
-              await saveSystemMessage(result.contatoId, mensagemAgendamentoNaoAceito, whatsappResult.messageId, false);
+              await saveSystemMessage(contatoId, mensagemAgendamentoNaoAceito, whatsappResult.messageId, false);
               
               // Emite evento SSE para atualizar frontend após resposta da IA
               emitEvent({
                 type: 'mensagem_enviada',
-                contatoId: result.contatoId,
+                contatoId: contatoId,
                 contato: (contato as any).contato,
                 data: {
                   mensagem: mensagemAgendamentoNaoAceito,
@@ -377,7 +378,7 @@ export async function POST(request: NextRequest) {
               });
               
               // Altera confirmaAgendamento para true
-              await setContactProperty(result.contatoId, 'confirmaAgendamento', true, false);
+              await setContactProperty(contatoId, 'confirmaAgendamento', true, false);
               console.log('✅ confirmaAgendamento atualizado para true');
             }
           } else if (verificacao.precisaValidacaoNome && verificacao.promptNome === 'Validação de Nome') {
@@ -392,7 +393,7 @@ export async function POST(request: NextRequest) {
 
             const promptValidacaoNomeProcessado = await processPromptVariables(
               promptValidacaoNome.prompt,
-              result.contatoId,
+              contatoId,
               mensagemParaIA
             );
 
@@ -441,7 +442,7 @@ export async function POST(request: NextRequest) {
 
               const promptSolicitacaoNomeProcessado = await processPromptVariables(
                 promptSolicitacaoNome.prompt,
-                result.contatoId,
+                contatoId,
                 mensagemParaIA
               );
 
@@ -454,7 +455,7 @@ export async function POST(request: NextRequest) {
               console.log(mensagemSolicitacaoNome);
               console.log('========================================\n');
 
-              const contato = await (await import('@/lib/models/Contato')).default.findById(result.contatoId);
+              const contato = await (await import('@/lib/models/Contato')).default.findById(contatoId);
               if (!contato) {
                 console.error('❌ Contato não encontrado');
                 return;
@@ -466,12 +467,12 @@ export async function POST(request: NextRequest) {
                 return;
               }
 
-              await saveSystemMessage(result.contatoId, mensagemSolicitacaoNome, whatsappResult.messageId, false);
+              await saveSystemMessage(contatoId, mensagemSolicitacaoNome, whatsappResult.messageId, false);
               
               // Emite evento SSE para atualizar frontend após resposta da IA
               emitEvent({
                 type: 'mensagem_enviada',
-                contatoId: result.contatoId,
+                contatoId: contatoId,
                 contato: contato.contato,
                 data: {
                   mensagem: mensagemSolicitacaoNome,
@@ -485,7 +486,7 @@ export async function POST(request: NextRequest) {
 
               const nomeCompleto = respostaValidacaoNome.nomeCompleto || '';
               if (nomeCompleto.trim()) {
-                await updateNomeCompleto(result.contatoId, nomeCompleto, false);
+                await updateNomeCompleto(contatoId, nomeCompleto, false);
                 await new Promise(resolve => setTimeout(resolve, 200));
                 console.log(`✅ nomeCompleto armazenado: "${nomeCompleto.trim()}"`);
               }
@@ -499,7 +500,7 @@ export async function POST(request: NextRequest) {
 
               const promptOferecendoAgendamentoProcessado = await processPromptVariables(
                 promptOferecendoAgendamento.prompt,
-                result.contatoId,
+                contatoId,
                 mensagemParaIA
               );
 
@@ -512,7 +513,7 @@ export async function POST(request: NextRequest) {
               console.log(mensagemOferecendoAgendamento);
               console.log('========================================\n');
 
-              const contato = await (await import('@/lib/models/Contato')).default.findById(result.contatoId);
+              const contato = await (await import('@/lib/models/Contato')).default.findById(contatoId);
               if (!contato) {
                 console.error('❌ Contato não encontrado');
                 return;
@@ -524,12 +525,12 @@ export async function POST(request: NextRequest) {
                 return;
               }
 
-              await saveSystemMessage(result.contatoId, mensagemOferecendoAgendamento, whatsappResult.messageId, false);
+              await saveSystemMessage(contatoId, mensagemOferecendoAgendamento, whatsappResult.messageId, false);
               
               // Emite evento SSE para atualizar frontend após resposta da IA
               emitEvent({
                 type: 'mensagem_enviada',
-                contatoId: result.contatoId,
+                contatoId: contatoId,
                 contato: contato.contato,
                 data: {
                   mensagem: mensagemOferecendoAgendamento,
@@ -537,7 +538,7 @@ export async function POST(request: NextRequest) {
               });
               
               // 4.3. Altera propostaAgendamento para true
-              await setContactProperty(result.contatoId, 'propostaAgendamento', true, false);
+              await setContactProperty(contatoId, 'propostaAgendamento', true, false);
               console.log('✅ propostaAgendamento atualizado para true');
             }
           } else if (verificacao.precisaValidacaoUrgenciaFinal && verificacao.promptNome === 'Validação de Urgência') {
@@ -552,7 +553,7 @@ export async function POST(request: NextRequest) {
 
             const promptValidacaoUrgenciaProcessado = await processPromptVariables(
               promptValidacaoUrgencia.prompt,
-              result.contatoId,
+              contatoId,
               mensagemParaIA
             );
 
@@ -579,7 +580,7 @@ export async function POST(request: NextRequest) {
 
             const promptEncaminhadoProcessado = await processPromptVariables(
               promptEncaminhado.prompt,
-              result.contatoId,
+              contatoId,
               mensagemParaIA
             );
 
@@ -593,7 +594,7 @@ export async function POST(request: NextRequest) {
             console.log('========================================\n');
 
             // 4.3. Envia mensagem para o WhatsApp
-            const contato = await (await import('@/lib/models/Contato')).default.findById(result.contatoId);
+            const contato = await (await import('@/lib/models/Contato')).default.findById(contatoId);
             if (!contato) {
               console.error('❌ Contato não encontrado');
               return;
@@ -605,12 +606,12 @@ export async function POST(request: NextRequest) {
               return;
             }
 
-            await saveSystemMessage(result.contatoId, mensagemEncaminhado, whatsappResult.messageId, false);
+            await saveSystemMessage(contatoId, mensagemEncaminhado, whatsappResult.messageId, false);
             
             // Emite evento SSE para atualizar frontend após resposta da IA
             emitEvent({
               type: 'mensagem_enviada',
-              contatoId: result.contatoId,
+              contatoId: contatoId,
               contato: contato.contato,
               data: {
                 mensagem: mensagemEncaminhado,
@@ -618,7 +619,7 @@ export async function POST(request: NextRequest) {
             });
             
             // 4.4. Altera selecionandoData para true
-            await setContactProperty(result.contatoId, 'selecionandoData', true, false);
+            await setContactProperty(contatoId, 'selecionandoData', true, false);
             console.log('✅ selecionandoData atualizado para true');
           } else if (verificacao.precisaValidacaoResumoIncorporacao && verificacao.promptNome === 'Validação do Resumo e Incorporação') {
             // FLUXO ESPECIAL: Validação do Resumo e Incorporação -> (possivelmente) Verificador de Resumo -> Validação de Resumo OU Validação de Urgência
@@ -652,7 +653,7 @@ export async function POST(request: NextRequest) {
               console.log('⚠️ Resumo incorreto detectado. Reiniciando fluxo de resumo...');
               
               // 4.2. Altera confirmacaoResumo para false
-              await setContactProperty(result.contatoId, 'confirmacaoResumo', false, false);
+              await setContactProperty(contatoId, 'confirmacaoResumo', false, false);
               console.log('✅ confirmacaoResumo alterado para false');
 
               // 4.3. Executa Verificador de Resumo novamente
@@ -664,7 +665,7 @@ export async function POST(request: NextRequest) {
 
               const promptVerificadorProcessado = await processPromptVariables(
                 promptVerificador.prompt,
-                result.contatoId,
+                contatoId,
                 mensagemParaIA
               );
 
@@ -690,7 +691,7 @@ export async function POST(request: NextRequest) {
               // Atualiza resumoCaso
               const resumoCaso = respostaVerificador.resumo || '';
               if (resumoCaso.trim()) {
-                await updateResumoCaso(result.contatoId, resumoCaso, false);
+                await updateResumoCaso(contatoId, resumoCaso, false);
                 await new Promise(resolve => setTimeout(resolve, 200));
                 console.log('✅ resumoCaso atualizado novamente');
               }
@@ -704,7 +705,7 @@ export async function POST(request: NextRequest) {
 
               const promptValidacaoProcessado = await processPromptVariables(
                 promptValidacao.prompt,
-                result.contatoId,
+                contatoId,
                 mensagemParaIA
               );
 
@@ -718,7 +719,7 @@ export async function POST(request: NextRequest) {
               console.log('========================================\n');
 
               // Envia mensagem
-              const contato = await ContatoModel.findById(result.contatoId);
+              const contato = await ContatoModel.findById(contatoId);
               if (!contato) {
                 console.error('❌ Contato não encontrado');
                 return;
@@ -730,19 +731,19 @@ export async function POST(request: NextRequest) {
                 return;
               }
 
-              await saveSystemMessage(result.contatoId, mensagemValidacao, whatsappResult.messageId, false);
+              await saveSystemMessage(contatoId, mensagemValidacao, whatsappResult.messageId, false);
               
               // Emite evento SSE para atualizar frontend após resposta da IA
               emitEvent({
                 type: 'mensagem_enviada',
-                contatoId: result.contatoId,
+                contatoId: contatoId,
                 contato: contato.contato,
                 data: {
                   mensagem: mensagemValidacao,
                 },
               });
               
-              await gerenciadorDeConversa(result.contatoId, 'confirmacaoResumo', false);
+              await gerenciadorDeConversa(contatoId, 'confirmacaoResumo', false);
               console.log('✅ confirmacaoResumo atualizado para true novamente');
             } else {
               // Resumo correto: executa Validação de Urgência
@@ -757,7 +758,7 @@ export async function POST(request: NextRequest) {
 
               const promptValidacaoUrgenciaProcessado = await processPromptVariables(
                 promptValidacaoUrgencia.prompt,
-                result.contatoId,
+                contatoId,
                 mensagemParaIA
               );
 
@@ -802,7 +803,7 @@ export async function POST(request: NextRequest) {
 
                 const promptUrgenciaNaoDefinidaProcessado = await processPromptVariables(
                   promptUrgenciaNaoDefinida.prompt,
-                  result.contatoId,
+                  contatoId,
                   mensagemParaIA
                 );
 
@@ -815,7 +816,7 @@ export async function POST(request: NextRequest) {
                 console.log(mensagemUrgenciaNaoDefinida);
                 console.log('========================================\n');
 
-                const contato = await (await import('@/lib/models/Contato')).default.findById(result.contatoId);
+                const contato = await (await import('@/lib/models/Contato')).default.findById(contatoId);
                 if (!contato) {
                   console.error('❌ Contato não encontrado');
                   return;
@@ -827,19 +828,19 @@ export async function POST(request: NextRequest) {
                   return;
                 }
 
-                await saveSystemMessage(result.contatoId, mensagemUrgenciaNaoDefinida, whatsappResult.messageId, false);
+                await saveSystemMessage(contatoId, mensagemUrgenciaNaoDefinida, whatsappResult.messageId, false);
                 
                 // Emite evento SSE para atualizar frontend após resposta da IA
                 emitEvent({
                   type: 'mensagem_enviada',
-                  contatoId: result.contatoId,
+                  contatoId: contatoId,
                   contato: contato.contato,
                   data: {
                     mensagem: mensagemUrgenciaNaoDefinida,
                   },
                 });
                 
-                await gerenciadorDeConversa(result.contatoId, 'urgenciaDefinida', false);
+                await gerenciadorDeConversa(contatoId, 'urgenciaDefinida', false);
                 console.log('✅ urgenciaDefinida atualizado para true');
               } else {
                 // Processo definido: executa Solicitação de Nome
@@ -853,7 +854,7 @@ export async function POST(request: NextRequest) {
 
                 const promptEncaminhadoProcessado = await processPromptVariables(
                   promptEncaminhado.prompt,
-                  result.contatoId,
+                  contatoId,
                   mensagemParaIA
                 );
 
@@ -866,7 +867,7 @@ export async function POST(request: NextRequest) {
                 console.log(mensagemEncaminhado);
                 console.log('========================================\n');
 
-                const contato = await (await import('@/lib/models/Contato')).default.findById(result.contatoId);
+                const contato = await (await import('@/lib/models/Contato')).default.findById(contatoId);
                 if (!contato) {
                   console.error('❌ Contato não encontrado');
                   return;
@@ -878,19 +879,19 @@ export async function POST(request: NextRequest) {
                   return;
                 }
 
-                await saveSystemMessage(result.contatoId, mensagemEncaminhado, whatsappResult.messageId, false);
+                await saveSystemMessage(contatoId, mensagemEncaminhado, whatsappResult.messageId, false);
                 
                 // Emite evento SSE para atualizar frontend após resposta da IA
                 emitEvent({
                   type: 'mensagem_enviada',
-                  contatoId: result.contatoId,
+                  contatoId: contatoId,
                   contato: contato.contato,
                   data: {
                     mensagem: mensagemEncaminhado,
                   },
                 });
                 
-                await gerenciadorDeConversa(result.contatoId, 'urgenciaDefinida', false);
+                await gerenciadorDeConversa(contatoId, 'urgenciaDefinida', false);
                 console.log('✅ urgenciaDefinida atualizado para true');
               }
             }
@@ -921,7 +922,7 @@ export async function POST(request: NextRequest) {
             // 4.2. Extrai o resumo e atualiza o contato
             const resumoCaso = respostaVerificador.resumo || '';
             if (resumoCaso.trim()) {
-              const updateResult = await updateResumoCaso(result.contatoId, resumoCaso, false);
+              const updateResult = await updateResumoCaso(contatoId, resumoCaso, false);
               if (updateResult.success) {
                 console.log('✅ resumoCaso atualizado com sucesso!');
                 
@@ -930,7 +931,7 @@ export async function POST(request: NextRequest) {
                 
                 // Verifica se o resumoCaso foi realmente salvo
                 const ContatoModel = (await import('@/lib/models/Contato')).default;
-                const contatoVerificado = await ContatoModel.findById(result.contatoId).lean();
+                const contatoVerificado = await ContatoModel.findById(contatoId).lean();
                 console.log(`🔍 Verificação: resumoCaso no banco = "${contatoVerificado?.resumoCaso || '(não encontrado)'}"`);
               } else {
                 console.error('❌ Erro ao atualizar resumoCaso:', updateResult.error);
@@ -950,14 +951,14 @@ export async function POST(request: NextRequest) {
             // Força refresh do contato antes de processar variáveis
             // Busca o contato novamente do banco para garantir dados atualizados
             const ContatoModel = (await import('@/lib/models/Contato')).default;
-            const contatoAtualizado = await ContatoModel.findById(result.contatoId).lean();
+            const contatoAtualizado = await ContatoModel.findById(contatoId).lean();
             if (contatoAtualizado) {
               console.log(`🔍 Contato recarregado. resumoCaso: "${contatoAtualizado.resumoCaso || '(vazio)'}"`);
             }
 
             const promptValidacaoProcessado = await processPromptVariables(
               promptValidacao.prompt,
-              result.contatoId,
+              contatoId,
               extractedData.mensagem
             );
 
@@ -978,7 +979,7 @@ export async function POST(request: NextRequest) {
             console.log('========================================\n');
 
             // 4.5. Envia a mensagem de validação para o WhatsApp
-            const contato = await (await import('@/lib/models/Contato')).default.findById(result.contatoId);
+            const contato = await (await import('@/lib/models/Contato')).default.findById(contatoId);
             if (!contato) {
               console.error('❌ Contato não encontrado para enviar mensagem');
               return;
@@ -994,12 +995,12 @@ export async function POST(request: NextRequest) {
             console.log('✅ Mensagem de validação enviada para o WhatsApp com sucesso!');
 
             // 4.6. Salva a mensagem no banco de dados
-            await saveSystemMessage(result.contatoId, mensagemValidacao, whatsappResult.messageId, false);
+            await saveSystemMessage(contatoId, mensagemValidacao, whatsappResult.messageId, false);
 
             // Emite evento SSE para atualizar frontend após resposta da IA
             emitEvent({
               type: 'mensagem_enviada',
-              contatoId: result.contatoId,
+              contatoId: contatoId,
               contato: contato.contato,
               data: {
                 mensagem: mensagemValidacao,
@@ -1007,7 +1008,7 @@ export async function POST(request: NextRequest) {
             });
 
             // 4.7. Atualiza confirmacaoResumo para true
-            await gerenciadorDeConversa(result.contatoId, 'confirmacaoResumo', false);
+            await gerenciadorDeConversa(contatoId, 'confirmacaoResumo', false);
             console.log('✅ Propriedade confirmacaoResumo atualizada para true');
           } else {
             // FLUXO NORMAL: Prompt simples -> Envia resposta -> Atualiza propriedade
@@ -1023,7 +1024,7 @@ export async function POST(request: NextRequest) {
             console.log('========================================\n');
 
             // 4.2. Envia a mensagem para o WhatsApp
-            const contato = await (await import('@/lib/models/Contato')).default.findById(result.contatoId);
+            const contato = await (await import('@/lib/models/Contato')).default.findById(contatoId);
             if (!contato) {
               console.error('❌ Contato não encontrado para enviar mensagem');
               return;
@@ -1039,12 +1040,12 @@ export async function POST(request: NextRequest) {
             console.log('✅ Mensagem enviada para o WhatsApp com sucesso!');
 
             // 4.3. Salva a mensagem no banco de dados
-            await saveSystemMessage(result.contatoId, mensagemResposta, whatsappResult.messageId, false);
+            await saveSystemMessage(contatoId, mensagemResposta, whatsappResult.messageId, false);
 
             // Emite evento SSE para atualizar frontend após resposta da IA
             emitEvent({
               type: 'mensagem_enviada',
-              contatoId: result.contatoId,
+              contatoId: contatoId,
               contato: contato.contato,
               data: {
                 mensagem: mensagemResposta,
@@ -1054,7 +1055,7 @@ export async function POST(request: NextRequest) {
             // 4.4. Atualiza a propriedade do contato usando gerenciadorDeConversa
             if (verificacao.propriedadeParaAtualizar) {
               await gerenciadorDeConversa(
-                result.contatoId,
+                contatoId,
                 verificacao.propriedadeParaAtualizar,
                 false
               );
