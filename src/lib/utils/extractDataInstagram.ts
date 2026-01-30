@@ -183,7 +183,7 @@ export function extractDataInstagram(body: InstagramWebhookBody): ExtractedDataI
               continue;
             }
 
-            const messageId = message.mid || message.id || '';
+            const messageId = message.mid || '';
             if (!messageId) {
               continue;
             }
