@@ -59,7 +59,7 @@ export default function Sidebar() {
 
   return (
     <>
-      {/* Mobile Overlay */}
+      {/* Mobile Overlay - só aparece quando sidebar está expandido no mobile */}
       {isMobile && isOpen && (
         <div
           className="fixed inset-0 bg-black/50 z-40 transition-opacity"
@@ -70,7 +70,7 @@ export default function Sidebar() {
       <aside
         className={`fixed left-0 top-0 h-screen bg-gradient-to-b from-slate-900 via-slate-800 to-slate-900 border-r border-slate-700/50 transition-all duration-300 ease-in-out z-50 ${
           isOpen ? 'w-64' : 'w-20'
-        } ${isMobile && !isOpen ? '-translate-x-full' : ''}`}
+        }`}
       >
         <div className="flex flex-col h-full">
           {/* Header */}

@@ -69,7 +69,8 @@ export default function AutomacoesPage() {
   // Calcula o margin-left baseado no estado do sidebar
   const getMainMargin = () => {
     if (isMobile) {
-      return 'ml-0';
+      // No mobile, quando fechado mostra w-20 (reduzido), quando aberto tem overlay
+      return isOpen ? 'ml-0' : 'ml-20';
     }
     return isOpen ? 'ml-64' : 'ml-20';
   };
@@ -663,29 +664,29 @@ export default function AutomacoesPage() {
   };
 
   return (
-    <div className="flex min-h-screen bg-slate-50 dark:bg-slate-900">
+    <div className="flex min-h-screen bg-slate-50 dark:bg-slate-900 overflow-x-hidden">
       <Sidebar />
-      <main className={`flex-1 ${getMainMargin()} p-4 sm:p-6 lg:p-8 transition-all duration-300`}>
-        <div className="max-w-7xl mx-auto">
+      <main className={`flex-1 ${getMainMargin()} p-3 sm:p-4 md:p-6 lg:p-8 transition-all duration-300 w-0 min-w-0`}>
+        <div className="w-full max-w-full">
           {/* Header */}
-          <div className="mb-8">
-            <h1 className="text-3xl sm:text-4xl font-bold text-slate-900 dark:text-white mb-2">
+          <div className="mb-4 sm:mb-6 md:mb-8">
+            <h1 className="text-xl sm:text-2xl md:text-3xl lg:text-4xl font-bold text-slate-900 dark:text-white mb-1 sm:mb-2 truncate">
               Automações
             </h1>
-            <p className="text-slate-600 dark:text-slate-400 text-sm sm:text-base">
+            <p className="text-xs sm:text-sm md:text-base text-slate-600 dark:text-slate-400 truncate">
               Defina o comportamento do atendente para cada etapa do funil de vendas
             </p>
           </div>
 
           {/* Layout Principal: Botões à esquerda, Textarea à direita */}
-          <div className="flex gap-6 h-[calc(100vh-12rem)]">
+          <div className="flex flex-col lg:flex-row gap-4 sm:gap-6">
             {/* Sidebar com Botões */}
-             <div className="w-64 flex-shrink-0 bg-white dark:bg-slate-800 rounded-xl shadow-lg border border-slate-200 dark:border-slate-700 p-4 flex flex-col">
-               <div className="flex flex-col gap-2 flex-1 min-h-0 max-h-[750px] overflow-y-auto pr-2 scrollbar-elegant">
+             <div className={`${isMobile ? 'w-full' : 'w-full lg:w-64'} flex-shrink-0 bg-white dark:bg-slate-800 rounded-xl shadow-lg border border-slate-200 dark:border-slate-700 p-3 sm:p-4 flex flex-col`}>
+               <div className={`flex flex-col gap-2 min-h-0 pr-1 sm:pr-2 scrollbar-elegant ${isMobile ? '' : 'flex-1 max-h-[calc(100vh-16rem)] overflow-y-auto'}`}>
                 {/* Botão Definição Base */}
                 <button
                   onClick={() => setSelectedProperty('base')}
-                  className={`w-full px-4 py-3 rounded-lg font-medium text-sm transition-all duration-200 text-left ${
+                  className={`w-full px-3 sm:px-4 py-2 sm:py-3 rounded-lg font-medium text-xs sm:text-sm transition-all duration-200 text-left ${
                     selectedProperty === 'base'
                       ? `bg-gradient-to-r ${getPropertyColor('base')} text-white shadow-lg ${getPropertyShadow('base')}`
                       : 'bg-slate-100 dark:bg-slate-700 text-slate-700 dark:text-slate-300 hover:bg-slate-200 dark:hover:bg-slate-600'
@@ -695,9 +696,9 @@ export default function AutomacoesPage() {
                 </button>
 
                 {/* Separador Prompts de Resposta */}
-                <div className="my-2">
-                  <div className="h-px bg-slate-300 dark:bg-slate-600 mb-2"></div>
-                  <p className="text-xs font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-wider px-2">
+                <div className="my-1.5 sm:my-2">
+                  <div className="h-px bg-slate-300 dark:bg-slate-600 mb-1.5 sm:mb-2"></div>
+                  <p className="text-[10px] sm:text-xs font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-wider px-1 sm:px-2">
                     Prompts de Resposta
                   </p>
                 </div>
@@ -707,20 +708,21 @@ export default function AutomacoesPage() {
                   <button
                     key={status}
                     onClick={() => setSelectedProperty(status)}
-                    className={`w-full px-4 py-3 rounded-lg font-medium text-sm transition-all duration-200 text-left ${
+                    className={`w-full px-3 sm:px-4 py-2 sm:py-3 rounded-lg font-medium text-xs sm:text-sm transition-all duration-200 text-left truncate ${
                       selectedProperty === status
                         ? `bg-gradient-to-r ${getPropertyColor(status)} text-white shadow-lg ${getPropertyShadow(status)}`
                         : 'bg-slate-100 dark:bg-slate-700 text-slate-700 dark:text-slate-300 hover:bg-slate-200 dark:hover:bg-slate-600'
                     }`}
+                    title={status}
                   >
                     {status}
                   </button>
                 ))}
 
                 {/* Separador Prompts de Validação */}
-                <div className="my-2">
-                  <div className="h-px bg-slate-300 dark:bg-slate-600 mb-2"></div>
-                  <p className="text-xs font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-wider px-2">
+                <div className="my-1.5 sm:my-2">
+                  <div className="h-px bg-slate-300 dark:bg-slate-600 mb-1.5 sm:mb-2"></div>
+                  <p className="text-[10px] sm:text-xs font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-wider px-1 sm:px-2">
                     Prompts de Validação
                   </p>
                 </div>
@@ -728,11 +730,12 @@ export default function AutomacoesPage() {
                 {/* Botão Verificador de Resumo */}
                 <button
                   onClick={() => setSelectedProperty('verificadorResumo')}
-                  className={`w-full px-4 py-3 rounded-lg font-medium text-sm transition-all duration-200 text-left ${
+                  className={`w-full px-3 sm:px-4 py-2 sm:py-3 rounded-lg font-medium text-xs sm:text-sm transition-all duration-200 text-left truncate ${
                     selectedProperty === 'verificadorResumo'
                       ? `bg-gradient-to-r ${getPropertyColor('verificadorResumo')} text-white shadow-lg ${getPropertyShadow('verificadorResumo')}`
                       : 'bg-slate-100 dark:bg-slate-700 text-slate-700 dark:text-slate-300 hover:bg-slate-200 dark:hover:bg-slate-600'
                   }`}
+                  title="Verificador de Resumo"
                 >
                   Verificador de Resumo
                 </button>
@@ -740,11 +743,12 @@ export default function AutomacoesPage() {
                 {/* Botão Validação do Resumo e Incorporação */}
                 <button
                   onClick={() => setSelectedProperty('validacaoResumoIncorporacao')}
-                  className={`w-full px-4 py-3 rounded-lg font-medium text-sm transition-all duration-200 text-left ${
+                  className={`w-full px-3 sm:px-4 py-2 sm:py-3 rounded-lg font-medium text-xs sm:text-sm transition-all duration-200 text-left truncate ${
                     selectedProperty === 'validacaoResumoIncorporacao'
                       ? `bg-gradient-to-r ${getPropertyColor('validacaoResumoIncorporacao')} text-white shadow-lg ${getPropertyShadow('validacaoResumoIncorporacao')}`
                       : 'bg-slate-100 dark:bg-slate-700 text-slate-700 dark:text-slate-300 hover:bg-slate-200 dark:hover:bg-slate-600'
                   }`}
+                  title="Validação do Resumo e Incorporação"
                 >
                   Validação do Resumo e Incorporação
                 </button>
@@ -752,11 +756,12 @@ export default function AutomacoesPage() {
                 {/* Botão Validação de Urgência */}
                 <button
                   onClick={() => setSelectedProperty('validacaoUrgencia')}
-                  className={`w-full px-4 py-3 rounded-lg font-medium text-sm transition-all duration-200 text-left ${
+                  className={`w-full px-3 sm:px-4 py-2 sm:py-3 rounded-lg font-medium text-xs sm:text-sm transition-all duration-200 text-left truncate ${
                     selectedProperty === 'validacaoUrgencia'
                       ? `bg-gradient-to-r ${getPropertyColor('validacaoUrgencia')} text-white shadow-lg ${getPropertyShadow('validacaoUrgencia')}`
                       : 'bg-slate-100 dark:bg-slate-700 text-slate-700 dark:text-slate-300 hover:bg-slate-200 dark:hover:bg-slate-600'
                   }`}
+                  title="Validação de Urgência"
                 >
                   Validação de Urgência
                 </button>
@@ -764,11 +769,12 @@ export default function AutomacoesPage() {
                 {/* Botão Validação de Nome */}
                 <button
                   onClick={() => setSelectedProperty('validacaoNome')}
-                  className={`w-full px-4 py-3 rounded-lg font-medium text-sm transition-all duration-200 text-left ${
+                  className={`w-full px-3 sm:px-4 py-2 sm:py-3 rounded-lg font-medium text-xs sm:text-sm transition-all duration-200 text-left truncate ${
                     selectedProperty === 'validacaoNome'
                       ? `bg-gradient-to-r ${getPropertyColor('validacaoNome')} text-white shadow-lg ${getPropertyShadow('validacaoNome')}`
                       : 'bg-slate-100 dark:bg-slate-700 text-slate-700 dark:text-slate-300 hover:bg-slate-200 dark:hover:bg-slate-600'
                   }`}
+                  title="Validação de Nome"
                 >
                   Validação de Nome
                 </button>
@@ -776,28 +782,30 @@ export default function AutomacoesPage() {
                 {/* Botão Validação de Agendamento */}
                 <button
                   onClick={() => setSelectedProperty('validacaoAgendamento')}
-                  className={`w-full px-4 py-3 rounded-lg font-medium text-sm transition-all duration-200 text-left ${
+                  className={`w-full px-3 sm:px-4 py-2 sm:py-3 rounded-lg font-medium text-xs sm:text-sm transition-all duration-200 text-left truncate ${
                     selectedProperty === 'validacaoAgendamento'
                       ? `bg-gradient-to-r ${getPropertyColor('validacaoAgendamento')} text-white shadow-lg ${getPropertyShadow('validacaoAgendamento')}`
                       : 'bg-slate-100 dark:bg-slate-700 text-slate-700 dark:text-slate-300 hover:bg-slate-200 dark:hover:bg-slate-600'
                   }`}
+                  title="Validação de Agendamento"
                 >
                   Validação de Agendamento
                 </button>
 
                 {/* Separador Outros */}
-                <div className="my-2">
-                  <div className="h-px bg-slate-300 dark:bg-slate-600 mb-2"></div>
+                <div className="my-1.5 sm:my-2">
+                  <div className="h-px bg-slate-300 dark:bg-slate-600 mb-1.5 sm:mb-2"></div>
                 </div>
 
                 {/* Botão Variáveis de Atendimento */}
                 <button
                   onClick={() => setSelectedProperty('variaveis')}
-                  className={`w-full px-4 py-3 rounded-lg font-medium text-sm transition-all duration-200 text-left ${
+                  className={`w-full px-3 sm:px-4 py-2 sm:py-3 rounded-lg font-medium text-xs sm:text-sm transition-all duration-200 text-left truncate ${
                     selectedProperty === 'variaveis'
                       ? `bg-gradient-to-r ${getPropertyColor('variaveis')} text-white shadow-lg ${getPropertyShadow('variaveis')}`
                       : 'bg-slate-100 dark:bg-slate-700 text-slate-700 dark:text-slate-300 hover:bg-slate-200 dark:hover:bg-slate-600'
                   }`}
+                  title="Variáveis de Atendimento"
                 >
                   Variáveis de Atendimento
                 </button>
@@ -805,11 +813,12 @@ export default function AutomacoesPage() {
                 {/* Botão Profissionais */}
                 <button
                   onClick={() => setSelectedProperty('profissionais')}
-                  className={`w-full px-4 py-3 rounded-lg font-medium text-sm transition-all duration-200 text-left ${
+                  className={`w-full px-3 sm:px-4 py-2 sm:py-3 rounded-lg font-medium text-xs sm:text-sm transition-all duration-200 text-left truncate ${
                     selectedProperty === 'profissionais'
                       ? `bg-gradient-to-r ${getPropertyColor('profissionais')} text-white shadow-lg ${getPropertyShadow('profissionais')}`
                       : 'bg-slate-100 dark:bg-slate-700 text-slate-700 dark:text-slate-300 hover:bg-slate-200 dark:hover:bg-slate-600'
                   }`}
+                  title="Profissionais"
                 >
                   Profissionais
                 </button>
@@ -817,24 +826,24 @@ export default function AutomacoesPage() {
             </div>
 
             {/* Área Principal */}
-            <div className="flex-1 bg-white dark:bg-slate-800 rounded-xl shadow-lg border border-slate-200 dark:border-slate-700 p-6 flex flex-col">
+            <div className="flex-1 bg-white dark:bg-slate-800 rounded-xl shadow-lg border border-slate-200 dark:border-slate-700 p-3 sm:p-4 md:p-6 flex flex-col min-w-0">
               {selectedProperty === 'profissionais' ? (
                 /* Interface Profissionais */
                 <>
-                  <div className="mb-6">
-                    <div className="flex items-center justify-between">
-                      <div>
-                        <h2 className="text-xl font-semibold text-slate-900 dark:text-white mb-2">
+                  <div className="mb-4 sm:mb-6">
+                    <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 sm:gap-4">
+                      <div className="min-w-0 flex-1">
+                        <h2 className="text-lg sm:text-xl font-semibold text-slate-900 dark:text-white mb-1 sm:mb-2 truncate">
                           Profissionais
                         </h2>
-                        <p className="text-sm text-slate-600 dark:text-slate-400">
+                        <p className="text-xs sm:text-sm text-slate-600 dark:text-slate-400 truncate">
                           Gerencie os profissionais e suas áreas de atuação
                         </p>
                       </div>
                       {!showProfissionalForm && (
                         <button
                           onClick={handleNovoProfissional}
-                          className="px-4 py-2 rounded-lg font-medium text-white bg-gradient-to-r from-violet-500 to-violet-600 hover:from-violet-600 hover:to-violet-700 transition-all shadow-md hover:shadow-lg"
+                          className="px-3 sm:px-4 py-2 text-sm sm:text-base rounded-lg font-medium text-white bg-gradient-to-r from-violet-500 to-violet-600 hover:from-violet-600 hover:to-violet-700 transition-all shadow-md hover:shadow-lg w-full sm:w-auto flex-shrink-0"
                         >
                           Novo Profissional
                         </button>
@@ -844,10 +853,10 @@ export default function AutomacoesPage() {
 
                   {showProfissionalForm ? (
                     /* Formulário de Profissional */
-                    <div className="flex-1 overflow-y-auto space-y-6 scrollbar-elegant">
-                      <div className="space-y-4">
+                    <div className="flex-1 overflow-y-auto space-y-4 sm:space-y-6 scrollbar-elegant">
+                      <div className="space-y-3 sm:space-y-4">
                         <div>
-                          <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-2">
+                          <label className="block text-xs sm:text-sm font-medium text-slate-700 dark:text-slate-300 mb-1.5 sm:mb-2">
                             Nome <span className="text-red-500">*</span>
                           </label>
                           <input
@@ -855,15 +864,15 @@ export default function AutomacoesPage() {
                             value={profissionalForm.nome}
                             onChange={(e) => setProfissionalForm((prev) => ({ ...prev, nome: e.target.value }))}
                             placeholder="Ex: Dra. Izabella"
-                            className="w-full px-4 py-3 bg-white dark:bg-slate-900 border border-slate-300 dark:border-slate-600 rounded-xl text-slate-900 dark:text-white placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-violet-500 focus:border-transparent transition-all"
+                            className="w-full px-3 sm:px-4 py-2 sm:py-3 text-sm sm:text-base bg-white dark:bg-slate-900 border border-slate-300 dark:border-slate-600 rounded-xl text-slate-900 dark:text-white placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-violet-500 focus:border-transparent transition-all"
                           />
                         </div>
 
                         <div>
-                          <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-2">
+                          <label className="block text-xs sm:text-sm font-medium text-slate-700 dark:text-slate-300 mb-1.5 sm:mb-2">
                             Áreas de Atuação
                           </label>
-                          <div className="flex gap-2 mb-3">
+                          <div className="flex flex-col sm:flex-row gap-2 mb-3">
                             <input
                               type="text"
                               value={novaArea}
@@ -875,30 +884,30 @@ export default function AutomacoesPage() {
                                 }
                               }}
                               placeholder="Ex: Direito de Família"
-                              className="flex-1 px-4 py-3 bg-white dark:bg-slate-900 border border-slate-300 dark:border-slate-600 rounded-xl text-slate-900 dark:text-white placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-violet-500 focus:border-transparent transition-all"
+                              className="flex-1 px-3 sm:px-4 py-2 sm:py-3 text-sm sm:text-base bg-white dark:bg-slate-900 border border-slate-300 dark:border-slate-600 rounded-xl text-slate-900 dark:text-white placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-violet-500 focus:border-transparent transition-all"
                             />
                             <button
                               onClick={handleAdicionarArea}
-                              className="px-6 py-3 rounded-xl font-medium text-white bg-gradient-to-r from-violet-500 to-violet-600 hover:from-violet-600 hover:to-violet-700 transition-all"
+                              className="px-4 sm:px-6 py-2 sm:py-3 rounded-xl text-sm sm:text-base font-medium text-white bg-gradient-to-r from-violet-500 to-violet-600 hover:from-violet-600 hover:to-violet-700 transition-all w-full sm:w-auto"
                             >
                               Adicionar
                             </button>
                           </div>
                           {profissionalForm.areas_atuacao.length > 0 && (
-                            <div className="space-y-3">
+                            <div className="space-y-2 sm:space-y-3">
                               {profissionalForm.areas_atuacao.map((area) => (
-                                <div key={area} className="p-4 bg-slate-50 dark:bg-slate-900 rounded-xl border border-slate-200 dark:border-slate-700">
-                                  <div className="flex items-center justify-between mb-3">
-                                    <span className="font-medium text-slate-900 dark:text-white">{area}</span>
+                                <div key={area} className="p-3 sm:p-4 bg-slate-50 dark:bg-slate-900 rounded-xl border border-slate-200 dark:border-slate-700 min-w-0">
+                                  <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-2 sm:gap-3 mb-2 sm:mb-3">
+                                    <span className="text-sm sm:text-base font-medium text-slate-900 dark:text-white truncate flex-1">{area}</span>
                                     <button
                                       onClick={() => handleRemoverArea(area)}
-                                      className="px-3 py-1 rounded-lg text-sm font-medium text-red-600 dark:text-red-400 hover:bg-red-50 dark:hover:bg-red-900/20 transition-colors"
+                                      className="px-2 sm:px-3 py-1 rounded-lg text-xs sm:text-sm font-medium text-red-600 dark:text-red-400 hover:bg-red-50 dark:hover:bg-red-900/20 transition-colors flex-shrink-0"
                                     >
                                       Remover
                                     </button>
                                   </div>
                                   <div>
-                                    <label className="block text-xs font-medium text-slate-600 dark:text-slate-400 mb-1">
+                                    <label className="block text-[10px] sm:text-xs font-medium text-slate-600 dark:text-slate-400 mb-1">
                                       Mensagem de Autoridade
                                     </label>
                                     <textarea
@@ -914,7 +923,7 @@ export default function AutomacoesPage() {
                                       }
                                       placeholder={`Ex: A ${profissionalForm.nome || 'profissional'} atua bastante com casos de ${area}.`}
                                       rows={2}
-                                      className="w-full px-4 py-2 bg-white dark:bg-slate-800 border border-slate-300 dark:border-slate-600 rounded-lg text-slate-900 dark:text-white placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-violet-500 focus:border-transparent transition-all resize-none"
+                                      className="w-full px-3 sm:px-4 py-2 text-xs sm:text-sm bg-white dark:bg-slate-800 border border-slate-300 dark:border-slate-600 rounded-lg text-slate-900 dark:text-white placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-violet-500 focus:border-transparent transition-all resize-none"
                                     />
                                   </div>
                                 </div>
@@ -924,7 +933,7 @@ export default function AutomacoesPage() {
                         </div>
                       </div>
 
-                      <div className="flex items-center justify-end gap-3 pt-4 border-t border-slate-200 dark:border-slate-700">
+                      <div className="flex flex-col sm:flex-row items-stretch sm:items-center justify-end gap-2 sm:gap-3 pt-3 sm:pt-4 border-t border-slate-200 dark:border-slate-700">
                         <button
                           onClick={() => {
                             setShowProfissionalForm(false);
@@ -935,14 +944,14 @@ export default function AutomacoesPage() {
                               mensagem_autoridade: {},
                             });
                           }}
-                          className="px-6 py-2.5 rounded-lg font-medium text-slate-700 dark:text-slate-300 bg-white dark:bg-slate-800 border border-slate-300 dark:border-slate-600 hover:bg-slate-50 dark:hover:bg-slate-700 transition-colors"
+                          className="px-4 sm:px-6 py-2 sm:py-2.5 rounded-lg text-sm sm:text-base font-medium text-slate-700 dark:text-slate-300 bg-white dark:bg-slate-800 border border-slate-300 dark:border-slate-600 hover:bg-slate-50 dark:hover:bg-slate-700 transition-colors w-full sm:w-auto"
                         >
                           Cancelar
                         </button>
                         <button
                           onClick={handleSalvarProfissional}
                           disabled={savingProfissional || !profissionalForm.nome.trim()}
-                          className={`px-6 py-2.5 rounded-lg font-medium text-white transition-all duration-200 transform hover:scale-105 disabled:opacity-50 disabled:cursor-not-allowed disabled:transform-none ${
+                          className={`px-4 sm:px-6 py-2 sm:py-2.5 rounded-lg text-sm sm:text-base font-medium text-white transition-all duration-200 transform hover:scale-105 disabled:opacity-50 disabled:cursor-not-allowed disabled:transform-none w-full sm:w-auto ${
                             savingProfissional
                               ? 'bg-slate-400 cursor-wait'
                               : `bg-gradient-to-r ${getPropertyColor('profissionais')} shadow-md hover:shadow-lg`
@@ -970,23 +979,24 @@ export default function AutomacoesPage() {
                           </button>
                         </div>
                       ) : (
-                        <div className="space-y-4">
+                        <div className="space-y-3 sm:space-y-4">
                           {profissionais.map((profissional) => (
                             <div
                               key={profissional.id}
-                              className="p-5 bg-slate-50 dark:bg-slate-900 rounded-xl border border-slate-200 dark:border-slate-700 hover:border-violet-300 dark:hover:border-violet-700 transition-colors"
+                              className="p-3 sm:p-4 md:p-5 bg-slate-50 dark:bg-slate-900 rounded-xl border border-slate-200 dark:border-slate-700 hover:border-violet-300 dark:hover:border-violet-700 transition-colors min-w-0"
                             >
-                              <div className="flex items-start justify-between mb-3">
-                                <div>
-                                  <h3 className="text-lg font-semibold text-slate-900 dark:text-white mb-1">
+                              <div className="flex flex-col sm:flex-row items-start sm:items-start justify-between gap-3 mb-3">
+                                <div className="flex-1 min-w-0">
+                                  <h3 className="text-base sm:text-lg font-semibold text-slate-900 dark:text-white mb-1 truncate">
                                     {profissional.nome}
                                   </h3>
                                   {profissional.areas_atuacao.length > 0 && (
-                                    <div className="flex flex-wrap gap-2 mt-2">
+                                    <div className="flex flex-wrap gap-1.5 sm:gap-2 mt-2">
                                       {profissional.areas_atuacao.map((area) => (
                                         <span
                                           key={area}
-                                          className="px-3 py-1 rounded-lg text-xs font-medium bg-violet-100 text-violet-700 dark:bg-violet-900/30 dark:text-violet-300"
+                                          className="px-2 sm:px-3 py-0.5 sm:py-1 rounded-lg text-[10px] sm:text-xs font-medium bg-violet-100 text-violet-700 dark:bg-violet-900/30 dark:text-violet-300 truncate"
+                                          title={area}
                                         >
                                           {area}
                                         </span>
@@ -994,16 +1004,16 @@ export default function AutomacoesPage() {
                                     </div>
                                   )}
                                 </div>
-                                <div className="flex gap-2">
+                                <div className="flex gap-1.5 sm:gap-2 flex-shrink-0 w-full sm:w-auto">
                                   <button
                                     onClick={() => handleEditarProfissional(profissional)}
-                                    className="px-3 py-1.5 rounded-lg text-sm font-medium text-violet-600 dark:text-violet-400 hover:bg-violet-50 dark:hover:bg-violet-900/20 transition-colors"
+                                    className="flex-1 sm:flex-none px-2 sm:px-3 py-1.5 rounded-lg text-xs sm:text-sm font-medium text-violet-600 dark:text-violet-400 hover:bg-violet-50 dark:hover:bg-violet-900/20 transition-colors"
                                   >
                                     Editar
                                   </button>
                                   <button
                                     onClick={() => handleDeletarProfissional(profissional.id)}
-                                    className="px-3 py-1.5 rounded-lg text-sm font-medium text-red-600 dark:text-red-400 hover:bg-red-50 dark:hover:bg-red-900/20 transition-colors"
+                                    className="flex-1 sm:flex-none px-2 sm:px-3 py-1.5 rounded-lg text-xs sm:text-sm font-medium text-red-600 dark:text-red-400 hover:bg-red-50 dark:hover:bg-red-900/20 transition-colors"
                                   >
                                     Deletar
                                   </button>
@@ -1034,8 +1044,8 @@ export default function AutomacoesPage() {
               ) : selectedProperty === 'variaveis' ? (
                 /* Interface Variáveis de Atendimento */
                 <>
-                  <div className="mb-6">
-                    <h2 className="text-xl font-semibold text-slate-900 dark:text-white mb-2">
+                  <div className="mb-4 sm:mb-6">
+                    <h2 className="text-lg sm:text-xl font-semibold text-slate-900 dark:text-white mb-1 sm:mb-2 truncate">
                       Variáveis de Prompts
                     </h2>
                   </div>
@@ -1043,8 +1053,8 @@ export default function AutomacoesPage() {
                   <div className="space-y-6 flex-1 overflow-y-auto scrollbar-elegant">
                     {/* Histórico de Mensagens */}
                     <div className="space-y-2">
-                      <div className="flex items-center gap-4">
-                        <label className="text-sm font-medium text-slate-700 dark:text-slate-300">
+                      <div className="flex flex-col sm:flex-row items-start sm:items-center gap-2 sm:gap-4">
+                        <label className="text-xs sm:text-sm font-medium text-slate-700 dark:text-slate-300 min-w-0 flex-1">
                           {'{[HISTORICO DE MENSAGENS]}'} Número maximo de mensagens no histórico:
                         </label>
                         <input
@@ -1057,18 +1067,18 @@ export default function AutomacoesPage() {
                               numMaxMsgHistorico: parseInt(e.target.value) || 0,
                             }))
                           }
-                          className="w-24 px-3 py-2 rounded-lg border-2 border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-900 text-slate-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200"
+                          className="w-full sm:w-24 px-3 py-2 rounded-lg border-2 border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-900 text-slate-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200 flex-shrink-0"
                         />
                       </div>
-                      <p className="text-sm text-slate-600 dark:text-slate-400 pl-2">
+                      <p className="text-xs sm:text-sm text-slate-600 dark:text-slate-400 pl-0 sm:pl-2">
                         Variável que contém o histórico completo das mensagens trocadas entre o cliente e o atendente. O histórico é ordenado cronologicamente, com as mensagens mais antigas primeiro.
                       </p>
                     </div>
 
                     {/* Datas Disponíveis */}
                     <div className="space-y-2">
-                      <div className="flex items-center gap-4">
-                        <label className="text-sm font-medium text-slate-700 dark:text-slate-300">
+                      <div className="flex flex-col sm:flex-row items-start sm:items-center gap-2 sm:gap-4">
+                        <label className="text-xs sm:text-sm font-medium text-slate-700 dark:text-slate-300 min-w-0 flex-1">
                           {'{[DATAS DISPONÍVEIS]}'} Agendamentos livres em (horas):
                         </label>
                         <input
@@ -1081,66 +1091,66 @@ export default function AutomacoesPage() {
                               agendamentosLivresHoras: parseInt(e.target.value) || 0,
                             }))
                           }
-                          className="w-24 px-3 py-2 rounded-lg border-2 border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-900 text-slate-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200"
+                          className="w-full sm:w-24 px-3 py-2 rounded-lg border-2 border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-900 text-slate-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200 flex-shrink-0"
                         />
                       </div>
-                      <p className="text-sm text-slate-600 dark:text-slate-400 pl-2">
+                      <p className="text-xs sm:text-sm text-slate-600 dark:text-slate-400 pl-0 sm:pl-2">
                         Variável que contém as datas e horários disponíveis para agendamento, considerando o período especificado em horas a partir do momento atual.
                       </p>
                     </div>
 
                     {/* Produto de Interesse */}
                     <div className="space-y-2">
-                      <p className="text-sm font-medium text-slate-700 dark:text-slate-300">
+                      <p className="text-xs sm:text-sm font-medium text-slate-700 dark:text-slate-300">
                         {'{[PRODUTO DE INTERESSE]}'} Variável que contém o produto que o cliente esta abordando na conversa. Todos os dados deste produto são informados.
                       </p>
                     </div>
 
                     {/* Última Mensagem */}
                     <div className="space-y-2">
-                      <p className="text-sm font-medium text-slate-700 dark:text-slate-300">
+                      <p className="text-xs sm:text-sm font-medium text-slate-700 dark:text-slate-300">
                         {'{[ULTIMA MENSAGEM]}'} Variável que contém a última mensagem enviada pelo cliente na conversa atual.
                       </p>
                     </div>
 
                     {/* Horários Disponíveis */}
                     <div className="space-y-2">
-                      <p className="text-sm font-medium text-slate-700 dark:text-slate-300">
+                      <p className="text-xs sm:text-sm font-medium text-slate-700 dark:text-slate-300">
                         {'{[HORARIOS DISPONIVEIS]}'} Variável que contém a lista dos próximos horários disponíveis para agendamento, formatados como DD/MM/YYYY HH:MM.
                       </p>
                     </div>
 
                     {/* Primeiro Horário Disponível */}
                     <div className="space-y-2">
-                      <p className="text-sm font-medium text-slate-700 dark:text-slate-300">
+                      <p className="text-xs sm:text-sm font-medium text-slate-700 dark:text-slate-300">
                         {'{[PRIMEIRO HORARIO DISPONIVEL]}'} Variável que contém apenas o primeiro horário disponível para agendamento, formatado como DD/MM/YYYY HH:MM.
                       </p>
                     </div>
 
                     {/* Primeiro Nome */}
                     <div className="space-y-2">
-                      <p className="text-sm font-medium text-slate-700 dark:text-slate-300">
+                      <p className="text-xs sm:text-sm font-medium text-slate-700 dark:text-slate-300">
                         {'{[PRIMEIRO NOME]}'} Variável que contém apenas o primeiro nome do cliente, extraído da primeira palavra da propriedade nomeCompleto do contato.
                       </p>
                     </div>
 
                     {/* Resumo do Caso */}
                     <div className="space-y-2">
-                      <p className="text-sm font-medium text-slate-700 dark:text-slate-300">
+                      <p className="text-xs sm:text-sm font-medium text-slate-700 dark:text-slate-300">
                         {'{[RESUMO CASO]}'} Variável que contém o resumo do caso do contato, armazenado na propriedade resumoCaso. Se o resumo ainda não foi preenchido, a variável será substituída por uma string vazia.
                       </p>
                     </div>
 
                     {/* Informações do Caso */}
                     <div className="space-y-2">
-                      <p className="text-sm font-medium text-slate-700 dark:text-slate-300">
+                      <p className="text-xs sm:text-sm font-medium text-slate-700 dark:text-slate-300">
                         {'{[INFORMAÇÕES DO CASO]}'} Variável que contém as informações do caso do contato, armazenado na propriedade informacoesCaso. Se as informações ainda não foram preenchidas, a variável será substituída por uma string vazia.
                       </p>
                     </div>
 
                     {/* Prompt Base */}
                     <div className="space-y-2">
-                      <p className="text-sm font-medium text-slate-700 dark:text-slate-300">
+                      <p className="text-xs sm:text-sm font-medium text-slate-700 dark:text-slate-300">
                         {'{[PROMPT BASE]}'} Variável que contém o prompt base definido na "Definição Base" da coleção atendimento-ai. Este prompt define o comportamento base do assistente em todas as interações.
                       </p>
                     </div>
@@ -1148,8 +1158,8 @@ export default function AutomacoesPage() {
 
                     {/* Pausar Atendimento Autônomo */}
                     <div className="space-y-2">
-                      <div className="flex items-center gap-4">
-                        <label className="text-sm font-medium text-slate-700 dark:text-slate-300">
+                      <div className="flex flex-col sm:flex-row items-start sm:items-center gap-2 sm:gap-4">
+                        <label className="text-xs sm:text-sm font-medium text-slate-700 dark:text-slate-300 min-w-0 flex-1">
                           Pausar atendimento autônomo por status:
                         </label>
                         <select
@@ -1160,7 +1170,7 @@ export default function AutomacoesPage() {
                               pausarAtendimentoStatus: e.target.value as VariaveisAtendimento['pausarAtendimentoStatus'],
                             }))
                           }
-                          className="px-4 py-2 rounded-lg border-2 border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-900 text-slate-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200 cursor-pointer"
+                          className="w-full sm:w-auto px-3 sm:px-4 py-2 rounded-lg border-2 border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-900 text-slate-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200 cursor-pointer text-xs sm:text-sm flex-shrink-0"
                         >
                           <option value="Nenhum">Nenhum</option>
                           <option value="Novo Contato">Novo Contato</option>
@@ -1177,11 +1187,11 @@ export default function AutomacoesPage() {
                   </div>
 
                   {/* Botão Salvar Variáveis */}
-                  <div className="mt-6 flex items-center justify-between">
+                  <div className="mt-4 sm:mt-6 flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-3">
                     <div className="flex items-center gap-2">
                       {saveVariaveisSuccess && (
-                        <div className="flex items-center gap-2 text-green-600 dark:text-green-400 text-sm font-medium animate-in fade-in slide-in-from-left-4">
-                          <HiOutlineCheckCircle className="w-5 h-5" />
+                        <div className="flex items-center gap-2 text-green-600 dark:text-green-400 text-xs sm:text-sm font-medium animate-in fade-in slide-in-from-left-4">
+                          <HiOutlineCheckCircle className="w-4 h-4 sm:w-5 sm:h-5" />
                           <span>Salvo com sucesso!</span>
                         </div>
                       )}
@@ -1189,7 +1199,7 @@ export default function AutomacoesPage() {
                     <button
                       onClick={handleSaveVariaveis}
                       disabled={savingVariaveis}
-                      className={`px-6 py-2.5 rounded-lg font-medium text-white transition-all duration-200 transform hover:scale-105 disabled:opacity-50 disabled:cursor-not-allowed disabled:transform-none ${
+                      className={`px-4 sm:px-6 py-2 sm:py-2.5 rounded-lg text-sm sm:text-base font-medium text-white transition-all duration-200 transform hover:scale-105 disabled:opacity-50 disabled:cursor-not-allowed disabled:transform-none w-full sm:w-auto ${
                         savingVariaveis
                           ? 'bg-slate-400 cursor-wait'
                           : `bg-gradient-to-r ${getPropertyColor('variaveis')} shadow-md hover:shadow-lg`
@@ -1202,11 +1212,11 @@ export default function AutomacoesPage() {
               ) : (
                 /* Interface Normal (Textarea e Inputs) */
                 <>
-                  <div className="mb-4">
-                    <h2 className="text-xl font-semibold text-slate-900 dark:text-white mb-2">
+                  <div className="mb-3 sm:mb-4">
+                    <h2 className="text-lg sm:text-xl font-semibold text-slate-900 dark:text-white mb-1 sm:mb-2 truncate">
                       {getCurrentLabel()}
                     </h2>
-                    <p className="text-sm text-slate-600 dark:text-slate-400">
+                    <p className="text-xs sm:text-sm text-slate-600 dark:text-slate-400">
                       {selectedProperty === 'base'
                         ? 'Defina o comportamento base que o assistente deve seguir em todas as interações'
                         : selectedProperty === 'verificadorResumo'
@@ -1219,7 +1229,7 @@ export default function AutomacoesPage() {
                     </p>
                   </div>
 
-                  <div className="flex-1 flex flex-col mb-4 min-h-0">
+                  <div className="flex-1 flex flex-col mb-3 sm:mb-4 min-h-0">
                     <TextareaComVariaveis
                       value={getCurrentPrompt()}
                       onChange={setCurrentPrompt}
@@ -1242,8 +1252,8 @@ export default function AutomacoesPage() {
 
                   {/* Input Número Máximo de Mensagens - Oculto para Prompts de Validação */}
                   {selectedProperty !== 'verificadorResumo' && selectedProperty !== 'validacaoResumoIncorporacao' && selectedProperty !== 'validacaoUrgencia' && (
-                    <div className="mb-6 flex items-center gap-4">
-                      <label className="text-sm font-medium text-slate-700 dark:text-slate-300 whitespace-nowrap">
+                    <div className="mb-4 sm:mb-6 flex flex-col sm:flex-row items-start sm:items-center gap-2 sm:gap-4">
+                      <label className="text-xs sm:text-sm font-medium text-slate-700 dark:text-slate-300 min-w-0 flex-1">
                         Número máximo de mensagens com esse status:
                       </label>
                       <input
@@ -1251,17 +1261,17 @@ export default function AutomacoesPage() {
                         min="0"
                         value={getCurrentNumMaxMsg()}
                         onChange={(e) => setCurrentNumMaxMsg(parseInt(e.target.value) || 0)}
-                        className="w-24 px-3 py-2 rounded-lg border-2 border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-900 text-slate-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200"
+                        className="w-full sm:w-24 px-3 py-2 rounded-lg border-2 border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-900 text-slate-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200 flex-shrink-0"
                       />
                     </div>
                   )}
 
                   {/* Botão Salvar */}
-                  <div className="flex items-center justify-between">
+                  <div className="flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-3">
                     <div className="flex items-center gap-2">
                       {saveSuccess && (
-                        <div className="flex items-center gap-2 text-green-600 dark:text-green-400 text-sm font-medium animate-in fade-in slide-in-from-left-4">
-                          <HiOutlineCheckCircle className="w-5 h-5" />
+                        <div className="flex items-center gap-2 text-green-600 dark:text-green-400 text-xs sm:text-sm font-medium animate-in fade-in slide-in-from-left-4">
+                          <HiOutlineCheckCircle className="w-4 h-4 sm:w-5 sm:h-5" />
                           <span>Salvo com sucesso!</span>
                         </div>
                       )}
@@ -1269,7 +1279,7 @@ export default function AutomacoesPage() {
                     <button
                       onClick={handleSave}
                       disabled={saving}
-                      className={`px-6 py-2.5 rounded-lg font-medium text-white transition-all duration-200 transform hover:scale-105 disabled:opacity-50 disabled:cursor-not-allowed disabled:transform-none ${
+                      className={`px-4 sm:px-6 py-2 sm:py-2.5 rounded-lg text-sm sm:text-base font-medium text-white transition-all duration-200 transform hover:scale-105 disabled:opacity-50 disabled:cursor-not-allowed disabled:transform-none w-full sm:w-auto ${
                         saving
                           ? 'bg-slate-400 cursor-wait'
                           : `bg-gradient-to-r ${getPropertyColor(selectedProperty)} shadow-md hover:shadow-lg`

@@ -9,7 +9,8 @@ export default function InstagramDMPage() {
   // Calcula o margin-left baseado no estado do sidebar
   const getMainMargin = () => {
     if (isMobile) {
-      return 'ml-0'; // No mobile, sidebar fica sobreposto quando aberto
+      // No mobile, quando fechado mostra w-20 (reduzido), quando aberto tem overlay
+      return isOpen ? 'ml-0' : 'ml-20';
     }
     return isOpen ? 'ml-64' : 'ml-20'; // Desktop: 256px quando aberto, 80px quando fechado
   };

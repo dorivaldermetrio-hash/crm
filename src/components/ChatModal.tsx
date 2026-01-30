@@ -592,26 +592,26 @@ export default function ChatModal({ contatoId, isOpen, onClose }: ChatModalProps
 
   return (
     <>
-    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/50 backdrop-blur-sm">
-      <div className={`bg-white dark:bg-slate-800 rounded-2xl shadow-2xl h-[90vh] flex flex-col overflow-hidden transition-all duration-300 ${
-        painelInfoAberto || painelAnalyticsAberto || painelIAAberto || painelNotasAberto ? 'w-full max-w-7xl' : 'w-full max-w-4xl'
+    <div className="fixed inset-0 z-50 flex items-center justify-center p-0 sm:p-4 bg-black/50 backdrop-blur-sm">
+      <div className={`bg-white dark:bg-slate-800 rounded-none sm:rounded-2xl shadow-2xl h-full sm:h-[90vh] flex flex-col overflow-hidden transition-all duration-300 w-full ${
+        painelInfoAberto || painelAnalyticsAberto || painelIAAberto || painelNotasAberto ? 'sm:max-w-7xl' : 'sm:max-w-4xl'
       }`}>
         {/* Header */}
-        <div className="flex items-center justify-between p-4 sm:p-6 border-b border-slate-200 dark:border-slate-700 bg-gradient-to-r from-slate-50 to-white dark:from-slate-800 dark:to-slate-900">
-          <div className="flex items-center gap-4">
-            <div className="w-12 h-12 rounded-full bg-gradient-to-br from-blue-500 to-blue-600 flex items-center justify-center text-white font-semibold text-lg shadow-lg">
+        <div className="flex items-center justify-between p-3 sm:p-4 md:p-6 border-b border-slate-200 dark:border-slate-700 bg-gradient-to-r from-slate-50 to-white dark:from-slate-800 dark:to-slate-900">
+          <div className="flex items-center gap-2 sm:gap-3 md:gap-4 min-w-0 flex-1">
+            <div className="w-10 h-10 sm:w-12 sm:h-12 rounded-full bg-gradient-to-br from-blue-500 to-blue-600 flex items-center justify-center text-white font-semibold text-base sm:text-lg shadow-lg flex-shrink-0">
               {primeiraLetra}
             </div>
-            <div>
-              <h2 className="text-lg font-semibold text-slate-900 dark:text-white">
+            <div className="min-w-0 flex-1">
+              <h2 className="text-base sm:text-lg font-semibold text-slate-900 dark:text-white truncate">
                 {contato?.contatoNome || contato?.contato || 'Carregando...'}
               </h2>
-              <p className="text-sm text-slate-500 dark:text-slate-400">
+              <p className="text-xs sm:text-sm text-slate-500 dark:text-slate-400 truncate">
                 {contato?.contato}
               </p>
             </div>
           </div>
-          <div className="flex items-center gap-2">
+          <div className="flex items-center gap-1 sm:gap-2 flex-shrink-0">
             <button
               onClick={() => {
                 // Se o painel Notas já está aberto, fecha ele
@@ -625,14 +625,14 @@ export default function ChatModal({ contatoId, isOpen, onClose }: ChatModalProps
                   setPainelNotasAberto(true);
                 }
               }}
-              className={`p-2 rounded-lg transition-all duration-200 ${
+              className={`p-1.5 sm:p-2 rounded-lg transition-all duration-200 ${
                 painelNotasAberto
                   ? 'bg-amber-100 dark:bg-amber-900/30 text-amber-600 dark:text-amber-400'
                   : 'text-slate-500 hover:text-slate-700 hover:bg-slate-100 dark:hover:bg-slate-700 dark:text-slate-400 dark:hover:text-slate-200'
               }`}
               aria-label="Notas do caso"
             >
-              <BookOpen className="w-5 h-5" />
+              <BookOpen className="w-4 h-4 sm:w-5 sm:h-5" />
             </button>
             <button
               onClick={() => {
@@ -647,14 +647,14 @@ export default function ChatModal({ contatoId, isOpen, onClose }: ChatModalProps
                   setPainelIAAberto(true);
                 }
               }}
-              className={`p-2 rounded-lg transition-all duration-200 ${
+              className={`p-1.5 sm:p-2 rounded-lg transition-all duration-200 ${
                 painelIAAberto
                   ? 'bg-indigo-100 dark:bg-indigo-900/30 text-indigo-600 dark:text-indigo-400'
                   : 'text-slate-500 hover:text-slate-700 hover:bg-slate-100 dark:hover:bg-slate-700 dark:text-slate-400 dark:hover:text-slate-200'
               }`}
               aria-label="Resumo da conversa"
             >
-              <RiRobotLine className="w-5 h-5" />
+              <RiRobotLine className="w-4 h-4 sm:w-5 sm:h-5" />
             </button>
             <button
               onClick={() => {
@@ -669,14 +669,14 @@ export default function ChatModal({ contatoId, isOpen, onClose }: ChatModalProps
                   setPainelAnalyticsAberto(true);
                 }
               }}
-              className={`p-2 rounded-lg transition-all duration-200 ${
+              className={`p-1.5 sm:p-2 rounded-lg transition-all duration-200 ${
                 painelAnalyticsAberto
                   ? 'bg-purple-100 dark:bg-purple-900/30 text-purple-600 dark:text-purple-400'
                   : 'text-slate-500 hover:text-slate-700 hover:bg-slate-100 dark:hover:bg-slate-700 dark:text-slate-400 dark:hover:text-slate-200'
               }`}
               aria-label="Analytics"
             >
-              <FiBarChart2 className="w-5 h-5" />
+              <FiBarChart2 className="w-4 h-4 sm:w-5 sm:h-5" />
             </button>
             <button
               onClick={() => {
@@ -691,14 +691,14 @@ export default function ChatModal({ contatoId, isOpen, onClose }: ChatModalProps
                   setPainelInfoAberto(true);
                 }
               }}
-              className={`p-2 rounded-lg transition-all duration-200 ${
+              className={`p-1.5 sm:p-2 rounded-lg transition-all duration-200 ${
                 painelInfoAberto
                   ? 'bg-blue-100 dark:bg-blue-900/30 text-blue-600 dark:text-blue-400'
                   : 'text-slate-500 hover:text-slate-700 hover:bg-slate-100 dark:hover:bg-slate-700 dark:text-slate-400 dark:hover:text-slate-200'
               }`}
               aria-label="Informações do contato"
             >
-              <HiInformationCircle className="w-5 h-5" />
+              <HiInformationCircle className="w-4 h-4 sm:w-5 sm:h-5" />
             </button>
             <button
               onClick={(e) => {
@@ -708,10 +708,10 @@ export default function ChatModal({ contatoId, isOpen, onClose }: ChatModalProps
                 setModalDeletarAberto(true);
                 console.log('✅ setModalDeletarAberto(true) chamado');
               }}
-              className="p-2 rounded-lg text-slate-500 hover:text-red-600 hover:bg-red-50 dark:hover:bg-red-900/20 dark:text-slate-400 dark:hover:text-red-400 transition-colors"
+              className="p-1.5 sm:p-2 rounded-lg text-slate-500 hover:text-red-600 hover:bg-red-50 dark:hover:bg-red-900/20 dark:text-slate-400 dark:hover:text-red-400 transition-colors"
               aria-label="Deletar histórico de conversa"
             >
-              <Trash2 className="w-5 h-5" />
+              <Trash2 className="w-4 h-4 sm:w-5 sm:h-5" />
             </button>
             <button
               onClick={(e) => {
@@ -719,26 +719,28 @@ export default function ChatModal({ contatoId, isOpen, onClose }: ChatModalProps
                 e.stopPropagation();
                 setModalDeletarContatoAberto(true);
               }}
-              className="p-2 rounded-lg text-slate-500 hover:text-red-600 hover:bg-red-50 dark:hover:bg-red-900/20 dark:text-slate-400 dark:hover:text-red-400 transition-colors"
+              className="p-1.5 sm:p-2 rounded-lg text-slate-500 hover:text-red-600 hover:bg-red-50 dark:hover:bg-red-900/20 dark:text-slate-400 dark:hover:text-red-400 transition-colors"
               aria-label="Deletar contato e conversa"
             >
-              <UserX className="w-5 h-5" />
+              <UserX className="w-4 h-4 sm:w-5 sm:h-5" />
             </button>
             <button
               onClick={onClose}
-              className="p-2 rounded-lg text-slate-500 hover:text-slate-700 hover:bg-slate-100 dark:hover:bg-slate-700 dark:text-slate-400 dark:hover:text-slate-200 transition-colors"
+              className="p-1.5 sm:p-2 rounded-lg text-slate-500 hover:text-slate-700 hover:bg-slate-100 dark:hover:bg-slate-700 dark:text-slate-400 dark:hover:text-slate-200 transition-colors"
               aria-label="Fechar"
             >
-              <X className="w-5 h-5" />
+              <X className="w-4 h-4 sm:w-5 sm:h-5" />
             </button>
           </div>
         </div>
 
         {/* Main Content Area */}
-        <div className="flex-1 flex overflow-hidden">
+        <div className="flex-1 flex overflow-hidden relative">
           {/* Chat Area */}
           <div className={`flex-1 flex flex-col transition-all duration-300 ${
-            painelInfoAberto || painelAnalyticsAberto || painelIAAberto || painelNotasAberto ? 'w-2/3' : 'w-full'
+            painelInfoAberto || painelAnalyticsAberto || painelIAAberto || painelNotasAberto 
+              ? 'hidden sm:flex sm:w-2/3' 
+              : 'w-full'
           }`}>
 
             {/* Messages Area */}
@@ -1110,8 +1112,8 @@ export default function ChatModal({ contatoId, isOpen, onClose }: ChatModalProps
             </div>
 
             {/* Input Area */}
-            <form onSubmit={enviarMensagem} className="p-4 sm:p-6 border-t border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 relative">
-          <div className="flex items-end gap-3">
+            <form onSubmit={enviarMensagem} className="p-3 sm:p-4 md:p-6 border-t border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 relative">
+          <div className="flex items-end gap-2 sm:gap-3">
             <textarea
               ref={inputRef}
               value={novaMensagem}
@@ -1123,28 +1125,28 @@ export default function ChatModal({ contatoId, isOpen, onClose }: ChatModalProps
                 }
               }}
               placeholder="Digite sua mensagem..."
-              className="flex-1 resize-none rounded-xl border border-slate-300 dark:border-slate-600 bg-white dark:bg-slate-700 px-4 py-3 text-slate-900 dark:text-white placeholder-slate-500 dark:placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all overflow-y-auto scrollbar-thin"
-              style={{ minHeight: '48px', maxHeight: '120px' }}
+              className="flex-1 resize-none rounded-xl border border-slate-300 dark:border-slate-600 bg-white dark:bg-slate-700 px-3 sm:px-4 py-2 sm:py-3 text-sm sm:text-base text-slate-900 dark:text-white placeholder-slate-500 dark:placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all overflow-y-auto scrollbar-thin"
+              style={{ minHeight: '44px', maxHeight: '120px' }}
               disabled={enviando}
             />
             {/* Botão de Templates */}
             <button
               type="button"
               onClick={() => setTemplatesOpen(!templatesOpen)}
-              className="p-3 rounded-xl bg-slate-100 dark:bg-slate-700 text-slate-600 dark:text-slate-300 hover:bg-slate-200 dark:hover:bg-slate-600 transition-all duration-200 shadow-sm hover:shadow-md"
+              className="p-2 sm:p-3 rounded-xl bg-slate-100 dark:bg-slate-700 text-slate-600 dark:text-slate-300 hover:bg-slate-200 dark:hover:bg-slate-600 transition-all duration-200 shadow-sm hover:shadow-md flex-shrink-0"
               aria-label="Templates"
             >
-              <HiOutlineQueueList className="w-5 h-5" />
+              <HiOutlineQueueList className="w-4 h-4 sm:w-5 sm:h-5" />
             </button>
             <button
               type="submit"
               disabled={!novaMensagem.trim() || enviando}
-              className="px-6 py-3 bg-gradient-to-r from-blue-600 to-blue-500 text-white rounded-xl font-medium hover:from-blue-700 hover:to-blue-600 disabled:opacity-50 disabled:cursor-not-allowed transition-all duration-200 shadow-lg hover:shadow-xl disabled:shadow-none"
+              className="px-4 sm:px-6 py-2.5 sm:py-3 bg-gradient-to-r from-blue-600 to-blue-500 text-white rounded-xl text-sm sm:text-base font-medium hover:from-blue-700 hover:to-blue-600 disabled:opacity-50 disabled:cursor-not-allowed transition-all duration-200 shadow-lg hover:shadow-xl disabled:shadow-none flex-shrink-0"
             >
               {enviando ? (
-                <div className="w-5 h-5 border-2 border-white border-t-transparent rounded-full animate-spin" />
+                <div className="w-4 h-4 sm:w-5 sm:h-5 border-2 border-white border-t-transparent rounded-full animate-spin" />
               ) : (
-                'Enviar'
+                <span className="hidden sm:inline">Enviar</span>
               )}
             </button>
           </div>
@@ -1153,7 +1155,7 @@ export default function ChatModal({ contatoId, isOpen, onClose }: ChatModalProps
           {templatesOpen && (
             <div
               ref={templatesBoxRef}
-              className="absolute bottom-full right-0 mb-2 w-80 max-h-96 bg-white dark:bg-slate-800 rounded-xl border border-slate-200 dark:border-slate-700 shadow-2xl overflow-hidden z-50"
+              className="absolute bottom-full right-0 mb-2 w-[calc(100vw-2rem)] sm:w-80 max-w-sm max-h-96 bg-white dark:bg-slate-800 rounded-xl border border-slate-200 dark:border-slate-700 shadow-2xl overflow-hidden z-50"
             >
               {/* Header */}
               <div className="p-4 border-b border-slate-200 dark:border-slate-700 bg-gradient-to-r from-blue-50 to-indigo-50 dark:from-slate-700 dark:to-slate-800">
@@ -1207,48 +1209,62 @@ export default function ChatModal({ contatoId, isOpen, onClose }: ChatModalProps
           </div>
 
           {/* Painel de Informações */}
-          <div className={`border-l border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 transition-all duration-300 overflow-hidden ${
-            painelInfoAberto ? 'w-1/3 opacity-100' : 'w-0 opacity-0'
+          <div className={`sm:border-l border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 transition-all duration-300 overflow-hidden ${
+            painelInfoAberto 
+              ? 'absolute sm:relative inset-0 sm:inset-auto w-full sm:w-1/3 opacity-100 z-10' 
+              : 'w-0 opacity-0 pointer-events-none'
           }`}>
             {painelInfoAberto && contatoCompleto && (
               <PainelInformacoes
                 contato={contatoCompleto}
                 onSave={salvarContato}
                 onUpdate={fetchContatoCompleto}
+                onClose={() => setPainelInfoAberto(false)}
               />
             )}
           </div>
 
           {/* Painel de Analytics */}
-          <div className={`border-l border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 transition-all duration-300 overflow-hidden ${
-            painelAnalyticsAberto ? 'w-1/3 opacity-100' : 'w-0 opacity-0'
+          <div className={`sm:border-l border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 transition-all duration-300 overflow-hidden ${
+            painelAnalyticsAberto 
+              ? 'absolute sm:relative inset-0 sm:inset-auto w-full sm:w-1/3 opacity-100 z-10' 
+              : 'w-0 opacity-0 pointer-events-none'
           }`}>
             {painelAnalyticsAberto && mensagens.length > 0 && (
               <PainelAnalytics
                 mensagens={mensagens}
                 contato={contato}
+                onClose={() => setPainelAnalyticsAberto(false)}
               />
             )}
           </div>
 
           {/* Painel de IA (Resumo da Conversa) */}
-          <div className={`border-l border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 transition-all duration-300 overflow-hidden ${
-            painelIAAberto ? 'w-1/3 opacity-100' : 'w-0 opacity-0'
+          <div className={`sm:border-l border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 transition-all duration-300 overflow-hidden ${
+            painelIAAberto 
+              ? 'absolute sm:relative inset-0 sm:inset-auto w-full sm:w-1/3 opacity-100 z-10' 
+              : 'w-0 opacity-0 pointer-events-none'
           }`}>
             {painelIAAberto && (
-              <PainelIA contatoId={contatoId} />
+              <PainelIA 
+                contatoId={contatoId}
+                onClose={() => setPainelIAAberto(false)}
+              />
             )}
           </div>
 
           {/* Painel de Notas */}
-          <div className={`border-l border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 transition-all duration-300 overflow-hidden ${
-            painelNotasAberto ? 'w-1/3 opacity-100' : 'w-0 opacity-0'
+          <div className={`sm:border-l border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 transition-all duration-300 overflow-hidden ${
+            painelNotasAberto 
+              ? 'absolute sm:relative inset-0 sm:inset-auto w-full sm:w-1/3 opacity-100 z-10' 
+              : 'w-0 opacity-0 pointer-events-none'
           }`}>
             {painelNotasAberto && contatoCompleto && (
               <PainelNotas
                 contato={contatoCompleto}
                 onSave={salvarContato}
                 onUpdate={fetchContatoCompleto}
+                onClose={() => setPainelNotasAberto(false)}
               />
             )}
           </div>
@@ -1414,9 +1430,10 @@ interface PainelInformacoesProps {
   contato: Contato;
   onSave: (dados: Partial<Contato>) => Promise<void>;
   onUpdate: () => void;
+  onClose: () => void;
 }
 
-function PainelInformacoes({ contato, onSave, onUpdate }: PainelInformacoesProps) {
+function PainelInformacoes({ contato, onSave, onUpdate, onClose }: PainelInformacoesProps) {
   const [status, setStatus] = useState<Contato['status']>('Novo Contato');
   const [tags, setTags] = useState<Contato['tags']>([]);
   const [nota, setNota] = useState('');
@@ -1523,41 +1540,52 @@ function PainelInformacoes({ contato, onSave, onUpdate }: PainelInformacoesProps
       {/* Header do Painel */}
       <div className="p-4 border-b border-slate-200 dark:border-slate-700 bg-gradient-to-r from-slate-50 to-white dark:from-slate-800 dark:to-slate-900">
         <div className="flex items-center justify-between mb-4">
-          <h3 className="text-lg font-semibold text-slate-900 dark:text-white">
+          <h3 className="text-base sm:text-lg font-semibold text-slate-900 dark:text-white flex-1 min-w-0">
             Informações do Contato
           </h3>
-          {!editando ? (
+          <div className="flex items-center gap-2 flex-shrink-0">
+            {!editando ? (
+              <button
+                onClick={() => setEditando(true)}
+                className="px-2 sm:px-3 py-1.5 text-xs sm:text-sm bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors"
+              >
+                <span className="hidden sm:inline">Editar</span>
+                <span className="sm:hidden">Editar</span>
+              </button>
+            ) : (
+              <div className="flex gap-1.5 sm:gap-2">
+                <button
+                  onClick={() => {
+                    setEditando(false);
+                    // Restaura valores originais
+                    setStatus(contato.status || 'Novo Contato');
+                    setTags(contato.tags || []);
+                    setNota(contato.nota || '');
+                    setFavorito(contato.favorito || false);
+                    setArquivar(contato.arquivar || false);
+                  }}
+                  className="px-2 sm:px-3 py-1.5 text-xs sm:text-sm bg-slate-200 dark:bg-slate-700 text-slate-700 dark:text-slate-300 rounded-lg hover:bg-slate-300 dark:hover:bg-slate-600 transition-colors"
+                >
+                  <span className="hidden sm:inline">Cancelar</span>
+                  <span className="sm:hidden">Cancelar</span>
+                </button>
+                <button
+                  onClick={handleSalvar}
+                  disabled={salvando}
+                  className="px-2 sm:px-3 py-1.5 text-xs sm:text-sm bg-green-600 text-white rounded-lg hover:bg-green-700 disabled:opacity-50 transition-colors"
+                >
+                  {salvando ? 'Salvando...' : 'Salvar'}
+                </button>
+              </div>
+            )}
             <button
-              onClick={() => setEditando(true)}
-              className="px-3 py-1.5 text-sm bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors"
+              onClick={onClose}
+              className="p-1.5 sm:p-2 rounded-lg text-slate-500 hover:text-slate-700 hover:bg-slate-100 dark:hover:bg-slate-700 dark:text-slate-400 dark:hover:text-slate-200 transition-colors flex-shrink-0"
+              aria-label="Fechar painel"
             >
-              Editar
+              <X className="w-4 h-4 sm:w-5 sm:h-5" />
             </button>
-          ) : (
-            <div className="flex gap-2">
-              <button
-                onClick={() => {
-                  setEditando(false);
-                  // Restaura valores originais
-                  setStatus(contato.status || 'Novo Contato');
-                  setTags(contato.tags || []);
-                  setNota(contato.nota || '');
-                  setFavorito(contato.favorito || false);
-                  setArquivar(contato.arquivar || false);
-                }}
-                className="px-3 py-1.5 text-sm bg-slate-200 dark:bg-slate-700 text-slate-700 dark:text-slate-300 rounded-lg hover:bg-slate-300 dark:hover:bg-slate-600 transition-colors"
-              >
-                Cancelar
-              </button>
-              <button
-                onClick={handleSalvar}
-                disabled={salvando}
-                className="px-3 py-1.5 text-sm bg-green-600 text-white rounded-lg hover:bg-green-700 disabled:opacity-50 transition-colors"
-              >
-                {salvando ? 'Salvando...' : 'Salvar'}
-              </button>
-            </div>
-          )}
+          </div>
         </div>
         <div className="flex items-center gap-3">
           <div className="w-12 h-12 rounded-full bg-gradient-to-br from-blue-500 to-blue-600 flex items-center justify-center text-white font-semibold text-lg shadow-lg">
@@ -1724,9 +1752,10 @@ function PainelInformacoes({ contato, onSave, onUpdate }: PainelInformacoesProps
 interface PainelAnalyticsProps {
   mensagens: Mensagem[];
   contato: Contato | null;
+  onClose: () => void;
 }
 
-function PainelAnalytics({ mensagens, contato }: PainelAnalyticsProps) {
+function PainelAnalytics({ mensagens, contato, onClose }: PainelAnalyticsProps) {
   // Importação dinâmica do recharts para evitar problemas de SSR
   const [chartsLoaded, setChartsLoaded] = useState(false);
   const [ChartComponents, setChartComponents] = useState<any>(null);
@@ -1877,10 +1906,19 @@ function PainelAnalytics({ mensagens, contato }: PainelAnalyticsProps) {
     <div className="h-full flex flex-col overflow-hidden">
       {/* Header */}
       <div className="p-4 border-b border-slate-200 dark:border-slate-700 bg-gradient-to-r from-purple-50 to-white dark:from-purple-900/20 dark:to-slate-800">
-        <h3 className="text-lg font-semibold text-slate-900 dark:text-white flex items-center gap-2">
-          <FiBarChart2 className="w-5 h-5 text-purple-600 dark:text-purple-400" />
-          Analytics da Conversa
-        </h3>
+        <div className="flex items-center justify-between">
+          <h3 className="text-base sm:text-lg font-semibold text-slate-900 dark:text-white flex items-center gap-2 flex-1 min-w-0">
+            <FiBarChart2 className="w-4 h-4 sm:w-5 sm:h-5 text-purple-600 dark:text-purple-400 flex-shrink-0" />
+            <span className="truncate">Analytics da Conversa</span>
+          </h3>
+          <button
+            onClick={onClose}
+            className="p-1.5 sm:p-2 rounded-lg text-slate-500 hover:text-slate-700 hover:bg-slate-100 dark:hover:bg-slate-700 dark:text-slate-400 dark:hover:text-slate-200 transition-colors flex-shrink-0 ml-2"
+            aria-label="Fechar painel"
+          >
+            <X className="w-4 h-4 sm:w-5 sm:h-5" />
+          </button>
+        </div>
       </div>
 
       {/* Content */}
@@ -2004,9 +2042,10 @@ function PainelAnalytics({ mensagens, contato }: PainelAnalyticsProps) {
 // Componente do Painel de IA (Resumo da Conversa)
 interface PainelIAProps {
   contatoId: string | null;
+  onClose: () => void;
 }
 
-function PainelIA({ contatoId }: PainelIAProps) {
+function PainelIA({ contatoId, onClose }: PainelIAProps) {
   const [loading, setLoading] = useState(true);
   const [resumo, setResumo] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
@@ -2052,10 +2091,19 @@ function PainelIA({ contatoId }: PainelIAProps) {
     <div className="h-full flex flex-col overflow-hidden">
       {/* Header do Painel */}
       <div className="p-4 border-b border-slate-200 dark:border-slate-700 bg-gradient-to-r from-indigo-50 to-white dark:from-indigo-900/20 dark:to-slate-800">
-        <h3 className="text-lg font-semibold text-slate-900 dark:text-white flex items-center gap-2">
-          <RiRobotLine className="w-5 h-5 text-indigo-600 dark:text-indigo-400" />
-          Resumo da Conversa
-        </h3>
+        <div className="flex items-center justify-between">
+          <h3 className="text-base sm:text-lg font-semibold text-slate-900 dark:text-white flex items-center gap-2 flex-1 min-w-0">
+            <RiRobotLine className="w-4 h-4 sm:w-5 sm:h-5 text-indigo-600 dark:text-indigo-400 flex-shrink-0" />
+            <span className="truncate">Resumo da Conversa</span>
+          </h3>
+          <button
+            onClick={onClose}
+            className="p-1.5 sm:p-2 rounded-lg text-slate-500 hover:text-slate-700 hover:bg-slate-100 dark:hover:bg-slate-700 dark:text-slate-400 dark:hover:text-slate-200 transition-colors flex-shrink-0 ml-2"
+            aria-label="Fechar painel"
+          >
+            <X className="w-4 h-4 sm:w-5 sm:h-5" />
+          </button>
+        </div>
       </div>
 
       {/* Content */}
@@ -2109,9 +2157,10 @@ interface PainelNotasProps {
   contato: Contato;
   onSave: (dados: Partial<Contato>) => Promise<void>;
   onUpdate: () => void;
+  onClose: () => void;
 }
 
-function PainelNotas({ contato, onSave, onUpdate }: PainelNotasProps) {
+function PainelNotas({ contato, onSave, onUpdate, onClose }: PainelNotasProps) {
   const [informacoesCaso, setInformacoesCaso] = useState(contato.informacoesCaso || '');
   const [salvando, setSalvando] = useState(false);
 
@@ -2144,10 +2193,19 @@ function PainelNotas({ contato, onSave, onUpdate }: PainelNotasProps) {
     <div className="h-full flex flex-col overflow-hidden">
       {/* Header do Painel */}
       <div className="p-4 border-b border-slate-200 dark:border-slate-700 bg-gradient-to-r from-amber-50 to-white dark:from-amber-900/20 dark:to-slate-800">
-        <h3 className="text-lg font-semibold text-slate-900 dark:text-white flex items-center gap-2">
-          <BookOpen className="w-5 h-5 text-amber-600 dark:text-amber-400" />
-          Notas do Caso
-        </h3>
+        <div className="flex items-center justify-between">
+          <h3 className="text-base sm:text-lg font-semibold text-slate-900 dark:text-white flex items-center gap-2 flex-1 min-w-0">
+            <BookOpen className="w-4 h-4 sm:w-5 sm:h-5 text-amber-600 dark:text-amber-400 flex-shrink-0" />
+            <span className="truncate">Notas do Caso</span>
+          </h3>
+          <button
+            onClick={onClose}
+            className="p-1.5 sm:p-2 rounded-lg text-slate-500 hover:text-slate-700 hover:bg-slate-100 dark:hover:bg-slate-700 dark:text-slate-400 dark:hover:text-slate-200 transition-colors flex-shrink-0 ml-2"
+            aria-label="Fechar painel"
+          >
+            <X className="w-4 h-4 sm:w-5 sm:h-5" />
+          </button>
+        </div>
       </div>
 
       {/* Content */}

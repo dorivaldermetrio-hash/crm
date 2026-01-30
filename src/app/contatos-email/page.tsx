@@ -81,24 +81,25 @@ export default function ContatosEmailPage() {
   // Calcula o margin-left baseado no estado do sidebar
   const getMainMargin = () => {
     if (isMobile) {
-      return 'ml-0';
+      // No mobile, quando fechado mostra w-20 (reduzido), quando aberto tem overlay
+      return isOpen ? 'ml-0' : 'ml-20';
     }
     return isOpen ? 'ml-64' : 'ml-20';
   };
 
   return (
-    <div className="flex min-h-screen bg-slate-50 dark:bg-slate-900">
+    <div className="flex min-h-screen bg-slate-50 dark:bg-slate-900 overflow-x-hidden">
       <Sidebar />
-      <main className={`flex-1 ${getMainMargin()} p-4 sm:p-6 lg:p-8 transition-all duration-300`}>
-        <div className="max-w-7xl mx-auto">
+      <main className={`flex-1 ${getMainMargin()} p-3 sm:p-4 md:p-6 lg:p-8 transition-all duration-300 w-0 min-w-0`}>
+        <div className="w-full max-w-full">
           {/* Header */}
-          <div className="mb-6">
-            <div className="flex items-center justify-between">
-              <div>
-                <h1 className="text-2xl sm:text-3xl font-bold text-slate-900 dark:text-white mb-2">
+          <div className="mb-4 sm:mb-6">
+            <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 sm:gap-4">
+              <div className="min-w-0 flex-1">
+                <h1 className="text-xl sm:text-2xl md:text-3xl font-bold text-slate-900 dark:text-white mb-1 sm:mb-2 truncate">
                   Contatos de Email
                 </h1>
-                <p className="text-slate-600 dark:text-slate-400 text-sm sm:text-base">
+                <p className="text-xs sm:text-sm md:text-base text-slate-600 dark:text-slate-400 truncate">
                   {loading
                     ? 'Carregando...'
                     : contatosEmail.length === 0
@@ -108,10 +109,11 @@ export default function ContatosEmailPage() {
               </div>
               <button
                 onClick={() => setModalCriarAberto(true)}
-                className="px-6 py-3 bg-gradient-to-r from-green-600 via-emerald-600 to-teal-600 text-white rounded-xl font-semibold hover:from-green-700 hover:via-emerald-700 hover:to-teal-700 transition-all duration-300 shadow-lg hover:shadow-xl flex items-center gap-2 whitespace-nowrap"
+                className="px-4 sm:px-6 py-2.5 sm:py-3 bg-gradient-to-r from-green-600 via-emerald-600 to-teal-600 text-white rounded-xl text-sm sm:text-base font-semibold hover:from-green-700 hover:via-emerald-700 hover:to-teal-700 transition-all duration-300 shadow-lg hover:shadow-xl flex items-center gap-2 w-full sm:w-auto justify-center sm:justify-start flex-shrink-0"
               >
-                <Plus className="w-5 h-5" />
-                Adicionar Contato Email
+                <Plus className="w-4 h-4 sm:w-5 sm:h-5" />
+                <span className="hidden sm:inline">Adicionar Contato Email</span>
+                <span className="sm:hidden">Adicionar</span>
               </button>
             </div>
           </div>
@@ -141,12 +143,12 @@ export default function ContatosEmailPage() {
 
           {/* Empty State */}
           {!loading && !error && contatosEmail.length === 0 && (
-            <div className="bg-white dark:bg-slate-800 rounded-xl p-12 text-center border border-slate-200 dark:border-slate-700">
-              <div className="text-6xl mb-4">📧</div>
-              <h3 className="text-lg font-semibold text-slate-900 dark:text-white mb-2">
+            <div className="bg-white dark:bg-slate-800 rounded-xl p-8 sm:p-12 text-center border border-slate-200 dark:border-slate-700 min-w-0">
+              <div className="text-4xl sm:text-6xl mb-3 sm:mb-4">📧</div>
+              <h3 className="text-base sm:text-lg font-semibold text-slate-900 dark:text-white mb-2">
                 Nenhum contato email ainda
               </h3>
-              <p className="text-slate-600 dark:text-slate-400 text-sm mb-4">
+              <p className="text-xs sm:text-sm text-slate-600 dark:text-slate-400 mb-4">
                 Adicione seu primeiro contato email para começar.
               </p>
             </div>
@@ -154,7 +156,7 @@ export default function ContatosEmailPage() {
 
           {/* Lista de Contatos Email */}
           {!loading && !error && contatosEmail.length > 0 && (
-            <div className="bg-white dark:bg-slate-800 rounded-xl border border-slate-200 dark:border-slate-700 shadow-sm overflow-hidden">
+            <div className="bg-white dark:bg-slate-800 rounded-xl border border-slate-200 dark:border-slate-700 shadow-sm overflow-hidden min-w-0">
               <div className="divide-y divide-slate-200 dark:divide-slate-700">
                 {contatosEmail.map((contato) => {
                   const primeiraLetra = contato.nome
@@ -177,52 +179,49 @@ export default function ContatosEmailPage() {
                   return (
                     <div
                       key={contato.id}
-                      className="flex items-center gap-4 p-4 hover:bg-slate-50 dark:hover:bg-slate-700/50 transition-colors"
+                      className="flex items-center gap-2 sm:gap-3 md:gap-4 p-3 sm:p-4 hover:bg-slate-50 dark:hover:bg-slate-700/50 transition-colors min-w-0"
                     >
                       {/* Avatar */}
                       <div
-                        className={`${corAvatar} w-12 h-12 rounded-full flex items-center justify-center text-white font-bold text-lg shadow-lg flex-shrink-0`}
+                        className={`${corAvatar} w-10 h-10 sm:w-12 sm:h-12 rounded-full flex items-center justify-center text-white font-bold text-base sm:text-lg shadow-lg flex-shrink-0`}
                       >
                         {primeiraLetra}
                       </div>
 
                       {/* Nome e Email */}
-                      <div className="flex-1 flex items-center justify-between gap-4 min-w-0 group">
+                      <div className="flex-1 flex items-center justify-between gap-2 sm:gap-3 md:gap-4 min-w-0">
                         <div className="flex-1 min-w-0">
-                          <p className="font-semibold text-slate-900 dark:text-white text-base truncate">
+                          <p className="font-semibold text-sm sm:text-base text-slate-900 dark:text-white truncate">
                             {contato.nome}
                           </p>
+                          <p className="text-xs sm:text-sm text-slate-600 dark:text-slate-400 truncate mt-0.5">
+                            {contato.email}
+                          </p>
                         </div>
-                        <div className="flex items-center gap-3 flex-shrink-0 relative">
-                          <div className="flex items-center gap-2 text-slate-600 dark:text-slate-400 transition-transform duration-300 ease-in-out group-hover:-translate-x-20">
-                            <Mail className="w-4 h-4" />
-                            <span className="text-sm truncate">{contato.email}</span>
-                          </div>
-                          {/* Botões de ação (aparecem no hover) */}
-                          <div className="flex items-center gap-2 absolute right-0 opacity-0 group-hover:opacity-100 transition-opacity duration-300">
-                            <button
-                              onClick={(e) => {
-                                e.stopPropagation();
-                                setContatoEmailEditando(contato);
-                                setModalEditarAberto(true);
-                              }}
-                              className="p-2 rounded-lg text-blue-600 dark:text-blue-400 hover:bg-blue-50 dark:hover:bg-blue-900/20 transition-colors"
-                              aria-label="Editar contato"
-                            >
-                              <Pencil className="w-4 h-4" />
-                            </button>
-                            <button
-                              onClick={(e) => {
-                                e.stopPropagation();
-                                setContatoEmailExcluindo(contato);
-                                setModalExcluirAberto(true);
-                              }}
-                              className="p-2 rounded-lg text-red-600 dark:text-red-400 hover:bg-red-50 dark:hover:bg-red-900/20 transition-colors"
-                              aria-label="Excluir contato"
-                            >
-                              <Trash2 className="w-4 h-4" />
-                            </button>
-                          </div>
+                        {/* Botões de ação - sempre visíveis no mobile, hover no desktop */}
+                        <div className="flex items-center gap-1 sm:gap-2 flex-shrink-0">
+                          <button
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              setContatoEmailEditando(contato);
+                              setModalEditarAberto(true);
+                            }}
+                            className="p-1.5 sm:p-2 rounded-lg text-blue-600 dark:text-blue-400 hover:bg-blue-50 dark:hover:bg-blue-900/20 transition-colors"
+                            aria-label="Editar contato"
+                          >
+                            <Pencil className="w-4 h-4 sm:w-5 sm:h-5" />
+                          </button>
+                          <button
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              setContatoEmailExcluindo(contato);
+                              setModalExcluirAberto(true);
+                            }}
+                            className="p-1.5 sm:p-2 rounded-lg text-red-600 dark:text-red-400 hover:bg-red-50 dark:hover:bg-red-900/20 transition-colors"
+                            aria-label="Excluir contato"
+                          >
+                            <Trash2 className="w-4 h-4 sm:w-5 sm:h-5" />
+                          </button>
                         </div>
                       </div>
                     </div>

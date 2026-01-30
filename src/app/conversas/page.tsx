@@ -107,7 +107,8 @@ export default function ConversasPage() {
   // Calcula o margin-left baseado no estado do sidebar
   const getMainMargin = () => {
     if (isMobile) {
-      return 'ml-0'; // No mobile, sidebar fica sobreposto quando aberto
+      // No mobile, quando fechado mostra w-20 (reduzido), quando aberto tem overlay
+      return isOpen ? 'ml-0' : 'ml-20';
     }
     return isOpen ? 'ml-64' : 'ml-20'; // Desktop: 256px quando aberto, 80px quando fechado
   };
@@ -115,14 +116,14 @@ export default function ConversasPage() {
   return (
     <div className="flex min-h-screen bg-slate-50 dark:bg-slate-900">
       <Sidebar />
-      <main className={`flex-1 ${getMainMargin()} p-4 sm:p-6 lg:p-8 transition-all duration-300`}>
+      <main className={`flex-1 ${getMainMargin()} p-3 sm:p-4 md:p-6 lg:p-8 transition-all duration-300`}>
         <div className="max-w-7xl mx-auto">
           {/* Header */}
-          <div className="mb-6">
-            <h1 className="text-2xl sm:text-3xl font-bold text-slate-900 dark:text-white mb-2">
+          <div className="mb-4 sm:mb-6">
+            <h1 className="text-xl sm:text-2xl md:text-3xl font-bold text-slate-900 dark:text-white mb-1 sm:mb-2">
               Conversas
             </h1>
-            <p className="text-slate-600 dark:text-slate-400 text-sm sm:text-base">
+            <p className="text-slate-600 dark:text-slate-400 text-xs sm:text-sm md:text-base">
               {loading
                 ? 'Carregando...'
                 : contatos.length === 0
@@ -169,7 +170,7 @@ export default function ConversasPage() {
 
           {/* Grid de Cards */}
           {!loading && !error && contatos.length > 0 && (
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-3 sm:gap-4">
               {contatos.map((contato) => (
                 <ContatoCard
                   key={contato.id}

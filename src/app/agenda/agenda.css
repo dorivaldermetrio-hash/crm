@@ -303,18 +303,103 @@
 
 /* Responsividade */
 @media (max-width: 768px) {
+  .fc {
+    font-size: 0.875rem;
+  }
+
   .fc-header-toolbar {
-    flex-direction: column;
+    flex-direction: row;
+    flex-wrap: wrap;
     gap: 0.5rem;
+    padding: 0.5rem;
+    align-items: center;
   }
 
   .fc-toolbar-title {
-    font-size: 1.25rem;
+    font-size: 0.875rem;
+    margin: 0;
+    text-align: center;
+    order: 3;
+    width: 100%;
+  }
+
+  .fc-toolbar-chunk {
+    display: flex;
+    align-items: center;
+    gap: 0.25rem;
+  }
+
+  .fc-toolbar-chunk:first-child {
+    order: 1;
+    flex: 1;
+    justify-content: flex-start;
+  }
+
+  .fc-toolbar-chunk:last-child {
+    order: 2;
+    flex: 1;
+    justify-content: flex-end;
   }
 
   .fc-button {
-    padding: 0.375rem 0.75rem;
-    font-size: 0.875rem;
+    padding: 0.375rem 0.5rem;
+    font-size: 0.7rem;
+    white-space: nowrap;
   }
+
+  .fc-button-group {
+    display: inline-flex;
+    gap: 0.125rem;
+  }
+
+  .fc-button-group .fc-button {
+    padding: 0.375rem 0.5rem;
+    font-size: 0.7rem;
+  }
+
+  .fc-col-header-cell {
+    padding: 0.375rem 0.25rem;
+  }
+
+  .fc-col-header-cell-cushion {
+    font-size: 0.75rem;
+  }
+
+  .fc-daygrid-day-number {
+    padding: 0.25rem;
+    font-size: 0.75rem;
+  }
+
+  .fc-event {
+    padding: 0.125rem 0.25rem;
+    font-size: 0.75rem;
+  }
+
+  .fc-event-title {
+    font-size: 0.75rem;
+  }
+
+  .fc-scrollgrid {
+    width: 100%;
+    max-width: 100%;
+    overflow-x: auto;
+  }
+}
+
+/* Prevenir overflow horizontal */
+.fc {
+  max-width: 100%;
+  overflow-x: hidden;
+}
+
+.fc-scrollgrid {
+  width: 100%;
+  max-width: 100%;
+  table-layout: fixed;
+}
+
+.fc-scrollgrid-sync-table {
+  width: 100%;
+  max-width: 100%;
 }
 

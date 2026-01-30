@@ -85,7 +85,8 @@ export default function RelatoriosPage() {
 
   const getMainMargin = () => {
     if (isMobile) {
-      return 'ml-0';
+      // No mobile, quando fechado mostra w-20 (reduzido), quando aberto tem overlay
+      return isOpen ? 'ml-0' : 'ml-20';
     }
     return isOpen ? 'ml-64' : 'ml-20';
   };

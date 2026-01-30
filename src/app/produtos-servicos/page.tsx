@@ -58,7 +58,8 @@ export default function ProdutosServicosPage() {
   // Calcula o margin-left baseado no estado do sidebar
   const getMainMargin = () => {
     if (isMobile) {
-      return 'ml-0';
+      // No mobile, quando fechado mostra w-20 (reduzido), quando aberto tem overlay
+      return isOpen ? 'ml-0' : 'ml-20';
     }
     return isOpen ? 'ml-64' : 'ml-20';
   };
@@ -125,55 +126,60 @@ export default function ProdutosServicosPage() {
   };
 
   return (
-    <div className="flex min-h-screen bg-slate-50 dark:bg-slate-900">
+    <div className="flex min-h-screen bg-slate-50 dark:bg-slate-900 overflow-x-hidden">
       <Sidebar />
-      <main className={`flex-1 ${getMainMargin()} p-4 sm:p-6 lg:p-8 transition-all duration-300`}>
-        <div className="max-w-7xl mx-auto">
+      <main className={`flex-1 ${getMainMargin()} p-3 sm:p-4 md:p-6 lg:p-8 transition-all duration-300 w-0 min-w-0`}>
+        <div className="w-full max-w-full">
           {/* Header */}
-          <div className="mb-6">
-            <h1 className="text-2xl sm:text-3xl font-bold text-slate-900 dark:text-white mb-2">
-              Produtos e Serviços
-            </h1>
-            <p className="text-slate-600 dark:text-slate-400 text-sm sm:text-base">
-              {loading
-                ? 'Carregando...'
-                : produtosFiltrados.length === 0
-                ? 'Nenhum produto encontrado'
-                : `${produtosFiltrados.length} ${produtosFiltrados.length === 1 ? 'produto encontrado' : 'produtos encontrados'}`}
-              {produtos.length !== produtosFiltrados.length && (
-                <span className="text-slate-500 dark:text-slate-500">
-                  {' '}de {produtos.length} total
-                </span>
-              )}
-            </p>
+          <div className="mb-4 sm:mb-6">
+            <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 sm:gap-4 mb-3 sm:mb-4">
+              <div className="min-w-0 flex-1">
+                <h1 className="text-xl sm:text-2xl md:text-3xl font-bold text-slate-900 dark:text-white mb-1 sm:mb-2 truncate">
+                  Produtos e Serviços
+                </h1>
+                <p className="text-xs sm:text-sm md:text-base text-slate-600 dark:text-slate-400 truncate">
+                  {loading
+                    ? 'Carregando...'
+                    : produtosFiltrados.length === 0
+                    ? 'Nenhum produto encontrado'
+                    : `${produtosFiltrados.length} ${produtosFiltrados.length === 1 ? 'produto encontrado' : 'produtos encontrados'}`}
+                  {produtos.length !== produtosFiltrados.length && (
+                    <span className="text-slate-500 dark:text-slate-500">
+                      {' '}de {produtos.length} total
+                    </span>
+                  )}
+                </p>
+              </div>
+            </div>
           </div>
 
           {/* Barra de Busca e Botão Adicionar */}
-          <div className="mb-6 flex gap-3">
-            <div className="relative flex-1">
-              <Search className="absolute left-4 top-1/2 transform -translate-y-1/2 w-5 h-5 text-slate-400" />
+          <div className="mb-4 sm:mb-6 flex flex-col sm:flex-row gap-2 sm:gap-3">
+            <div className="relative flex-1 min-w-0">
+              <Search className="absolute left-3 sm:left-4 top-1/2 transform -translate-y-1/2 w-4 h-4 sm:w-5 sm:h-5 text-slate-400" />
               <input
                 type="text"
                 value={searchTerm}
                 onChange={(e) => setSearchTerm(e.target.value)}
                 placeholder="Buscar produtos..."
-                className="w-full pl-12 pr-12 py-3 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl text-slate-900 dark:text-white placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all shadow-sm hover:shadow-md"
+                className="w-full pl-10 sm:pl-12 pr-10 sm:pr-12 py-2.5 sm:py-3 text-sm sm:text-base bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl text-slate-900 dark:text-white placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all shadow-sm hover:shadow-md"
               />
               {searchTerm && (
                 <button
                   onClick={() => setSearchTerm('')}
-                  className="absolute right-4 top-1/2 transform -translate-y-1/2 p-1 rounded-lg text-slate-400 hover:text-slate-600 dark:hover:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-700 transition-colors"
+                  className="absolute right-3 sm:right-4 top-1/2 transform -translate-y-1/2 p-1 rounded-lg text-slate-400 hover:text-slate-600 dark:hover:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-700 transition-colors"
                 >
-                  <X className="w-4 h-4" />
+                  <X className="w-3.5 h-3.5 sm:w-4 sm:h-4" />
                 </button>
               )}
             </div>
             <button
               onClick={() => setModalAberto(true)}
-              className="px-6 py-3 bg-gradient-to-r from-blue-600 via-indigo-600 to-purple-600 text-white rounded-xl font-semibold hover:from-blue-700 hover:via-indigo-700 hover:to-purple-700 transition-all duration-300 shadow-lg hover:shadow-xl flex items-center gap-2 whitespace-nowrap"
+              className="px-4 sm:px-6 py-2.5 sm:py-3 bg-gradient-to-r from-blue-600 via-indigo-600 to-purple-600 text-white rounded-xl text-sm sm:text-base font-semibold hover:from-blue-700 hover:via-indigo-700 hover:to-purple-700 transition-all duration-300 shadow-lg hover:shadow-xl flex items-center justify-center gap-2 w-full sm:w-auto flex-shrink-0"
             >
-              <Plus className="w-5 h-5" />
-              Adicionar Produto
+              <Plus className="w-4 h-4 sm:w-5 sm:h-5" />
+              <span className="hidden sm:inline">Adicionar Produto</span>
+              <span className="sm:hidden">Adicionar</span>
             </button>
           </div>
 
@@ -202,12 +208,12 @@ export default function ProdutosServicosPage() {
 
           {/* Empty State */}
           {!loading && !error && produtosFiltrados.length === 0 && (
-            <div className="bg-white dark:bg-slate-800 rounded-xl p-12 text-center border border-slate-200 dark:border-slate-700">
-              <div className="text-6xl mb-4">📦</div>
-              <h3 className="text-lg font-semibold text-slate-900 dark:text-white mb-2">
+            <div className="bg-white dark:bg-slate-800 rounded-xl p-8 sm:p-12 text-center border border-slate-200 dark:border-slate-700 min-w-0">
+              <div className="text-4xl sm:text-6xl mb-3 sm:mb-4">📦</div>
+              <h3 className="text-base sm:text-lg font-semibold text-slate-900 dark:text-white mb-2">
                 {produtos.length === 0 ? 'Nenhum produto ainda' : 'Nenhum produto encontrado'}
               </h3>
-              <p className="text-slate-600 dark:text-slate-400 text-sm mb-4">
+              <p className="text-xs sm:text-sm text-slate-600 dark:text-slate-400 mb-3 sm:mb-4">
                 {produtos.length === 0
                   ? 'Comece adicionando seu primeiro produto ou serviço.'
                   : 'Tente ajustar o termo de busca.'}
@@ -215,7 +221,7 @@ export default function ProdutosServicosPage() {
               {produtos.length === 0 && (
                 <button
                   onClick={() => setModalAberto(true)}
-                  className="px-4 py-2 bg-blue-600 text-white rounded-lg font-medium hover:bg-blue-700 transition-colors text-sm"
+                  className="px-4 py-2 bg-blue-600 text-white rounded-lg text-xs sm:text-sm font-medium hover:bg-blue-700 transition-colors"
                 >
                   Adicionar Primeiro Produto
                 </button>
@@ -225,32 +231,32 @@ export default function ProdutosServicosPage() {
 
           {/* Grid de Produtos */}
           {!loading && !error && produtosFiltrados.length > 0 && (
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-3 sm:gap-4">
               {produtosFiltrados.map((produto) => {
                 const primeiraLetra = produto.nome.charAt(0).toUpperCase();
 
                 return (
                   <div
                     key={produto.id}
-                    className="group relative bg-white dark:bg-slate-800 rounded-xl p-5 border border-slate-200 dark:border-slate-700 shadow-sm hover:shadow-xl transition-all duration-300 hover:scale-[1.02]"
+                    className="group relative bg-white dark:bg-slate-800 rounded-xl p-4 sm:p-5 border border-slate-200 dark:border-slate-700 shadow-sm hover:shadow-xl transition-all duration-300 hover:scale-[1.02] min-w-0"
                   >
                     {/* Header do Card */}
-                    <div className="flex items-start gap-4 mb-4">
+                    <div className="flex items-start gap-3 sm:gap-4 mb-3 sm:mb-4">
                       {/* Avatar */}
                       <div
-                        className={`${getAvatarColor(primeiraLetra)} w-14 h-14 rounded-full flex items-center justify-center text-white font-bold text-xl shadow-lg flex-shrink-0`}
+                        className={`${getAvatarColor(primeiraLetra)} w-12 h-12 sm:w-14 sm:h-14 rounded-full flex items-center justify-center text-white font-bold text-lg sm:text-xl shadow-lg flex-shrink-0`}
                       >
                         {primeiraLetra}
                       </div>
 
                       {/* Nome */}
                       <div className="flex-1 min-w-0">
-                        <h3 className="font-semibold text-slate-900 dark:text-white text-base truncate mb-1">
+                        <h3 className="font-semibold text-slate-900 dark:text-white text-sm sm:text-base truncate mb-1">
                           {produto.nome}
                         </h3>
                         {produto.ativado && (
                           <span
-                            className={`inline-block px-2 py-1 rounded-lg text-[10px] font-medium ${
+                            className={`inline-block px-1.5 sm:px-2 py-0.5 sm:py-1 rounded-lg text-[10px] font-medium ${
                               produto.ativado.toLowerCase() === 'sim'
                                 ? 'bg-green-100 dark:bg-green-900/30 text-green-700 dark:text-green-300'
                                 : 'bg-red-100 dark:bg-red-900/30 text-red-700 dark:text-red-300'
@@ -264,51 +270,55 @@ export default function ProdutosServicosPage() {
 
                     {/* Descrição Breve */}
                     {produto.descBreve && (
-                      <p className="text-sm text-slate-600 dark:text-slate-400 mb-3 line-clamp-2">
+                      <p className="text-xs sm:text-sm text-slate-600 dark:text-slate-400 mb-2 sm:mb-3 line-clamp-2">
                         {produto.descBreve}
                       </p>
                     )}
 
                     {/* Informações */}
-                    <div className="space-y-2 mb-3">
+                    <div className="space-y-1.5 sm:space-y-2 mb-3 sm:mb-4">
                       {produto.valor && (
-                        <div className="flex items-center gap-2 text-sm">
-                          <span className="font-medium text-slate-700 dark:text-slate-300">
+                        <div className="flex items-center gap-2 text-xs sm:text-sm min-w-0">
+                          <span className="font-medium text-slate-700 dark:text-slate-300 flex-shrink-0">
                             Valor:
                           </span>
-                          <span className="text-slate-600 dark:text-slate-400">{produto.valor}</span>
+                          <span className="text-slate-600 dark:text-slate-400 truncate">{produto.valor}</span>
                         </div>
                       )}
                       {produto.duracao && (
-                        <div className="flex items-center gap-2 text-sm">
-                          <span className="font-medium text-slate-700 dark:text-slate-300">
+                        <div className="flex items-center gap-2 text-xs sm:text-sm min-w-0">
+                          <span className="font-medium text-slate-700 dark:text-slate-300 flex-shrink-0">
                             Duração:
                           </span>
-                          <span className="text-slate-600 dark:text-slate-400">{produto.duracao}</span>
+                          <span className="text-slate-600 dark:text-slate-400 truncate">{produto.duracao}</span>
                         </div>
                       )}
                     </div>
 
-                    {/* Botões de ação no hover */}
-                    <div className="absolute bottom-0 left-0 right-0 p-4 bg-gradient-to-t from-white/95 dark:from-slate-800/95 to-transparent rounded-b-xl opacity-0 group-hover:opacity-100 transition-opacity duration-200 flex items-center justify-center gap-3">
+                    {/* Botões de ação - sempre visíveis no mobile, hover no desktop */}
+                    <div className={`${isMobile ? 'opacity-100' : 'opacity-0 group-hover:opacity-100'} transition-opacity duration-200 flex items-center justify-center gap-2 sm:gap-3 pt-3 sm:pt-4 border-t border-slate-200 dark:border-slate-700`}>
                       <button
                         onClick={() => handleEditar(produto)}
-                        className="p-2.5 rounded-lg bg-blue-500 hover:bg-blue-600 text-white transition-colors shadow-lg hover:shadow-xl"
+                        className="flex-1 sm:flex-none px-3 sm:px-2.5 py-2 sm:py-2.5 rounded-lg bg-blue-500 hover:bg-blue-600 text-white transition-colors shadow-lg hover:shadow-xl text-xs sm:text-sm font-medium sm:font-normal"
                         aria-label="Editar produto"
                       >
-                        <Edit className="w-5 h-5" />
+                        <span className="sm:hidden">Editar</span>
+                        <Edit className="hidden sm:block w-5 h-5" />
                       </button>
                       <button
                         onClick={() => handleExcluir(produto)}
-                        className="p-2.5 rounded-lg bg-red-500 hover:bg-red-600 text-white transition-colors shadow-lg hover:shadow-xl"
+                        className="flex-1 sm:flex-none px-3 sm:px-2.5 py-2 sm:py-2.5 rounded-lg bg-red-500 hover:bg-red-600 text-white transition-colors shadow-lg hover:shadow-xl text-xs sm:text-sm font-medium sm:font-normal"
                         aria-label="Excluir produto"
                       >
-                        <Trash2 className="w-5 h-5" />
+                        <span className="sm:hidden">Excluir</span>
+                        <Trash2 className="hidden sm:block w-5 h-5" />
                       </button>
                     </div>
 
-                    {/* Efeito hover sutil */}
-                    <div className="absolute inset-0 rounded-xl bg-gradient-to-r from-transparent via-white/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-200 pointer-events-none" />
+                    {/* Efeito hover sutil - apenas desktop */}
+                    {!isMobile && (
+                      <div className="absolute inset-0 rounded-xl bg-gradient-to-r from-transparent via-white/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-200 pointer-events-none" />
+                    )}
                   </div>
                 );
               })}

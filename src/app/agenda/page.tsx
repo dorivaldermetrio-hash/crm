@@ -71,7 +71,8 @@ export default function AgendaPage() {
   // Calcula o margin-left baseado no estado do sidebar
   const getMainMargin = () => {
     if (isMobile) {
-      return 'ml-0';
+      // No mobile, quando fechado mostra w-20 (reduzido), quando aberto tem overlay
+      return isOpen ? 'ml-0' : 'ml-20';
     }
     return isOpen ? 'ml-64' : 'ml-20';
   };
@@ -457,116 +458,119 @@ export default function AgendaPage() {
   };
 
   return (
-    <div className="flex min-h-screen bg-slate-50 dark:bg-slate-900">
+    <div className="flex min-h-screen bg-slate-50 dark:bg-slate-900 overflow-x-hidden">
       <Sidebar />
-      <main className={`flex-1 ${getMainMargin()} p-4 sm:p-6 lg:p-8 transition-all duration-300`}>
-        <div className="max-w-7xl mx-auto">
+      <main className={`flex-1 ${getMainMargin()} p-3 sm:p-4 md:p-6 lg:p-8 transition-all duration-300 w-0 min-w-0`}>
+        <div className="w-full max-w-full">
           {/* Header */}
-          <div className="mb-6">
-            <h1 className="text-2xl sm:text-3xl font-bold text-slate-900 dark:text-white mb-2">
-              Agenda
-            </h1>
-            <p className="text-slate-600 dark:text-slate-400 text-sm sm:text-base">
-              Gerencie seus agendamentos e compromissos
-            </p>
-          </div>
-
-          {/* Botão Criar Evento */}
-          <div className="mb-4">
-            <button
-              onClick={() => setModalAberto(true)}
-              className="px-6 py-3 bg-gradient-to-r from-blue-600 to-blue-500 text-white rounded-xl font-semibold hover:from-blue-700 hover:to-blue-600 transition-all duration-300 shadow-lg hover:shadow-xl flex items-center gap-2"
-            >
-              <Plus className="w-5 h-5" />
-              Criar Evento
-            </button>
+          <div className="mb-4 sm:mb-6">
+            <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 sm:gap-4 mb-3 sm:mb-4">
+              <div className="min-w-0 flex-1">
+                <h1 className="text-xl sm:text-2xl md:text-3xl font-bold text-slate-900 dark:text-white mb-1 sm:mb-2 truncate">
+                  Agenda
+                </h1>
+                <p className="text-xs sm:text-sm md:text-base text-slate-600 dark:text-slate-400 truncate">
+                  Gerencie seus agendamentos e compromissos
+                </p>
+              </div>
+              <button
+                onClick={() => setModalAberto(true)}
+                className="px-4 sm:px-6 py-2.5 sm:py-3 bg-gradient-to-r from-blue-600 to-blue-500 text-white rounded-xl text-sm sm:text-base font-semibold hover:from-blue-700 hover:to-blue-600 transition-all duration-300 shadow-lg hover:shadow-xl flex items-center gap-2 w-full sm:w-auto justify-center sm:justify-start flex-shrink-0"
+              >
+                <Plus className="w-4 h-4 sm:w-5 sm:h-5" />
+                <span className="hidden sm:inline">Criar Evento</span>
+                <span className="sm:hidden">Criar</span>
+              </button>
+            </div>
           </div>
 
           {/* Content */}
-          <div className="bg-slate-800 rounded-xl p-6 border border-slate-700 shadow-sm">
-            <FullCalendar
-              key={calendarKey}
-              plugins={[dayGridPlugin, timeGridPlugin, interactionPlugin]}
-              initialView={currentView}
-              locale={ptBrLocale}
-              headerToolbar={{
-                left: 'prev,next today',
-                center: 'title',
-                right: 'dayGridMonth,timeGridWeek,timeGridDay',
-              }}
-              selectable={true}
-              selectMirror={true}
-              dayMaxEvents={true}
-              weekends={true}
-              events={events}
-              select={handleDateSelect}
-              eventClick={handleEventClick}
-              eventDrop={handleEventDrop}
-              height="auto"
-              aspectRatio={1.8}
-              eventDisplay="block"
-              editable={true}
-              droppable={true}
-              buttonText={{
-                today: 'Hoje',
-                month: 'Mês',
-                week: 'Semana',
-                day: 'Dia',
-              }}
-              allDayText="Dia todo"
-              moreLinkText="mais"
-              noEventsText="Nenhum evento"
-              // Limita os horários visíveis apenas ao expediente (apenas para views com timeGrid)
-              slotMinTime={getSlotMinMaxTime().minTime}
-              slotMaxTime={getSlotMinMaxTime().maxTime}
-              // Remove businessHours para não destacar horários (queremos que não apareçam)
-              // businessHours={getBusinessHours()}
-              // Handler para mudança de view
-              datesSet={handleDatesSet}
-              // Configurações de hora para português
-              slotLabelFormat={{
-                hour: 'numeric',
-                minute: '2-digit',
-                hour12: false,
-              }}
-            />
+          <div className="bg-slate-800 rounded-xl p-2 sm:p-3 md:p-4 lg:p-6 border border-slate-700 shadow-sm overflow-x-auto min-w-0">
+            <div className="min-w-0 w-full">
+              <FullCalendar
+                key={calendarKey}
+                plugins={[dayGridPlugin, timeGridPlugin, interactionPlugin]}
+                initialView={currentView}
+                locale={ptBrLocale}
+                headerToolbar={{
+                  left: 'prev,next today',
+                  center: 'title',
+                  right: 'dayGridMonth,timeGridWeek,timeGridDay',
+                }}
+                selectable={true}
+                selectMirror={true}
+                dayMaxEvents={true}
+                weekends={true}
+                events={events}
+                select={handleDateSelect}
+                eventClick={handleEventClick}
+                eventDrop={handleEventDrop}
+                height="auto"
+                aspectRatio={isMobile ? 1.2 : 1.8}
+                eventDisplay="block"
+                editable={true}
+                droppable={true}
+                buttonText={{
+                  today: isMobile ? 'Hoje' : 'Hoje',
+                  month: isMobile ? 'Mês' : 'Mês',
+                  week: isMobile ? 'Sem' : 'Semana',
+                  day: isMobile ? 'Dia' : 'Dia',
+                }}
+                allDayText="Dia todo"
+                moreLinkText="mais"
+                noEventsText="Nenhum evento"
+                // Limita os horários visíveis apenas ao expediente (apenas para views com timeGrid)
+                slotMinTime={getSlotMinMaxTime().minTime}
+                slotMaxTime={getSlotMinMaxTime().maxTime}
+                // Remove businessHours para não destacar horários (queremos que não apareçam)
+                // businessHours={getBusinessHours()}
+                // Handler para mudança de view
+                datesSet={handleDatesSet}
+                // Configurações de hora para português
+                slotLabelFormat={{
+                  hour: 'numeric',
+                  minute: '2-digit',
+                  hour12: false,
+                }}
+              />
+            </div>
           </div>
 
           {/* Painel de Configurações */}
-          <div className="mt-6 bg-slate-800 rounded-xl p-6 border border-slate-700 shadow-sm">
-            <h2 className="text-xl font-bold text-white mb-6">Configurações de Expediente</h2>
+          <div className="mt-4 sm:mt-6 bg-slate-800 rounded-xl p-3 sm:p-4 md:p-6 border border-slate-700 shadow-sm min-w-0">
+            <h2 className="text-base sm:text-lg md:text-xl font-bold text-white mb-3 sm:mb-4 md:mb-6 truncate">Configurações de Expediente</h2>
             
-            <div className="space-y-4">
+            <div className="space-y-3 sm:space-y-4">
               {/* Horário de Início do Expediente */}
-              <div>
-                <label className="block text-sm font-medium text-slate-300 mb-2">
+              <div className="min-w-0">
+                <label className="block text-xs sm:text-sm font-medium text-slate-300 mb-1.5 sm:mb-2">
                   Horário de início do expediente
                 </label>
                 <input
                   type="time"
                   value={config.horarioInicio}
                   onChange={(e) => setConfig({ ...config, horarioInicio: e.target.value })}
-                  className="w-full px-4 py-3 bg-slate-900 border border-slate-600 rounded-lg text-white focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all"
+                  className="w-full px-3 sm:px-4 py-2 sm:py-3 bg-slate-900 border border-slate-600 rounded-lg text-sm sm:text-base text-white focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all"
                 />
               </div>
 
               {/* Horário de Fim do Expediente */}
-              <div>
-                <label className="block text-sm font-medium text-slate-300 mb-2">
+              <div className="min-w-0">
+                <label className="block text-xs sm:text-sm font-medium text-slate-300 mb-1.5 sm:mb-2">
                   Horário de fim do expediente
                 </label>
                 <input
                   type="time"
                   value={config.horarioFim}
                   onChange={(e) => setConfig({ ...config, horarioFim: e.target.value })}
-                  className="w-full px-4 py-3 bg-slate-900 border border-slate-600 rounded-lg text-white focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all"
+                  className="w-full px-3 sm:px-4 py-2 sm:py-3 bg-slate-900 border border-slate-600 rounded-lg text-sm sm:text-base text-white focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all"
                 />
               </div>
 
               {/* Fins de Semana Toggle */}
-              <div>
-                <label className="flex items-center gap-3 cursor-pointer">
-                  <div className="relative">
+              <div className="min-w-0">
+                <label className="flex items-center gap-2 sm:gap-3 cursor-pointer">
+                  <div className="relative flex-shrink-0">
                     <input
                       type="checkbox"
                       checked={finsDeSemana}
@@ -574,53 +578,53 @@ export default function AgendaPage() {
                       className="sr-only"
                     />
                     <div
-                      className={`w-14 h-7 rounded-full transition-colors duration-200 ${
+                      className={`w-12 h-6 sm:w-14 sm:h-7 rounded-full transition-colors duration-200 ${
                         finsDeSemana ? 'bg-blue-600' : 'bg-slate-600'
                       }`}
                     >
                       <div
-                        className={`w-6 h-6 bg-white rounded-full shadow-md transform transition-transform duration-200 ${
-                          finsDeSemana ? 'translate-x-7' : 'translate-x-1'
+                        className={`w-5 h-5 sm:w-6 sm:h-6 bg-white rounded-full shadow-md transform transition-transform duration-200 ${
+                          finsDeSemana ? 'translate-x-6 sm:translate-x-7' : 'translate-x-0.5 sm:translate-x-1'
                         } mt-0.5`}
                       />
                     </div>
                   </div>
-                  <span className="text-sm font-medium text-slate-300">Fins de Semana</span>
+                  <span className="text-xs sm:text-sm font-medium text-slate-300 truncate">Fins de Semana</span>
                 </label>
               </div>
 
               {/* Horários de Sábado (aparece apenas se fins de semana estiver ativado) */}
               {finsDeSemana && (
                 <>
-                  <div>
-                    <label className="block text-sm font-medium text-slate-300 mb-2">
+                  <div className="min-w-0">
+                    <label className="block text-xs sm:text-sm font-medium text-slate-300 mb-1.5 sm:mb-2">
                       Horário de início do expediente, Sábado
                     </label>
                     <input
                       type="time"
                       value={config.horarioInicioSab}
                       onChange={(e) => setConfig({ ...config, horarioInicioSab: e.target.value })}
-                      className="w-full px-4 py-3 bg-slate-900 border border-slate-600 rounded-lg text-white focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all"
+                      className="w-full px-3 sm:px-4 py-2 sm:py-3 bg-slate-900 border border-slate-600 rounded-lg text-sm sm:text-base text-white focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all"
                     />
                   </div>
 
-                  <div>
-                    <label className="block text-sm font-medium text-slate-300 mb-2">
+                  <div className="min-w-0">
+                    <label className="block text-xs sm:text-sm font-medium text-slate-300 mb-1.5 sm:mb-2">
                       Horário de fim do expediente, Sábado
                     </label>
                     <input
                       type="time"
                       value={config.horarioFimSab}
                       onChange={(e) => setConfig({ ...config, horarioFimSab: e.target.value })}
-                      className="w-full px-4 py-3 bg-slate-900 border border-slate-600 rounded-lg text-white focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all"
+                      className="w-full px-3 sm:px-4 py-2 sm:py-3 bg-slate-900 border border-slate-600 rounded-lg text-sm sm:text-base text-white focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all"
                     />
                   </div>
                 </>
               )}
 
               {/* Agendamentos por IA duração */}
-              <div>
-                <label className="block text-sm font-medium text-slate-300 mb-2">
+              <div className="min-w-0">
+                <label className="block text-xs sm:text-sm font-medium text-slate-300 mb-1.5 sm:mb-2">
                   Agendamentos por IA duração de:
                 </label>
                 <input
@@ -628,19 +632,19 @@ export default function AgendaPage() {
                   value={config.duracaoAgendamento}
                   onChange={(e) => setConfig({ ...config, duracaoAgendamento: e.target.value })}
                   pattern="^\d+:\d{2}$"
-                  className="w-full px-4 py-3 bg-slate-900 border border-slate-600 rounded-lg text-white placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all"
+                  className="w-full px-3 sm:px-4 py-2 sm:py-3 bg-slate-900 border border-slate-600 rounded-lg text-sm sm:text-base text-white placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all"
                   placeholder="Ex: 1:30 (1 hora e 30 minutos)"
                 />
-                <p className="mt-1 text-xs text-slate-400">
+                <p className="mt-1 text-[10px] sm:text-xs text-slate-400">
                   Formato: horas:minutos (ex: 1:30 para 1 hora e 30 minutos)
                 </p>
               </div>
 
               {/* Botão Salvar */}
-              <div className="flex items-center justify-end gap-3 pt-4 border-t border-slate-700">
+              <div className="flex flex-col sm:flex-row items-stretch sm:items-center justify-end gap-2 sm:gap-3 pt-3 sm:pt-4 border-t border-slate-700">
                 {salvoSucesso && (
-                  <div className="flex items-center gap-2 text-green-400 text-sm font-medium">
-                    <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <div className="flex items-center gap-2 text-green-400 text-xs sm:text-sm font-medium flex-shrink-0">
+                    <svg className="w-4 h-4 sm:w-5 sm:h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
                     </svg>
                     <span>Salvo com sucesso!</span>
@@ -649,7 +653,7 @@ export default function AgendaPage() {
                 <button
                   onClick={handleSalvarConfig}
                   disabled={salvando}
-                  className="px-6 py-2.5 rounded-lg font-medium text-white bg-gradient-to-r from-blue-600 to-blue-500 hover:from-blue-700 hover:to-blue-600 transition-all shadow-lg hover:shadow-xl disabled:opacity-50 disabled:cursor-not-allowed"
+                  className="px-4 sm:px-6 py-2 sm:py-2.5 rounded-lg text-sm sm:text-base font-medium text-white bg-gradient-to-r from-blue-600 to-blue-500 hover:from-blue-700 hover:to-blue-600 transition-all shadow-lg hover:shadow-xl disabled:opacity-50 disabled:cursor-not-allowed w-full sm:w-auto"
                 >
                   {salvando ? 'Salvando...' : 'Salvar'}
                 </button>
@@ -658,36 +662,37 @@ export default function AgendaPage() {
           </div>
 
           {/* Botão e Lista de Horários Disponíveis */}
-          <div className="mt-6 bg-slate-800 rounded-xl p-6 border border-slate-700 shadow-sm">
-            <div className="flex items-center justify-between mb-4">
-              <h2 className="text-xl font-bold text-white">Testar Horários Disponíveis</h2>
+          <div className="mt-4 sm:mt-6 bg-slate-800 rounded-xl p-3 sm:p-4 md:p-6 border border-slate-700 shadow-sm min-w-0">
+            <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 sm:gap-4 mb-3 sm:mb-4">
+              <h2 className="text-base sm:text-lg md:text-xl font-bold text-white truncate">Testar Horários Disponíveis</h2>
               <button
                 onClick={handleBuscarHorariosDisponiveis}
                 disabled={carregandoHorarios}
-                className="px-6 py-2.5 rounded-lg font-medium text-white bg-gradient-to-r from-green-600 to-green-500 hover:from-green-700 hover:to-green-600 transition-all shadow-lg hover:shadow-xl disabled:opacity-50 disabled:cursor-not-allowed"
+                className="w-full sm:w-auto px-4 sm:px-6 py-2 sm:py-2.5 rounded-lg text-xs sm:text-sm md:text-base font-medium text-white bg-gradient-to-r from-green-600 to-green-500 hover:from-green-700 hover:to-green-600 transition-all shadow-lg hover:shadow-xl disabled:opacity-50 disabled:cursor-not-allowed flex-shrink-0"
               >
-                {carregandoHorarios ? 'Buscando...' : 'Buscar Horários Disponíveis'}
+                {carregandoHorarios ? 'Buscando...' : <><span className="hidden sm:inline">Buscar Horários Disponíveis</span><span className="sm:hidden">Buscar Horários</span></>}
               </button>
             </div>
 
             {mostrarHorarios && (
-              <div className="mt-4">
-                <h3 className="text-lg font-semibold text-white mb-3">
+              <div className="mt-3 sm:mt-4 min-w-0">
+                <h3 className="text-sm sm:text-base md:text-lg font-semibold text-white mb-2 sm:mb-3 truncate">
                   Próximos {horariosDisponiveis.length} Horários Disponíveis:
                 </h3>
                 {horariosDisponiveis.length > 0 ? (
-                  <div className="space-y-2 max-h-96 overflow-y-auto">
+                  <div className="space-y-2 max-h-64 sm:max-h-96 overflow-y-auto min-w-0">
                     {horariosDisponiveis.map((horario, index) => (
                       <div
                         key={index}
-                        className="px-4 py-3 bg-slate-900 border border-slate-600 rounded-lg text-white"
+                        className="px-3 sm:px-4 py-2 sm:py-3 bg-slate-900 border border-slate-600 rounded-lg text-xs sm:text-sm text-white truncate"
+                        title={horario.dataFormatada}
                       >
                         {horario.dataFormatada}
                       </div>
                     ))}
                   </div>
                 ) : (
-                  <p className="text-slate-400">Nenhum horário disponível encontrado.</p>
+                  <p className="text-xs sm:text-sm text-slate-400">Nenhum horário disponível encontrado.</p>
                 )}
               </div>
             )}
@@ -719,7 +724,7 @@ export default function AgendaPage() {
 
       {/* Modal Confirmar Movimento */}
       {modalConfirmarMovimento && eventoMovido && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-3 sm:p-4 overflow-y-auto">
           {/* Overlay */}
           <div
             className="absolute inset-0 bg-black/50 backdrop-blur-sm"
@@ -730,24 +735,24 @@ export default function AgendaPage() {
           />
 
           {/* Modal */}
-          <div className="relative w-full max-w-md bg-slate-800 rounded-xl border border-slate-700 shadow-xl z-50">
+          <div className="relative w-full max-w-md bg-slate-800 rounded-xl border border-slate-700 shadow-xl z-50 my-auto min-w-0">
             {/* Header */}
-            <div className="flex items-center justify-between p-6 border-b border-slate-700">
-              <h2 className="text-xl font-bold text-white">Confirmar Alteração</h2>
+            <div className="flex items-center justify-between p-4 sm:p-6 border-b border-slate-700">
+              <h2 className="text-lg sm:text-xl font-bold text-white truncate">Confirmar Alteração</h2>
               <button
                 onClick={() => {
                   setModalConfirmarMovimento(false);
                   setEventoMovido(null);
                 }}
-                className="p-2 rounded-lg text-slate-400 hover:text-white hover:bg-slate-700 transition-colors"
+                className="p-1.5 sm:p-2 rounded-lg text-slate-400 hover:text-white hover:bg-slate-700 transition-colors flex-shrink-0"
               >
-                <X className="w-5 h-5" />
+                <X className="w-4 h-4 sm:w-5 sm:h-5" />
               </button>
             </div>
 
             {/* Content */}
-            <div className="p-6">
-              <p className="text-slate-300 mb-4">
+            <div className="p-4 sm:p-6 min-w-0">
+              <p className="text-sm sm:text-base text-slate-300 mb-3 sm:mb-4">
                 Você gostaria de alterar o evento para:
               </p>
               {(() => {
@@ -756,29 +761,29 @@ export default function AgendaPage() {
                   eventoMovido.novoHorario
                 );
                 return (
-                  <div className="mb-6 p-4 bg-slate-900 border border-slate-600 rounded-lg">
-                    <p className="text-white font-semibold capitalize">{dataFormatada}</p>
-                    <p className="text-blue-400 text-lg font-medium mt-1">{horarioFormatado}</p>
+                  <div className="mb-4 sm:mb-6 p-3 sm:p-4 bg-slate-900 border border-slate-600 rounded-lg min-w-0">
+                    <p className="text-sm sm:text-base text-white font-semibold capitalize truncate">{dataFormatada}</p>
+                    <p className="text-blue-400 text-base sm:text-lg font-medium mt-1">{horarioFormatado}</p>
                   </div>
                 );
               })()}
 
               {/* Actions */}
-              <div className="flex items-center justify-end gap-3 pt-4 border-t border-slate-700">
+              <div className="flex flex-col sm:flex-row items-stretch sm:items-center justify-end gap-2 sm:gap-3 pt-3 sm:pt-4 border-t border-slate-700">
                 <button
                   type="button"
                   onClick={() => {
                     setModalConfirmarMovimento(false);
                     setEventoMovido(null);
                   }}
-                  className="px-6 py-2.5 rounded-lg font-medium text-slate-300 bg-slate-700 hover:bg-slate-600 transition-colors"
+                  className="px-4 sm:px-6 py-2 sm:py-2.5 rounded-lg text-sm sm:text-base font-medium text-slate-300 bg-slate-700 hover:bg-slate-600 transition-colors w-full sm:w-auto"
                 >
                   Cancelar
                 </button>
                 <button
                   onClick={handleConfirmarMovimento}
                   disabled={loading}
-                  className="px-6 py-2.5 rounded-lg font-medium text-white bg-gradient-to-r from-blue-600 to-blue-500 hover:from-blue-700 hover:to-blue-600 transition-all shadow-lg hover:shadow-xl disabled:opacity-50 disabled:cursor-not-allowed"
+                  className="px-4 sm:px-6 py-2 sm:py-2.5 rounded-lg text-sm sm:text-base font-medium text-white bg-gradient-to-r from-blue-600 to-blue-500 hover:from-blue-700 hover:to-blue-600 transition-all shadow-lg hover:shadow-xl disabled:opacity-50 disabled:cursor-not-allowed w-full sm:w-auto"
                 >
                   {loading ? 'Atualizando...' : 'Confirmar'}
                 </button>

@@ -88,7 +88,8 @@ export default function ContatosPage() {
   // Calcula o margin-left baseado no estado do sidebar
   const getMainMargin = () => {
     if (isMobile) {
-      return 'ml-0';
+      // No mobile, quando fechado mostra w-20 (reduzido), quando aberto tem overlay
+      return isOpen ? 'ml-0' : 'ml-20';
     }
     return isOpen ? 'ml-64' : 'ml-20';
   };
@@ -210,14 +211,14 @@ export default function ContatosPage() {
   return (
     <div className="flex min-h-screen bg-slate-50 dark:bg-slate-900">
       <Sidebar />
-      <main className={`flex-1 ${getMainMargin()} p-4 sm:p-6 lg:p-8 transition-all duration-300`}>
+      <main className={`flex-1 ${getMainMargin()} p-3 sm:p-4 md:p-6 lg:p-8 transition-all duration-300`}>
         <div className="max-w-7xl mx-auto">
           {/* Header */}
-          <div className="mb-6">
-            <h1 className="text-2xl sm:text-3xl font-bold text-slate-900 dark:text-white mb-2">
+          <div className="mb-4 sm:mb-6">
+            <h1 className="text-xl sm:text-2xl md:text-3xl font-bold text-slate-900 dark:text-white mb-1 sm:mb-2">
               Contatos
             </h1>
-            <p className="text-slate-600 dark:text-slate-400 text-sm sm:text-base">
+            <p className="text-slate-600 dark:text-slate-400 text-xs sm:text-sm md:text-base">
               {loading
                 ? 'Carregando...'
                 : contatosFiltrados.length === 0
@@ -232,60 +233,61 @@ export default function ContatosPage() {
           </div>
 
           {/* Barra de Busca e Filtros */}
-          <div className="mb-6 space-y-4">
+          <div className="mb-4 sm:mb-6 space-y-3 sm:space-y-4">
             {/* Barra de Busca e Botão Adicionar */}
-            <div className="flex gap-3">
+            <div className="flex flex-col sm:flex-row gap-2 sm:gap-3">
               <div className="relative flex-1">
-                <Search className="absolute left-4 top-1/2 transform -translate-y-1/2 w-5 h-5 text-slate-400" />
+                <Search className="absolute left-3 sm:left-4 top-1/2 transform -translate-y-1/2 w-4 h-4 sm:w-5 sm:h-5 text-slate-400" />
                 <input
                   type="text"
                   value={searchTerm}
                   onChange={(e) => setSearchTerm(e.target.value)}
                   placeholder="Buscar por nome ou número..."
-                  className="w-full pl-12 pr-12 py-3 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl text-slate-900 dark:text-white placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all shadow-sm hover:shadow-md"
+                  className="w-full pl-10 sm:pl-12 pr-10 sm:pr-12 py-2.5 sm:py-3 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl text-sm sm:text-base text-slate-900 dark:text-white placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all shadow-sm hover:shadow-md"
                 />
                 {searchTerm && (
                   <button
                     onClick={() => setSearchTerm('')}
-                    className="absolute right-4 top-1/2 transform -translate-y-1/2 p-1 rounded-lg text-slate-400 hover:text-slate-600 dark:hover:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-700 transition-colors"
+                    className="absolute right-3 sm:right-4 top-1/2 transform -translate-y-1/2 p-1 rounded-lg text-slate-400 hover:text-slate-600 dark:hover:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-700 transition-colors"
                   >
-                    <X className="w-4 h-4" />
+                    <X className="w-3 h-3 sm:w-4 sm:h-4" />
                   </button>
                 )}
               </div>
               <button
                 onClick={() => setModalCriarAberto(true)}
-                className="px-6 py-3 bg-gradient-to-r from-green-600 via-emerald-600 to-teal-600 text-white rounded-xl font-semibold hover:from-green-700 hover:via-emerald-700 hover:to-teal-700 transition-all duration-300 shadow-lg hover:shadow-xl flex items-center gap-2 whitespace-nowrap"
+                className="px-4 sm:px-6 py-2.5 sm:py-3 bg-gradient-to-r from-green-600 via-emerald-600 to-teal-600 text-white rounded-xl font-semibold hover:from-green-700 hover:via-emerald-700 hover:to-teal-700 transition-all duration-300 shadow-lg hover:shadow-xl flex items-center justify-center gap-2 whitespace-nowrap text-sm sm:text-base"
               >
-                <Plus className="w-5 h-5" />
-                Adicionar Contato
+                <Plus className="w-4 h-4 sm:w-5 sm:h-5" />
+                <span className="hidden sm:inline">Adicionar Contato</span>
+                <span className="sm:hidden">Adicionar</span>
               </button>
             </div>
 
             {/* Filtros Rápidos e Botão de Filtros */}
-            <div className="flex flex-wrap items-center gap-3">
+            <div className="flex flex-wrap items-center gap-2 sm:gap-3">
               {/* Filtros Rápidos */}
               <button
                 onClick={() => setShowFavoritesOnly(!showFavoritesOnly)}
-                className={`px-4 py-2 rounded-lg font-medium text-sm transition-all duration-300 flex items-center gap-2 ${
+                className={`px-3 sm:px-4 py-1.5 sm:py-2 rounded-lg font-medium text-xs sm:text-sm transition-all duration-300 flex items-center gap-1.5 sm:gap-2 ${
                   showFavoritesOnly
                     ? 'bg-gradient-to-r from-yellow-500 to-yellow-600 text-white shadow-lg'
                     : 'bg-white dark:bg-slate-800 text-slate-700 dark:text-slate-300 border border-slate-200 dark:border-slate-700 hover:bg-slate-50 dark:hover:bg-slate-700'
                 }`}
               >
-                <Star className={`w-4 h-4 ${showFavoritesOnly ? 'fill-current' : ''}`} />
+                <Star className={`w-3.5 h-3.5 sm:w-4 sm:h-4 ${showFavoritesOnly ? 'fill-current' : ''}`} />
                 Favoritos
               </button>
 
               <button
                 onClick={() => setShowArchivedOnly(!showArchivedOnly)}
-                className={`px-4 py-2 rounded-lg font-medium text-sm transition-all duration-300 flex items-center gap-2 ${
+                className={`px-3 sm:px-4 py-1.5 sm:py-2 rounded-lg font-medium text-xs sm:text-sm transition-all duration-300 flex items-center gap-1.5 sm:gap-2 ${
                   showArchivedOnly
                     ? 'bg-gradient-to-r from-slate-600 to-slate-700 text-white shadow-lg'
                     : 'bg-white dark:bg-slate-800 text-slate-700 dark:text-slate-300 border border-slate-200 dark:border-slate-700 hover:bg-slate-50 dark:hover:bg-slate-700'
                 }`}
               >
-                <Archive className="w-4 h-4" />
+                <Archive className="w-3.5 h-3.5 sm:w-4 sm:h-4" />
                 Arquivados
               </button>
 
@@ -293,16 +295,16 @@ export default function ContatosPage() {
               <div className="relative" ref={filtersRef}>
                 <button
                   onClick={() => setFiltersOpen(!filtersOpen)}
-                  className={`px-4 py-2 rounded-lg font-medium text-sm transition-all duration-300 flex items-center gap-2 ${
+                  className={`px-3 sm:px-4 py-1.5 sm:py-2 rounded-lg font-medium text-xs sm:text-sm transition-all duration-300 flex items-center gap-1.5 sm:gap-2 ${
                     filtrosAtivos > 0
                       ? 'bg-gradient-to-r from-blue-600 to-blue-500 text-white shadow-lg'
                       : 'bg-white dark:bg-slate-800 text-slate-700 dark:text-slate-300 border border-slate-200 dark:border-slate-700 hover:bg-slate-50 dark:hover:bg-slate-700'
                   }`}
                 >
-                  <Filter className="w-4 h-4" />
+                  <Filter className="w-3.5 h-3.5 sm:w-4 sm:h-4" />
                   Filtros
                   {filtrosAtivos > 0 && (
-                    <span className="ml-1 px-2 py-0.5 bg-white/20 dark:bg-white/10 rounded-full text-xs font-bold">
+                    <span className="ml-1 px-1.5 sm:px-2 py-0.5 bg-white/20 dark:bg-white/10 rounded-full text-[10px] sm:text-xs font-bold">
                       {filtrosAtivos}
                     </span>
                   )}
@@ -310,7 +312,7 @@ export default function ContatosPage() {
 
                 {/* Dropdown de Filtros */}
                 {filtersOpen && (
-                  <div className="absolute top-full left-0 mt-2 w-80 bg-white dark:bg-slate-800 rounded-xl shadow-xl border border-slate-200 dark:border-slate-700 p-4 z-50">
+                  <div className="absolute top-full left-0 mt-2 w-[calc(100vw-2rem)] sm:w-80 max-w-sm bg-white dark:bg-slate-800 rounded-xl shadow-xl border border-slate-200 dark:border-slate-700 p-3 sm:p-4 z-50">
                     <div className="space-y-4">
                       {/* Filtro de Status */}
                       <div>
@@ -428,7 +430,7 @@ export default function ContatosPage() {
 
           {/* Grid de Contatos */}
           {!loading && !error && contatosFiltrados.length > 0 && (
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-3 sm:gap-4">
               {contatosFiltrados.map((contato) => {
                 const primeiraLetra = contato.contatoNome
                   ? contato.contatoNome.charAt(0).toUpperCase()
@@ -442,13 +444,13 @@ export default function ContatosPage() {
                       setContatoEditando(contato);
                       setModalEditarAberto(true);
                     }}
-                    className="group relative bg-white dark:bg-slate-800 rounded-xl p-5 border border-slate-200 dark:border-slate-700 shadow-sm hover:shadow-xl transition-all duration-300 hover:scale-[1.02] cursor-pointer"
+                    className="group relative bg-white dark:bg-slate-800 rounded-xl p-4 sm:p-5 border border-slate-200 dark:border-slate-700 shadow-sm hover:shadow-xl transition-all duration-300 hover:scale-[1.02] cursor-pointer"
                   >
                     {/* Header do Card */}
                     <div className="flex items-start gap-4 mb-4">
                       {/* Avatar */}
                       <div
-                        className={`${getAvatarColor(primeiraLetra)} w-14 h-14 rounded-full flex items-center justify-center text-white font-bold text-xl shadow-lg flex-shrink-0 relative`}
+                        className={`${getAvatarColor(primeiraLetra)} w-12 h-12 sm:w-14 sm:h-14 rounded-full flex items-center justify-center text-white font-bold text-lg sm:text-xl shadow-lg flex-shrink-0 relative`}
                       >
                         {primeiraLetra}
                         {contato.favorito && (
