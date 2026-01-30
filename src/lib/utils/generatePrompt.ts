@@ -138,7 +138,7 @@ export async function generatePrompt({
     const historicoFormatado = await getFormattedHistory(contatoId, 10, true);
 
     // 5. Monta o prompt completo de forma mais clara e estruturada
-    const promptBase = atendimentoAI.promptBase || '';
+    const promptBase = atendimentoAI.prompt || '';
     
     // Se não tem histórico, é a primeira mensagem
     const temHistorico = historicoFormatado && 
