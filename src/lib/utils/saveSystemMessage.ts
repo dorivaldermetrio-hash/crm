@@ -25,16 +25,21 @@ export async function saveSystemMessage(
   try {
     await connectDB();
 
-    const MensagemModel = isInstagram ? MensagemDM : Mensagem;
-
     // Busca ou cria o objeto mensagem do contato
-    let mensagemDoc = await MensagemModel.findOne({ contatoID: contatoId });
+    let mensagemDoc = isInstagram 
+      ? await MensagemDM.findOne({ contatoID: contatoId })
+      : await Mensagem.findOne({ contatoID: contatoId });
 
     if (!mensagemDoc) {
-      mensagemDoc = await MensagemModel.create({
-        contatoID: contatoId,
-        mensagens: [],
-      });
+      mensagemDoc = isInstagram
+        ? await MensagemDM.create({
+            contatoID: contatoId,
+            mensagens: [],
+          })
+        : await Mensagem.create({
+            contatoID: contatoId,
+            mensagens: [],
+          });
     }
 
     // Cria a nova mensagem do sistema
@@ -66,8 +71,9 @@ export async function saveSystemMessage(
     await mensagemDoc.save();
 
     // Atualiza última mensagem do contato
-    const ContatoModel = isInstagram ? ContatoDM : Contato;
-    const contato = await ContatoModel.findById(contatoId);
+    const contato = isInstagram
+      ? await ContatoDM.findById(contatoId)
+      : await Contato.findById(contatoId);
     if (contato) {
       contato.ultimaMensagem = mensagemTexto.trim();
       contato.dataUltimaMensagem = new Date();
