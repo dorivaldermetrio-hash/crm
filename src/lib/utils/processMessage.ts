@@ -69,7 +69,7 @@ export async function processMessage(data: ExtractedData): Promise<{
           if (data.tipo === 'audio' && midiaId) {
             try {
               console.log(`🎤 Iniciando transcrição do áudio: ${midiaId}`);
-              transcricao = await transcribeAudio(midiaId);
+              transcricao = (await transcribeAudio(midiaId)) || undefined;
               if (transcricao) {
                 console.log(`✅ Transcrição salva: ${transcricao.substring(0, 50)}...`);
               } else {
