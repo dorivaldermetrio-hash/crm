@@ -64,7 +64,7 @@ const statusOptions: Array<{ value: Contato['status']; label: string }> = [
   { value: 'Perdida', label: 'Perdida' },
 ];
 
-const tagOptions: Array<{ value: Contato['tags'][0]; label: string; color: string }> = [
+const tagOptions: Array<{ value: NonNullable<Contato['tags']>[number]; label: string; color: string }> = [
   { value: 'Urgente', label: 'Urgente', color: 'bg-red-100 text-red-800 dark:bg-red-900/30 dark:text-red-300' },
   { value: 'Importante', label: 'Importante', color: 'bg-orange-100 text-orange-800 dark:bg-orange-900/30 dark:text-orange-300' },
   { value: 'Seguimento', label: 'Seguimento', color: 'bg-purple-100 text-purple-800 dark:bg-purple-900/30 dark:text-purple-300' },
@@ -97,7 +97,7 @@ export default function EditarContatoModal({
     }
   }, [contato, isOpen]);
 
-  const toggleTag = (tag: Contato['tags'][0]) => {
+  const toggleTag = (tag: NonNullable<Contato['tags']>[number]) => {
     setTags((prev) => {
       if (prev?.includes(tag)) {
         return prev.filter((t) => t !== tag);
