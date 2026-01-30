@@ -30,6 +30,7 @@ interface ConnectionStatus {
   email: 'checking' | 'connected' | 'disconnected';
   mongodb: 'checking' | 'connected' | 'disconnected';
   ollama: 'checking' | 'connected' | 'disconnected';
+  openai: 'checking' | 'connected' | 'disconnected';
 }
 
 export default function ConfiguracoesPage() {
@@ -49,6 +50,7 @@ export default function ConfiguracoesPage() {
     email: 'checking',
     mongodb: 'checking',
     ollama: 'checking',
+    openai: 'checking',
   });
   const [showPasswords, setShowPasswords] = useState<Record<string, boolean>>({});
   const [testingConnection, setTestingConnection] = useState<string | null>(null);
@@ -91,7 +93,11 @@ export default function ConfiguracoesPage() {
   };
 
   const checkConnections = async () => {
-    const connections: (keyof ConnectionStatus)[] = ['whatsapp', 'instagram', 'email', 'mongodb', 'ollama'];
+    // Determina qual provider de IA verificar baseado na configuração
+    const aiProvider = envInfo?.ai?.provider || 'openai';
+    const aiConnection = aiProvider === 'openai' ? 'openai' : 'ollama';
+    
+    const connections: (keyof ConnectionStatus)[] = ['whatsapp', 'instagram', 'email', 'mongodb', aiConnection];
     
     for (const conn of connections) {
       setConnectionStatus((prev) => ({ ...prev, [conn]: 'checking' }));
@@ -312,9 +318,12 @@ export default function ConfiguracoesPage() {
                   <div className="flex items-center justify-between">
                     <h2 className="text-xl font-bold text-slate-900 dark:text-white">Atendimento IA</h2>
                     <div className="flex items-center gap-2">
-                      {getStatusIcon(connectionStatus.ollama)}
+                      {getStatusIcon(envInfo?.ai?.provider === 'openai' ? connectionStatus.openai : connectionStatus.ollama)}
                       <span className="text-sm text-slate-600 dark:text-slate-400">
-                        {connectionStatus.ollama === 'connected' ? 'Conectado' : connectionStatus.ollama === 'checking' ? 'Verificando...' : 'Desconectado'}
+                        {(() => {
+                          const status = envInfo?.ai?.provider === 'openai' ? connectionStatus.openai : connectionStatus.ollama;
+                          return status === 'connected' ? 'Conectado' : status === 'checking' ? 'Verificando...' : 'Desconectado';
+                        })()}
                       </span>
                     </div>
                   </div>
@@ -339,16 +348,16 @@ export default function ConfiguracoesPage() {
 
                     <div>
                       <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-2">
-                        URL do Ollama
+                        Provider de IA
                       </label>
                       <input
                         type="text"
-                        value={envInfo?.ollama?.url || 'http://localhost:11434'}
+                        value={envInfo?.ai?.provider === 'openai' ? 'OpenAI' : envInfo?.ai?.provider === 'ollama' ? 'Ollama' : 'Carregando...'}
                         disabled
                         className="w-full px-4 py-2 border border-slate-300 dark:border-slate-600 rounded-lg bg-slate-50 dark:bg-slate-700 text-slate-600 dark:text-slate-400"
                       />
                       <p className="text-xs text-slate-500 dark:text-slate-500 mt-1">
-                        Configure via variável de ambiente OLLAMA_URL
+                        Configure via variável de ambiente AI_PROVIDER (openai ou ollama)
                       </p>
                     </div>
 
@@ -358,14 +367,48 @@ export default function ConfiguracoesPage() {
                       </label>
                       <input
                         type="text"
-                        value={envInfo?.ollama?.model || 'Carregando...'}
+                        value={envInfo?.ai?.model || 'Carregando...'}
                         disabled
                         className="w-full px-4 py-2 border border-slate-300 dark:border-slate-600 rounded-lg bg-slate-50 dark:bg-slate-700 text-slate-600 dark:text-slate-400"
                       />
                       <p className="text-xs text-slate-500 dark:text-slate-500 mt-1">
-                        Configure via variável de ambiente OLLAMA_MODEL
+                        Configure via variável de ambiente OPENAI_MODEL ou OLLAMA_MODEL
                       </p>
                     </div>
+
+                    {envInfo?.ai?.provider === 'ollama' && (
+                      <div>
+                        <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-2">
+                          URL do Ollama
+                        </label>
+                        <input
+                          type="text"
+                          value={envInfo?.ai?.ollamaUrl || 'http://localhost:11434'}
+                          disabled
+                          className="w-full px-4 py-2 border border-slate-300 dark:border-slate-600 rounded-lg bg-slate-50 dark:bg-slate-700 text-slate-600 dark:text-slate-400"
+                        />
+                        <p className="text-xs text-slate-500 dark:text-slate-500 mt-1">
+                          Configure via variável de ambiente OLLAMA_URL
+                        </p>
+                      </div>
+                    )}
+
+                    {envInfo?.ai?.provider === 'openai' && (
+                      <div>
+                        <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-2">
+                          API Key OpenAI
+                        </label>
+                        <input
+                          type="text"
+                          value={envInfo?.ai?.openaiConfigured ? '••••••••••••••••' : 'Não configurado'}
+                          disabled
+                          className="w-full px-4 py-2 border border-slate-300 dark:border-slate-600 rounded-lg bg-slate-50 dark:bg-slate-700 text-slate-600 dark:text-slate-400"
+                        />
+                        <p className="text-xs text-slate-500 dark:text-slate-500 mt-1">
+                          Configure via variável de ambiente OPENAI_API_KEY
+                        </p>
+                      </div>
+                    )}
 
                     <div>
                       <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-2">
@@ -416,17 +459,17 @@ export default function ConfiguracoesPage() {
                     </div>
 
                     <button
-                      onClick={() => handleTestConnection('ollama')}
-                      disabled={testingConnection === 'ollama'}
+                      onClick={() => handleTestConnection(envInfo?.ai?.provider === 'openai' ? 'openai' : 'ollama')}
+                      disabled={testingConnection === 'ollama' || testingConnection === 'openai'}
                       className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2"
                     >
-                      {testingConnection === 'ollama' ? (
+                      {testingConnection === 'ollama' || testingConnection === 'openai' ? (
                         <>
                           <HiOutlineArrowPath className="w-4 h-4 animate-spin" />
                           Testando...
                         </>
                       ) : (
-                        'Testar Conexão Ollama'
+                        `Testar Conexão ${envInfo?.ai?.provider === 'openai' ? 'OpenAI' : 'Ollama'}`
                       )}
                     </button>
                   </div>

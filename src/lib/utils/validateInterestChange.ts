@@ -4,7 +4,7 @@
 
 import { generateInterestValidationPrompt } from './generateInterestValidationPrompt';
 import { parseInterestValidationResponse } from './parseValidationResponse';
-import { getOllamaModel } from '@/lib/config/ollama';
+import { getAIModel } from '@/lib/config/ai';
 
 export interface InterestChangeResult {
   troca: boolean;
@@ -23,7 +23,7 @@ export async function validateInterestChange(
 ): Promise<InterestChangeResult | null> {
   try {
     const OLLAMA_URL = process.env.OLLAMA_URL || 'http://localhost:11434';
-    const modelName = getOllamaModel();
+    const modelName = getAIModel();
 
     // 1. Gera o prompt de validação
     const prompt = await generateInterestValidationPrompt(contatoId, mensagemRecebida);

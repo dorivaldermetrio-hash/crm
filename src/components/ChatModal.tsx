@@ -20,12 +20,15 @@ interface Mensagem {
   midiaNome?: string;
   midiaTamanho?: number;
   midiaMimeType?: string;
+  transcricao?: string;
 }
 
 interface Contato {
   id: string;
   contato: string;
   contatoNome: string;
+  ultimaMensagem?: string;
+  dataUltimaMensagem?: Date | string | null;
   status?: 'Novo Contato' | 'Triagem em Andamento' | 'Triagem Jurídica Concluída' | 'Caso Urgente' | 'Encaminhado para Atendimento Humano' | 'Não é caso Jurídico';
   tags?: Array<'Urgente' | 'Importante' | 'Seguimento' | 'Cliente' | 'Prospecto'>;
   nota?: string;
@@ -146,6 +149,15 @@ export default function ChatModal({ contatoId, isOpen, onClose }: ChatModalProps
           console.log('📸 Mensagens com mídia encontradas:', mensagensComMidia.length);
           mensagensComMidia.forEach((m: Mensagem) => {
             console.log('  - Tipo:', m.tipo, '| midiaId:', m.midiaId || 'NÃO DEFINIDO', '| mensagem:', m.mensagem);
+          });
+        }
+
+        // Debug: verifica mensagens de áudio com transcrição
+        const mensagensAudio = mensagensData.filter((m: Mensagem) => m.tipo === 'audio');
+        if (mensagensAudio.length > 0) {
+          console.log('🎤 Mensagens de áudio encontradas:', mensagensAudio.length);
+          mensagensAudio.forEach((m: Mensagem) => {
+            console.log('  - ID:', m.id, '| Tipo:', m.tipo, '| Transcrição:', m.transcricao ? `"${m.transcricao.substring(0, 50)}..."` : 'NÃO DEFINIDA');
           });
         }
       } else {
@@ -744,7 +756,7 @@ export default function ChatModal({ contatoId, isOpen, onClose }: ChatModalProps
             <div className="bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 rounded-xl p-4">
               <p className="text-red-800 dark:text-red-200 text-sm">{error}</p>
               <button
-                onClick={fetchMensagens}
+                onClick={() => fetchMensagens()}
                 className="mt-2 text-red-600 dark:text-red-400 hover:text-red-700 dark:hover:text-red-300 text-sm font-medium underline"
               >
                 Tentar novamente
@@ -1001,6 +1013,23 @@ export default function ChatModal({ contatoId, isOpen, onClose }: ChatModalProps
                                     )}
                                   </div>
                                 </div>
+                                {/* Transcrição do áudio */}
+                                {msg.transcricao && (
+                                  <div className={`mt-3 pt-3 border-t ${
+                                    isSistema
+                                      ? 'border-white/20'
+                                      : 'border-slate-300 dark:border-slate-600'
+                                  }`}>
+                                    <p className={`text-sm ${
+                                      isSistema
+                                        ? 'text-white/90'
+                                        : 'text-slate-700 dark:text-slate-200'
+                                    }`}>
+                                      <span className="font-semibold">Transcrição: </span>
+                                      {msg.transcricao}
+                                    </p>
+                                  </div>
+                                )}
                               </>
                             ) : (
                               <div className="flex items-center gap-3">
@@ -1406,7 +1435,7 @@ function PainelInformacoes({ contato, onSave, onUpdate }: PainelInformacoesProps
     }
   }, [contato]);
 
-  const toggleTag = (tag: Contato['tags'][0]) => {
+  const toggleTag = (tag: NonNullable<Contato['tags']>[number]) => {
     setTags((prev) => {
       if (prev?.includes(tag)) {
         return prev.filter((t) => t !== tag);
@@ -1477,7 +1506,7 @@ function PainelInformacoes({ contato, onSave, onUpdate }: PainelInformacoesProps
     { value: 'Não é caso Jurídico', label: 'Não é caso Jurídico' },
   ];
 
-  const tagOptions: Array<{ value: Contato['tags'][0]; label: string; color: string }> = [
+  const tagOptions: Array<{ value: NonNullable<Contato['tags']>[number]; label: string; color: string }> = [
     { value: 'Urgente', label: 'Urgente', color: 'bg-red-100 text-red-800 dark:bg-red-900/30 dark:text-red-300' },
     { value: 'Importante', label: 'Importante', color: 'bg-orange-100 text-orange-800 dark:bg-orange-900/30 dark:text-orange-300' },
     { value: 'Seguimento', label: 'Seguimento', color: 'bg-purple-100 text-purple-800 dark:bg-purple-900/30 dark:text-purple-300' },
@@ -1893,7 +1922,7 @@ function PainelAnalytics({ mensagens, contato }: PainelAnalyticsProps) {
                 cx="50%"
                 cy="50%"
                 labelLine={false}
-                label={({ name, percent }) => `${name}: ${(percent * 100).toFixed(0)}%`}
+                label={({ name, percent }: { name: string; percent: number }) => `${name}: ${(percent * 100).toFixed(0)}%`}
                 outerRadius={80}
                 fill="#8884d8"
                 dataKey="value"

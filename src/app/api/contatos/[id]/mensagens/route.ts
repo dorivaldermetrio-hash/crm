@@ -57,6 +57,39 @@ export async function GET(
       return dateA - dateB;
     });
 
+    // Debug: verifica mensagens com transcrição
+    const mensagensComTranscricao = mensagens.filter((m: any) => m.transcricao);
+    if (mensagensComTranscricao.length > 0) {
+      console.log(`📝 Mensagens com transcrição encontradas: ${mensagensComTranscricao.length}`);
+      mensagensComTranscricao.forEach((m: any) => {
+        console.log(`  - Tipo: ${m.tipo}, Transcrição: ${m.transcricao?.substring(0, 50)}...`);
+      });
+    }
+
+    const mensagensMapeadas = mensagens.map((msg: any) => {
+      const mapeada = {
+        id: msg._id?.toString() || '',
+        mensagemWhatsAppId: msg.mensagemWhatsAppId,
+        mensagem: msg.mensagem,
+        dataHora: new Date(msg.dataHora).toISOString(),
+        tipo: msg.tipo,
+        contatoID: msg.contatoID || contato._id.toString(), // Se não tiver contatoID, usa o _id do contato
+        midiaId: msg.midiaId || undefined,
+        midiaUrl: msg.midiaUrl || undefined,
+        midiaNome: msg.midiaNome || undefined,
+        midiaTamanho: msg.midiaTamanho || undefined,
+        midiaMimeType: msg.midiaMimeType || undefined,
+        transcricao: msg.transcricao || undefined,
+      };
+      
+      // Debug: log para mensagens de áudio
+      if (msg.tipo === 'audio') {
+        console.log(`🎤 API retornando áudio ${mapeada.id}: transcricao=${mapeada.transcricao ? `"${mapeada.transcricao.substring(0, 30)}..."` : 'NÃO DEFINIDA'}`);
+      }
+      
+      return mapeada;
+    });
+
     return NextResponse.json(
       {
         success: true,
@@ -65,19 +98,7 @@ export async function GET(
           contato: contato.contato,
           contatoNome: contato.contatoNome || '',
         },
-        mensagens: mensagens.map((msg: any) => ({
-          id: msg._id?.toString() || '',
-          mensagemWhatsAppId: msg.mensagemWhatsAppId,
-          mensagem: msg.mensagem,
-          dataHora: new Date(msg.dataHora).toISOString(),
-          tipo: msg.tipo,
-          contatoID: msg.contatoID || contato._id.toString(), // Se não tiver contatoID, usa o _id do contato
-          midiaId: msg.midiaId || undefined,
-          midiaUrl: msg.midiaUrl || undefined,
-          midiaNome: msg.midiaNome || undefined,
-          midiaTamanho: msg.midiaTamanho || undefined,
-          midiaMimeType: msg.midiaMimeType || undefined,
-        })),
+        mensagens: mensagensMapeadas,
         total: mensagens.length,
       },
       { status: 200 }

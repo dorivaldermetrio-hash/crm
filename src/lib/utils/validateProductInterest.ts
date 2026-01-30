@@ -4,7 +4,7 @@
 
 import { generateProductValidationPrompt } from './generateProductValidationPrompt';
 import { parseProductValidationResponse } from './parseValidationResponse';
-import { getOllamaModel } from '@/lib/config/ollama';
+import { getAIModel } from '@/lib/config/ai';
 
 export interface ProductValidationResult {
   interesse: boolean;
@@ -23,7 +23,7 @@ export async function validateProductInterest(
 ): Promise<ProductValidationResult | null> {
   try {
     const OLLAMA_URL = process.env.OLLAMA_URL || 'http://localhost:11434';
-    const modelName = getOllamaModel();
+    const modelName = getAIModel();
 
     // 1. Gera o prompt de validação
     const prompt = await generateProductValidationPrompt(contatoId, mensagemRecebida);

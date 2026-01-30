@@ -6,7 +6,7 @@ import AtendimentoAI from '@/lib/models/AtendimentoAI';
 import { processPromptVariables } from '@/lib/utils/processPromptVariables';
 import { generateOllamaJSONResponse } from '@/lib/utils/ollama';
 import { generateOllamaCustomJSON } from '@/lib/utils/generateOllamaCustomJSON';
-import { getOllamaModel } from '@/lib/config/ollama';
+import { getAIModel } from '@/lib/config/ai';
 import { verificadorDeConversa } from '@/lib/utils/verificadorDeConversa';
 import { gerenciadorDeConversa } from '@/lib/utils/gerenciadorDeConversa';
 import { setContactProperty } from '@/lib/utils/setContactProperty';
@@ -78,7 +78,14 @@ export async function POST(request: NextRequest) {
       });
     }
 
-    if (result.success && result.contatoId && extractedData.tipo === 'texto' && extractedData.mensagem) {
+    // Agenda processamento de IA para mensagens de texto ou áudio (com transcrição)
+    if (result.success && result.contatoId && (extractedData.tipo === 'texto' || extractedData.tipo === 'audio')) {
+      // Para áudio, aguarda a transcrição estar disponível
+      if (extractedData.tipo === 'audio') {
+        // Aguarda um pouco para garantir que a transcrição foi salva
+        await new Promise(resolve => setTimeout(resolve, 2000));
+      }
+
       // Agenda o processamento da IA com debounce de 10 segundos
       // Isso evita múltiplas respostas quando o cliente envia várias mensagens rapidamente
       scheduleAIProcessing(
@@ -87,6 +94,52 @@ export async function POST(request: NextRequest) {
         async () => {
           try {
             await connectDB();
+
+            // Para áudio, busca a transcrição da mensagem
+            let mensagemParaIA = extractedData.mensagem;
+            
+            if (extractedData.tipo === 'audio') {
+              // Busca a mensagem de áudio recém-criada para pegar a transcrição
+              const MensagemModel = (await import('@/lib/models/Mensagem')).default;
+              const mensagemDoc = await MensagemModel.findOne({ contatoID: result.contatoId }).lean();
+              
+              if (mensagemDoc && mensagemDoc.mensagens) {
+                // Encontra a última mensagem de áudio (a que acabou de ser recebida)
+                const ultimaMensagemAudio = mensagemDoc.mensagens
+                  .filter((msg: any) => msg.tipo === 'audio' && msg.mensagemWhatsAppId === extractedData.messageId)
+                  .sort((a: any, b: any) => new Date(b.dataHora).getTime() - new Date(a.dataHora).getTime())[0];
+                
+                if (ultimaMensagemAudio && ultimaMensagemAudio.transcricao) {
+                  mensagemParaIA = ultimaMensagemAudio.transcricao;
+                  console.log(`🎤 Usando transcrição do áudio para IA: "${mensagemParaIA.substring(0, 50)}..."`);
+                } else {
+                  console.log('⚠️ Transcrição do áudio ainda não está disponível. Aguardando...');
+                  // Aguarda mais um pouco e tenta novamente
+                  await new Promise(resolve => setTimeout(resolve, 3000));
+                  
+                  const mensagemDocRetry = await MensagemModel.findOne({ contatoID: result.contatoId }).lean();
+                  if (mensagemDocRetry && mensagemDocRetry.mensagens) {
+                    const ultimaMensagemAudioRetry = mensagemDocRetry.mensagens
+                      .filter((msg: any) => msg.tipo === 'audio' && msg.mensagemWhatsAppId === extractedData.messageId)
+                      .sort((a: any, b: any) => new Date(b.dataHora).getTime() - new Date(a.dataHora).getTime())[0];
+                    
+                    if (ultimaMensagemAudioRetry && ultimaMensagemAudioRetry.transcricao) {
+                      mensagemParaIA = ultimaMensagemAudioRetry.transcricao;
+                      console.log(`✅ Transcrição encontrada após retry: "${mensagemParaIA.substring(0, 50)}..."`);
+                    } else {
+                      console.log('⚠️ Transcrição não disponível após retry. Pulando processamento de IA.');
+                      return;
+                    }
+                  }
+                }
+              }
+            }
+
+            // Verifica se há mensagem para processar
+            if (!mensagemParaIA || mensagemParaIA.trim() === '') {
+              console.log('⚠️ Nenhuma mensagem de texto ou transcrição disponível para processar.');
+              return;
+            }
 
           // 1. Verifica o estado da conversa e decide qual prompt executar
           const verificacao = await verificadorDeConversa(result.contatoId, false);
@@ -110,7 +163,8 @@ export async function POST(request: NextRequest) {
             // Busca a última mensagem do contato para usar no prompt (ao invés de extractedData.mensagem que pode estar desatualizado)
             const ContatoModel = (await import('@/lib/models/Contato')).default;
             const contatoAtualizado = await ContatoModel.findById(result.contatoId).lean();
-            const ultimaMensagemTexto = contatoAtualizado?.ultimaMensagem || extractedData.mensagem;
+            // Para áudio, usa a transcrição; para texto, usa a mensagem normal
+            const ultimaMensagemTexto = mensagemParaIA || contatoAtualizado?.ultimaMensagem || extractedData.mensagem;
             
             const promptProcessado = await processPromptVariables(
               promptDoc.prompt,
@@ -138,7 +192,7 @@ export async function POST(request: NextRequest) {
             const promptValidacaoAgendamentoProcessado = await processPromptVariables(
               promptValidacaoAgendamento.prompt,
               result.contatoId,
-              extractedData.mensagem
+              mensagemParaIA
             );
 
             console.log('\n========================================');
@@ -164,7 +218,7 @@ export async function POST(request: NextRequest) {
               additionalProperties: false
             };
 
-            const respostaValidacaoAgendamento = await generateOllamaCustomJSON(promptValidacaoAgendamentoProcessado, jsonSchemaValidacaoAgendamento, getOllamaModel());
+            const respostaValidacaoAgendamento = await generateOllamaCustomJSON(promptValidacaoAgendamentoProcessado, jsonSchemaValidacaoAgendamento, getAIModel());
 
             console.log('\n========================================');
             console.log('🤖 RESULTADO DO PROMPT VALIDAÇÃO DE AGENDAMENTO:');
@@ -231,10 +285,10 @@ export async function POST(request: NextRequest) {
               const promptAgendamentoAceitoProcessado = await processPromptVariables(
                 promptAgendamentoAceito.prompt,
                 result.contatoId,
-                extractedData.mensagem
+                mensagemParaIA
               );
 
-              const respostaAgendamentoAceito = await generateOllamaJSONResponse(promptAgendamentoAceitoProcessado, getOllamaModel());
+              const respostaAgendamentoAceito = await generateOllamaJSONResponse(promptAgendamentoAceitoProcessado, getAIModel());
               const mensagemAgendamentoAceito = respostaAgendamentoAceito.resposta.trim();
 
               console.log('\n========================================');
@@ -286,10 +340,10 @@ export async function POST(request: NextRequest) {
               const promptAgendamentoNaoAceitoProcessado = await processPromptVariables(
                 promptAgendamentoNaoAceito.prompt,
                 result.contatoId,
-                extractedData.mensagem
+                mensagemParaIA
               );
 
-              const respostaAgendamentoNaoAceito = await generateOllamaJSONResponse(promptAgendamentoNaoAceitoProcessado, getOllamaModel());
+              const respostaAgendamentoNaoAceito = await generateOllamaJSONResponse(promptAgendamentoNaoAceitoProcessado, getAIModel());
               const mensagemAgendamentoNaoAceito = respostaAgendamentoNaoAceito.resposta.trim();
 
               console.log('\n========================================');
@@ -339,7 +393,7 @@ export async function POST(request: NextRequest) {
             const promptValidacaoNomeProcessado = await processPromptVariables(
               promptValidacaoNome.prompt,
               result.contatoId,
-              extractedData.mensagem
+              mensagemParaIA
             );
 
             console.log('\n========================================');
@@ -365,7 +419,7 @@ export async function POST(request: NextRequest) {
               additionalProperties: false
             };
 
-            const respostaValidacaoNome = await generateOllamaCustomJSON(promptValidacaoNomeProcessado, jsonSchemaValidacaoNome, getOllamaModel());
+            const respostaValidacaoNome = await generateOllamaCustomJSON(promptValidacaoNomeProcessado, jsonSchemaValidacaoNome, getAIModel());
 
             console.log('\n========================================');
             console.log('🤖 RESULTADO DO PROMPT VALIDAÇÃO DE NOME:');
@@ -388,10 +442,10 @@ export async function POST(request: NextRequest) {
               const promptSolicitacaoNomeProcessado = await processPromptVariables(
                 promptSolicitacaoNome.prompt,
                 result.contatoId,
-                extractedData.mensagem
+                mensagemParaIA
               );
 
-              const respostaSolicitacaoNome = await generateOllamaJSONResponse(promptSolicitacaoNomeProcessado, getOllamaModel());
+              const respostaSolicitacaoNome = await generateOllamaJSONResponse(promptSolicitacaoNomeProcessado, getAIModel());
               const mensagemSolicitacaoNome = respostaSolicitacaoNome.resposta.trim();
 
               console.log('\n========================================');
@@ -446,10 +500,10 @@ export async function POST(request: NextRequest) {
               const promptOferecendoAgendamentoProcessado = await processPromptVariables(
                 promptOferecendoAgendamento.prompt,
                 result.contatoId,
-                extractedData.mensagem
+                mensagemParaIA
               );
 
-              const respostaOferecendoAgendamento = await generateOllamaJSONResponse(promptOferecendoAgendamentoProcessado, getOllamaModel());
+              const respostaOferecendoAgendamento = await generateOllamaJSONResponse(promptOferecendoAgendamentoProcessado, getAIModel());
               const mensagemOferecendoAgendamento = respostaOferecendoAgendamento.resposta.trim();
 
               console.log('\n========================================');
@@ -499,7 +553,7 @@ export async function POST(request: NextRequest) {
             const promptValidacaoUrgenciaProcessado = await processPromptVariables(
               promptValidacaoUrgencia.prompt,
               result.contatoId,
-              extractedData.mensagem
+              mensagemParaIA
             );
 
             console.log('\n========================================');
@@ -509,7 +563,7 @@ export async function POST(request: NextRequest) {
             console.log('========================================\n');
 
             // Apenas executa o prompt, não precisa de JSON response aqui
-            const respostaUrgencia = await generateOllamaJSONResponse(promptValidacaoUrgenciaProcessado, getOllamaModel());
+            const respostaUrgencia = await generateOllamaJSONResponse(promptValidacaoUrgenciaProcessado, getAIModel());
             console.log('\n========================================');
             console.log('🤖 RESULTADO DO PROMPT VALIDAÇÃO DE URGÊNCIA (FLUXO FINAL):');
             console.log('========================================');
@@ -526,10 +580,10 @@ export async function POST(request: NextRequest) {
             const promptEncaminhadoProcessado = await processPromptVariables(
               promptEncaminhado.prompt,
               result.contatoId,
-              extractedData.mensagem
+              mensagemParaIA
             );
 
-            const respostaEncaminhado = await generateOllamaJSONResponse(promptEncaminhadoProcessado, getOllamaModel());
+            const respostaEncaminhado = await generateOllamaJSONResponse(promptEncaminhadoProcessado, getAIModel());
             const mensagemEncaminhado = respostaEncaminhado.resposta.trim();
 
             console.log('\n========================================');
@@ -583,7 +637,7 @@ export async function POST(request: NextRequest) {
               additionalProperties: false
             };
 
-            const respostaValidacaoResumo = await generateOllamaCustomJSON(promptProcessado, jsonSchemaValidacao, getOllamaModel());
+            const respostaValidacaoResumo = await generateOllamaCustomJSON(promptProcessado, jsonSchemaValidacao, getAIModel());
 
             console.log('\n========================================');
             console.log('🤖 RESULTADO DO PROMPT VALIDAÇÃO DO RESUMO E INCORPORAÇÃO:');
@@ -611,7 +665,7 @@ export async function POST(request: NextRequest) {
               const promptVerificadorProcessado = await processPromptVariables(
                 promptVerificador.prompt,
                 result.contatoId,
-                extractedData.mensagem
+                mensagemParaIA
               );
 
               const jsonSchemaVerificador = {
@@ -626,7 +680,7 @@ export async function POST(request: NextRequest) {
                 additionalProperties: false
               };
 
-              const respostaVerificador = await generateOllamaCustomJSON(promptVerificadorProcessado, jsonSchemaVerificador, getOllamaModel());
+              const respostaVerificador = await generateOllamaCustomJSON(promptVerificadorProcessado, jsonSchemaVerificador, getAIModel());
               console.log('\n========================================');
               console.log('🤖 RESULTADO DO PROMPT VERIFICADOR DE RESUMO (REEXECUÇÃO):');
               console.log('========================================');
@@ -651,10 +705,10 @@ export async function POST(request: NextRequest) {
               const promptValidacaoProcessado = await processPromptVariables(
                 promptValidacao.prompt,
                 result.contatoId,
-                extractedData.mensagem
+                mensagemParaIA
               );
 
-              const respostaValidacao = await generateOllamaJSONResponse(promptValidacaoProcessado, getOllamaModel());
+              const respostaValidacao = await generateOllamaJSONResponse(promptValidacaoProcessado, getAIModel());
               const mensagemValidacao = respostaValidacao.resposta.trim();
 
               console.log('\n========================================');
@@ -704,7 +758,7 @@ export async function POST(request: NextRequest) {
               const promptValidacaoUrgenciaProcessado = await processPromptVariables(
                 promptValidacaoUrgencia.prompt,
                 result.contatoId,
-                extractedData.mensagem
+                mensagemParaIA
               );
 
               console.log('\n========================================');
@@ -726,7 +780,7 @@ export async function POST(request: NextRequest) {
                 additionalProperties: false
               };
 
-              const respostaUrgencia = await generateOllamaCustomJSON(promptValidacaoUrgenciaProcessado, jsonSchemaUrgencia, getOllamaModel());
+              const respostaUrgencia = await generateOllamaCustomJSON(promptValidacaoUrgenciaProcessado, jsonSchemaUrgencia, getAIModel());
 
               console.log('\n========================================');
               console.log('🤖 RESULTADO DO PROMPT VALIDAÇÃO DE URGÊNCIA:');
@@ -749,10 +803,10 @@ export async function POST(request: NextRequest) {
                 const promptUrgenciaNaoDefinidaProcessado = await processPromptVariables(
                   promptUrgenciaNaoDefinida.prompt,
                   result.contatoId,
-                  extractedData.mensagem
+                  mensagemParaIA
                 );
 
-                const respostaUrgenciaNaoDefinida = await generateOllamaJSONResponse(promptUrgenciaNaoDefinidaProcessado, getOllamaModel());
+                const respostaUrgenciaNaoDefinida = await generateOllamaJSONResponse(promptUrgenciaNaoDefinidaProcessado, getAIModel());
                 const mensagemUrgenciaNaoDefinida = respostaUrgenciaNaoDefinida.resposta.trim();
 
                 console.log('\n========================================');
@@ -800,10 +854,10 @@ export async function POST(request: NextRequest) {
                 const promptEncaminhadoProcessado = await processPromptVariables(
                   promptEncaminhado.prompt,
                   result.contatoId,
-                  extractedData.mensagem
+                  mensagemParaIA
                 );
 
-                const respostaEncaminhado = await generateOllamaJSONResponse(promptEncaminhadoProcessado, getOllamaModel());
+                const respostaEncaminhado = await generateOllamaJSONResponse(promptEncaminhadoProcessado, getAIModel());
                 const mensagemEncaminhado = respostaEncaminhado.resposta.trim();
 
                 console.log('\n========================================');
@@ -856,7 +910,7 @@ export async function POST(request: NextRequest) {
               additionalProperties: false
             };
 
-            const respostaVerificador = await generateOllamaCustomJSON(promptProcessado, jsonSchema, getOllamaModel());
+            const respostaVerificador = await generateOllamaCustomJSON(promptProcessado, jsonSchema, getAIModel());
 
             console.log('\n========================================');
             console.log('🤖 RESULTADO DO PROMPT VERIFICADOR DE RESUMO:');
@@ -914,7 +968,7 @@ export async function POST(request: NextRequest) {
             console.log('========================================\n');
 
             // 4.4. Gera resposta para Validação de Resumo
-            const respostaValidacao = await generateOllamaJSONResponse(promptValidacaoProcessado, getOllamaModel());
+            const respostaValidacao = await generateOllamaJSONResponse(promptValidacaoProcessado, getAIModel());
             const mensagemValidacao = respostaValidacao.resposta.trim();
 
             console.log('\n========================================');
@@ -959,7 +1013,7 @@ export async function POST(request: NextRequest) {
             // FLUXO NORMAL: Prompt simples -> Envia resposta -> Atualiza propriedade
             
             // 4.1. Gera resposta usando Ollama
-            const respostaOllama = await generateOllamaJSONResponse(promptProcessado, getOllamaModel());
+            const respostaOllama = await generateOllamaJSONResponse(promptProcessado, getAIModel());
             const mensagemResposta = respostaOllama.resposta.trim();
 
             console.log('\n========================================');

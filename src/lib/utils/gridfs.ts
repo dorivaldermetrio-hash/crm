@@ -45,9 +45,10 @@ export async function saveFileToGridFS(
     console.log(`💾 GridFS: Salvando arquivo: ${filename} (${contentType}, ${buffer.length} bytes)`);
     
     return new Promise((resolve, reject) => {
+      // GridFS armazena contentType como metadata
       const uploadStream = bucket.openUploadStream(filename, {
-        contentType,
-      });
+        metadata: { contentType },
+      } as any);
 
       uploadStream.on('finish', () => {
         const fileId = uploadStream.id.toString();
@@ -105,10 +106,12 @@ export async function getFileFromGridFS(fileId: string): Promise<{
     }
 
     const file = files[0];
+    // Acessa contentType de forma segura (pode estar em metadata ou como propriedade direta)
+    const contentType = (file as any).contentType || (file as any).metadata?.contentType;
     console.log(`📄 GridFS: Arquivo encontrado:`, {
       id: file._id.toString(),
       filename: file.filename,
-      contentType: file.contentType,
+      contentType: contentType,
       length: file.length,
       uploadDate: file.uploadDate,
     });
@@ -139,7 +142,7 @@ export async function getFileFromGridFS(fileId: string): Promise<{
         
         resolve({
           buffer,
-          contentType: file.contentType || 'application/octet-stream',
+          contentType: contentType || 'application/octet-stream',
           filename: file.filename || 'file',
         });
       });

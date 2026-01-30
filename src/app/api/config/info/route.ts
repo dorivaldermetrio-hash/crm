@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { getOllamaModel } from '@/lib/config/ollama';
+import { getAIProvider, getAIModel, getOllamaURL } from '@/lib/config/ai';
 
 /**
  * API Route para buscar informações de configuração (apenas leitura)
@@ -13,9 +13,11 @@ export async function GET() {
       {
         success: true,
         data: {
-          ollama: {
-            url: process.env.OLLAMA_URL || 'http://localhost:11434',
-            model: getOllamaModel(),
+          ai: {
+            provider: getAIProvider(),
+            model: getAIModel(),
+            ollamaUrl: getOllamaURL(),
+            openaiConfigured: !!process.env.OPENAI_API_KEY,
             enabled: process.env.OLLAMA_AUTO_REPLY_ENABLED !== 'false',
           },
           whatsapp: {

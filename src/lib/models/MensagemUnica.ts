@@ -63,6 +63,10 @@ export const MensagemUnicaSchema = new Schema(
       type: String,
       required: false,
     },
+    transcricao: {
+      type: String,
+      required: false,
+    },
   },
   {
     _id: true, // Cada mensagem terá seu próprio _id
@@ -82,6 +86,7 @@ export interface IMensagemUnica {
   midiaTamanho?: number;
   midiaMimeType?: string;
   midiaThumbnailId?: string;
+  transcricao?: string;
   _id?: string;
 }
 

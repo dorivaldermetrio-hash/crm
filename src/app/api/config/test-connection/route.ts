@@ -3,7 +3,7 @@ import { sendWhatsAppMessage } from '@/lib/utils/sendWhatsAppMessage';
 import { sendInstagramMessage } from '@/lib/utils/sendInstagramMessage';
 import nodemailer from 'nodemailer';
 import connectDB from '@/lib/db';
-import { getOllamaModel } from '@/lib/config/ollama';
+import { getAIProvider, getAIModel, getOllamaURL, getOpenAIKey } from '@/lib/config/ai';
 
 /**
  * API Route para testar conexões
@@ -26,6 +26,10 @@ export async function POST(request: NextRequest) {
         return await testMongoDB();
       case 'ollama':
         return await testOllama();
+      case 'openai':
+        return await testOpenAI();
+      case 'ai':
+        return await testAI();
       default:
         return NextResponse.json(
           { success: false, error: 'Tipo de conexão inválido' },
@@ -185,8 +189,8 @@ async function testMongoDB() {
 }
 
 async function testOllama() {
-  const OLLAMA_URL = process.env.OLLAMA_URL || 'http://localhost:11434';
-  const OLLAMA_MODEL = getOllamaModel();
+  const OLLAMA_URL = getOllamaURL();
+  const OLLAMA_MODEL = getAIModel();
 
   try {
     // Testa se o servidor Ollama está rodando
@@ -228,3 +232,62 @@ async function testOllama() {
   }
 }
 
+async function testOpenAI() {
+  const apiKey = getOpenAIKey();
+  const model = getAIModel();
+
+  if (!apiKey) {
+    return NextResponse.json({
+      success: false,
+      error: 'OPENAI_API_KEY não configurada',
+      details: 'Configure OPENAI_API_KEY no .env.local',
+    });
+  }
+
+  try {
+    // Testa fazendo uma chamada simples à API
+    const response = await fetch('https://api.openai.com/v1/chat/completions', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': `Bearer ${apiKey}`,
+      },
+      body: JSON.stringify({
+        model: model,
+        messages: [{ role: 'user', content: 'test' }],
+        max_tokens: 5,
+      }),
+    });
+
+    if (!response.ok) {
+      const errorData = await response.json();
+      return NextResponse.json({
+        success: false,
+        error: errorData.error?.message || 'Erro ao conectar com OpenAI',
+        details: 'Verifique se a API key está correta e tem créditos disponíveis',
+      });
+    }
+
+    return NextResponse.json({
+      success: true,
+      message: 'Conexão com OpenAI estabelecida com sucesso',
+      model: model,
+    });
+  } catch (error) {
+    return NextResponse.json({
+      success: false,
+      error: error instanceof Error ? error.message : 'Erro ao conectar com OpenAI',
+      details: 'Verifique sua conexão com a internet',
+    });
+  }
+}
+
+async function testAI() {
+  const provider = getAIProvider();
+  
+  if (provider === 'openai') {
+    return await testOpenAI();
+  } else {
+    return await testOllama();
+  }
+}

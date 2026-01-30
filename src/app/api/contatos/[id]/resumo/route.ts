@@ -4,7 +4,7 @@ import Contato from '@/lib/models/Contato';
 import Mensagem from '@/lib/models/Mensagem';
 import mongoose from 'mongoose';
 import { generateOllamaResponse } from '@/lib/utils/ollama';
-import { getOllamaModel } from '@/lib/config/ollama';
+import { getAIModel } from '@/lib/config/ai';
 
 /**
  * API Route para gerar resumo da conversa usando IA
@@ -110,11 +110,11 @@ ${historicoFormatado}
 
 Gere um resumo completo e profissional desta conversa:`;
 
-    // Gera o resumo usando Ollama
+    // Gera o resumo usando IA (OpenAI ou Ollama)
     const resumo = await generateOllamaResponse(
       prompt,
       [], // Sem histórico de conversa prévio
-      getOllamaModel()
+      getAIModel()
     );
 
     return NextResponse.json(

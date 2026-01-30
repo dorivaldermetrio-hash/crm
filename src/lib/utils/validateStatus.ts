@@ -4,7 +4,7 @@
 
 import { generateStatusValidationPrompt } from './generateStatusValidationPrompt';
 import { processPromptVariables } from './processPromptVariables';
-import { getOllamaModel } from '@/lib/config/ollama';
+import { getAIModel } from '@/lib/config/ai';
 import connectDB from '@/lib/db';
 import AtendimentoAI from '@/lib/models/AtendimentoAI';
 
@@ -24,7 +24,7 @@ export async function validateStatus(
 ): Promise<StatusValidationResult | null> {
   try {
     const OLLAMA_URL = process.env.OLLAMA_URL || 'http://localhost:11434';
-    const modelName = getOllamaModel();
+    const modelName = getAIModel();
 
     // 1. Busca prompt da coleção atendimento-ai ou usa fallback
     await connectDB();

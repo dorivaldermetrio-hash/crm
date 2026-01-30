@@ -1,45 +1,140 @@
 /**
- * Gera uma resposta em formato JSON customizado usando o modelo Ollama
+ * Gera uma resposta em formato JSON customizado usando o provider de IA configurado
  * Permite definir um schema JSON personalizado
  */
 
-import { getOllamaModel } from '@/lib/config/ollama';
+import { getAIProvider, getAIModel, getOpenAIKey, getOllamaURL } from '@/lib/config/ai';
 
 interface CustomJSONResponse {
   [key: string]: any;
 }
 
 /**
- * Gera uma resposta em formato JSON usando o modelo Ollama com schema customizado
+ * Gera uma resposta em formato JSON usando o provider de IA configurado com schema customizado
  * @param prompt - O prompt completo estruturado
  * @param jsonSchema - Schema JSON customizado
- * @param modelName - Nome do modelo (padrão: obtido de getOllamaModel())
+ * @param modelName - Nome do modelo (padrão: obtido de getAIModel())
  * @returns Objeto JSON com a resposta
  */
 export async function generateOllamaCustomJSON(
   prompt: string,
   jsonSchema: any,
-  modelName: string = getOllamaModel()
+  modelName?: string
+): Promise<CustomJSONResponse> {
+  const provider = getAIProvider();
+  const model = modelName || getAIModel();
+
+  // Chama a API apropriada
+  if (provider === 'openai') {
+    return await callOpenAICustomJSON(prompt, model, jsonSchema);
+  } else {
+    return await callOllamaCustomJSON(prompt, model, jsonSchema);
+  }
+}
+
+/**
+ * Chama a API da OpenAI para JSON customizado
+ */
+async function callOpenAICustomJSON(
+  prompt: string,
+  model: string,
+  jsonSchema: any
 ): Promise<CustomJSONResponse> {
   try {
-    const OLLAMA_URL = process.env.OLLAMA_URL || 'http://localhost:11434';
+    const apiKey = getOpenAIKey();
+    
+    if (!apiKey) {
+      throw new Error('OPENAI_API_KEY não configurada. Configure no .env.local');
+    }
 
-    // Chama a API do Ollama usando o endpoint /api/chat
+    // OpenAI usa response_format com json_object
+    // Nota: OpenAI não suporta schema customizado diretamente, mas força JSON
+    const response = await fetch('https://api.openai.com/v1/chat/completions', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': `Bearer ${apiKey}`,
+      },
+      body: JSON.stringify({
+        model: model,
+        messages: [
+          {
+            role: 'user',
+            content: `${prompt}\n\nResponda APENAS com um JSON válido seguindo este schema: ${JSON.stringify(jsonSchema)}`,
+          },
+        ],
+        response_format: { type: 'json_object' },
+      }),
+    });
+
+    if (!response.ok) {
+      const errorText = await response.text();
+      throw new Error(`Erro ao chamar OpenAI: ${response.status} - ${errorText}`);
+    }
+
+    const data = await response.json();
+
+    if (!data.choices || !data.choices[0] || !data.choices[0].message || !data.choices[0].message.content) {
+      throw new Error('Resposta inválida da OpenAI');
+    }
+
+    const rawResponse = data.choices[0].message.content.trim();
+
+    let jsonResponse: CustomJSONResponse;
+
+    try {
+      let jsonString = rawResponse;
+      
+      const jsonMatch = rawResponse.match(/```(?:json)?\s*(\{[\s\S]*\})\s*```/);
+      if (jsonMatch) {
+        jsonString = jsonMatch[1];
+      } else {
+        const jsonObjectMatch = rawResponse.match(/\{[\s\S]*\}/);
+        if (jsonObjectMatch) {
+          jsonString = jsonObjectMatch[0];
+        }
+      }
+
+      jsonResponse = JSON.parse(jsonString);
+    } catch (parseError) {
+      throw new Error(`Erro ao fazer parse do JSON: ${parseError instanceof Error ? parseError.message : 'Erro desconhecido'}`);
+    }
+
+    return jsonResponse;
+  } catch (error) {
+    if (error instanceof TypeError && error.message.includes('fetch')) {
+      throw new Error('Não foi possível conectar à API da OpenAI. Verifique sua conexão com a internet.');
+    }
+    throw error;
+  }
+}
+
+/**
+ * Chama a API do Ollama para JSON customizado
+ */
+async function callOllamaCustomJSON(
+  prompt: string,
+  model: string,
+  jsonSchema: any
+): Promise<CustomJSONResponse> {
+  try {
+    const OLLAMA_URL = getOllamaURL();
+
     const response = await fetch(`${OLLAMA_URL}/api/chat`, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
       },
       body: JSON.stringify({
-        model: modelName,
+        model: model,
         messages: [
           {
             role: 'user',
             content: prompt,
           },
         ],
-        stream: false, // Para receber resposta completa de uma vez
-        format: jsonSchema, // Usa JSON schema customizado
+        stream: false,
+        format: jsonSchema,
       }),
     });
 
@@ -56,19 +151,15 @@ export async function generateOllamaCustomJSON(
 
     const rawResponse = data.message.content.trim();
 
-    // Tenta fazer parse do JSON
     let jsonResponse: CustomJSONResponse;
 
     try {
-      // Tenta extrair JSON se vier dentro de markdown code blocks
       let jsonString = rawResponse;
       
-      // Remove markdown code blocks se existirem
       const jsonMatch = rawResponse.match(/```(?:json)?\s*(\{[\s\S]*\})\s*```/);
       if (jsonMatch) {
         jsonString = jsonMatch[1];
       } else {
-        // Tenta encontrar JSON dentro da resposta
         const jsonObjectMatch = rawResponse.match(/\{[\s\S]*\}/);
         if (jsonObjectMatch) {
           jsonString = jsonObjectMatch[0];

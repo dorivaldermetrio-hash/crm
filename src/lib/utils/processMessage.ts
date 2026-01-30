@@ -5,6 +5,7 @@ import { ExtractedData } from './extractData';
 import { validateMessage } from './validateMessage';
 import { downloadMediaFromWhatsApp } from './downloadMedia';
 import { saveFileToGridFS } from './gridfs';
+import { transcribeAudio } from './transcribeAudio';
 
 /**
  * Processa uma mensagem recebida do WhatsApp
@@ -46,6 +47,7 @@ export async function processMessage(data: ExtractedData): Promise<{
     let midiaNome: string | undefined;
     let midiaTamanho: number | undefined;
     let midiaMimeType: string | undefined;
+    let transcricao: string | undefined;
 
     if (data.mediaId && data.tipo !== 'texto') {
       try {
@@ -62,6 +64,22 @@ export async function processMessage(data: ExtractedData): Promise<{
           midiaTamanho = mediaData.buffer.length;
           midiaMimeType = mediaData.contentType;
           midiaUrl = `https://graph.facebook.com/v21.0/${data.mediaId}`;
+
+          // Transcreve áudio se for tipo audio
+          if (data.tipo === 'audio' && midiaId) {
+            try {
+              console.log(`🎤 Iniciando transcrição do áudio: ${midiaId}`);
+              transcricao = await transcribeAudio(midiaId);
+              if (transcricao) {
+                console.log(`✅ Transcrição salva: ${transcricao.substring(0, 50)}...`);
+              } else {
+                console.warn(`⚠️ Transcrição não foi gerada para o áudio: ${midiaId}`);
+              }
+            } catch (error) {
+              console.error('❌ Erro ao transcrever áudio:', error);
+              // Continua processando a mensagem mesmo se a transcrição falhar
+            }
+          }
         }
       } catch (error) {
         // Continua processando a mensagem mesmo se a mídia falhar
@@ -103,6 +121,11 @@ export async function processMessage(data: ExtractedData): Promise<{
         mensagemUnica.midiaNome = midiaNome;
         mensagemUnica.midiaTamanho = midiaTamanho;
         mensagemUnica.midiaMimeType = midiaMimeType;
+      }
+
+      // Adiciona transcrição se houver
+      if (transcricao) {
+        mensagemUnica.transcricao = transcricao;
       }
 
       const mensagem = await Mensagem.create({
@@ -150,6 +173,11 @@ export async function processMessage(data: ExtractedData): Promise<{
           mensagemUnica.midiaMimeType = midiaMimeType;
         }
 
+        // Adiciona transcrição se houver
+        if (transcricao) {
+          mensagemUnica.transcricao = transcricao;
+        }
+
         mensagem = await Mensagem.create({
           contatoID: contato._id,
           mensagens: [mensagemUnica],
@@ -187,6 +215,12 @@ export async function processMessage(data: ExtractedData): Promise<{
           mensagemUnica.midiaMimeType = midiaMimeType;
         }
 
+        // Adiciona transcrição se houver
+        if (transcricao) {
+          mensagemUnica.transcricao = transcricao;
+          console.log(`✅ Transcrição adicionada à mensagem: "${transcricao.substring(0, 50)}..."`);
+        }
+
         mensagem.mensagens.push(mensagemUnica);
 
         // Ordena mensagens por dataHora (mais antiga primeiro)
@@ -195,6 +229,7 @@ export async function processMessage(data: ExtractedData): Promise<{
         );
 
         await mensagem.save();
+        console.log(`💾 Mensagem salva com ${mensagem.mensagens.length} mensagem(ns). Última tem transcrição: ${mensagemUnica.transcricao ? 'SIM' : 'NÃO'}`);
       }
 
       return {

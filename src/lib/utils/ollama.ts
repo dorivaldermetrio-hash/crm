@@ -1,8 +1,9 @@
 /**
- * Integração com Ollama para gerar respostas automáticas
+ * Integração com IA para gerar respostas automáticas
+ * Suporta OpenAI e Ollama
  */
 
-import { getOllamaModel } from '@/lib/config/ollama';
+import { getAIProvider, getAIModel, getOpenAIKey, getOllamaURL } from '@/lib/config/ai';
 
 interface OllamaResponse {
   model: string;
@@ -28,44 +29,100 @@ export interface OllamaJSONResponse {
 }
 
 /**
- * Gera uma resposta usando o modelo Ollama
+ * Gera uma resposta usando o provider de IA configurado (OpenAI ou Ollama)
  * @param prompt - A mensagem do usuário
  * @param conversationHistory - Histórico da conversa (últimas mensagens)
- * @param modelName - Nome do modelo (padrão: obtido de getOllamaModel())
+ * @param modelName - Nome do modelo (padrão: obtido de getAIModel())
  */
 export async function generateOllamaResponse(
   prompt: string,
   conversationHistory: MessageHistory[] = [],
-  modelName: string = getOllamaModel()
+  modelName?: string
 ): Promise<string> {
-  try {
-    const OLLAMA_URL = process.env.OLLAMA_URL || 'http://localhost:11434';
-    
-    // Monta o contexto da conversa
-    const messages: MessageHistory[] = [
-      ...conversationHistory,
-      { role: 'user', content: prompt },
-    ];
+  const provider = getAIProvider();
+  const model = modelName || getAIModel();
+  
+  // Monta o contexto da conversa
+  const messages: MessageHistory[] = [
+    ...conversationHistory,
+    { role: 'user', content: prompt },
+  ];
 
-    // Se não houver histórico, adiciona um prompt inicial para contexto de CRM
-    if (conversationHistory.length === 0) {
-      messages.unshift({
-        role: 'assistant',
-        content: 'Você é um assistente virtual de um sistema CRM que responde mensagens do WhatsApp de forma profissional, amigável e objetiva. Mantenha as respostas concisas e úteis.',
-      });
+  // Se não houver histórico, adiciona um prompt inicial para contexto de CRM
+  if (conversationHistory.length === 0) {
+    messages.unshift({
+      role: 'assistant',
+      content: 'Você é um assistente virtual de um sistema CRM que responde mensagens do WhatsApp de forma profissional, amigável e objetiva. Mantenha as respostas concisas e úteis.',
+    });
+  }
+
+  // Chama a API apropriada baseada no provider
+  if (provider === 'openai') {
+    return await callOpenAI(messages, model);
+  } else {
+    return await callOllama(messages, model);
+  }
+}
+
+/**
+ * Chama a API da OpenAI
+ */
+async function callOpenAI(messages: MessageHistory[], model: string): Promise<string> {
+  try {
+    const apiKey = getOpenAIKey();
+    
+    if (!apiKey) {
+      throw new Error('OPENAI_API_KEY não configurada. Configure no .env.local');
     }
 
+    const response = await fetch('https://api.openai.com/v1/chat/completions', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': `Bearer ${apiKey}`,
+      },
+      body: JSON.stringify({
+        model: model,
+        messages: messages,
+      }),
+    });
 
-    // Chama a API do Ollama usando o endpoint /api/chat (streaming)
+    if (!response.ok) {
+      const errorText = await response.text();
+      throw new Error(`Erro ao chamar OpenAI: ${response.status} - ${errorText}`);
+    }
+
+    const data = await response.json();
+    
+    if (!data.choices || !data.choices[0] || !data.choices[0].message || !data.choices[0].message.content) {
+      throw new Error('Resposta inválida da OpenAI');
+    }
+
+    return data.choices[0].message.content.trim();
+  } catch (error) {
+    if (error instanceof TypeError && error.message.includes('fetch')) {
+      throw new Error('Não foi possível conectar à API da OpenAI. Verifique sua conexão com a internet.');
+    }
+    throw error;
+  }
+}
+
+/**
+ * Chama a API do Ollama
+ */
+async function callOllama(messages: MessageHistory[], model: string): Promise<string> {
+  try {
+    const OLLAMA_URL = getOllamaURL();
+
     const response = await fetch(`${OLLAMA_URL}/api/chat`, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
       },
       body: JSON.stringify({
-        model: modelName,
+        model: model,
         messages: messages,
-        stream: false, // Para receber resposta completa de uma vez
+        stream: false,
       }),
     });
 
@@ -165,48 +222,149 @@ export async function getConversationHistory(
 }
 
 /**
- * Gera uma resposta em formato JSON usando o modelo Ollama
+ * Gera uma resposta em formato JSON usando o provider de IA configurado
  * @param prompt - O prompt completo estruturado
- * @param modelName - Nome do modelo (padrão: obtido de getOllamaModel())
+ * @param modelName - Nome do modelo (padrão: obtido de getAIModel())
  * @returns Objeto JSON com resposta
  */
 export async function generateOllamaJSONResponse(
   prompt: string,
-  modelName: string = getOllamaModel()
+  modelName?: string
+): Promise<OllamaJSONResponse> {
+  const provider = getAIProvider();
+  const model = modelName || getAIModel();
+
+  // JSON schema para forçar formato JSON
+  const jsonSchema = {
+    type: 'object',
+    properties: {
+      resposta: {
+        type: 'string',
+        description: 'Resposta contextualizada ao cliente'
+      }
+    },
+    required: ['resposta'],
+    additionalProperties: false
+  };
+
+  // Chama a API apropriada
+  if (provider === 'openai') {
+    return await callOpenAIJSON(prompt, model, jsonSchema);
+  } else {
+    return await callOllamaJSON(prompt, model, jsonSchema);
+  }
+}
+
+/**
+ * Chama a API da OpenAI para resposta JSON
+ */
+async function callOpenAIJSON(
+  prompt: string,
+  model: string,
+  jsonSchema: any
 ): Promise<OllamaJSONResponse> {
   try {
-    const OLLAMA_URL = process.env.OLLAMA_URL || 'http://localhost:11434';
+    const apiKey = getOpenAIKey();
+    
+    if (!apiKey) {
+      throw new Error('OPENAI_API_KEY não configurada. Configure no .env.local');
+    }
 
-
-    // Usa JSON schema para forçar formato JSON (mais confiável)
-    const jsonSchema = {
-      type: 'object',
-      properties: {
-        resposta: {
-          type: 'string',
-          description: 'Resposta contextualizada ao cliente'
-        }
+    const response = await fetch('https://api.openai.com/v1/chat/completions', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': `Bearer ${apiKey}`,
       },
-      required: ['resposta'],
-      additionalProperties: false
-    };
+      body: JSON.stringify({
+        model: model,
+        messages: [
+          {
+            role: 'user',
+            content: `${prompt}\n\nResponda APENAS com um JSON válido no formato: {"resposta": "sua resposta aqui"}`,
+          },
+        ],
+        response_format: { type: 'json_object' }, // OpenAI requer json_object para JSON e a palavra "json" nas mensagens
+      }),
+    });
 
-    // Chama a API do Ollama usando o endpoint /api/chat
+    if (!response.ok) {
+      const errorText = await response.text();
+      throw new Error(`Erro ao chamar OpenAI: ${response.status} - ${errorText}`);
+    }
+
+    const data = await response.json();
+
+    if (!data.choices || !data.choices[0] || !data.choices[0].message || !data.choices[0].message.content) {
+      throw new Error('Resposta inválida da OpenAI');
+    }
+
+    const rawResponse = data.choices[0].message.content.trim();
+
+    // Tenta fazer parse do JSON
+    let jsonResponse: OllamaJSONResponse;
+
+    try {
+      let jsonString = rawResponse;
+      
+      // Remove markdown code blocks se existirem
+      const jsonMatch = rawResponse.match(/```(?:json)?\s*(\{[\s\S]*\})\s*```/);
+      if (jsonMatch) {
+        jsonString = jsonMatch[1];
+      } else {
+        const jsonObjectMatch = rawResponse.match(/\{[\s\S]*\}/);
+        if (jsonObjectMatch) {
+          jsonString = jsonObjectMatch[0];
+        }
+      }
+
+      jsonResponse = JSON.parse(jsonString);
+
+      if (!jsonResponse.resposta) {
+        throw new Error('Campo "resposta" não encontrado no JSON');
+      }
+
+    } catch (parseError) {
+      jsonResponse = {
+        resposta: rawResponse,
+      };
+    }
+
+    return jsonResponse;
+  } catch (error) {
+    if (error instanceof TypeError && error.message.includes('fetch')) {
+      throw new Error('Não foi possível conectar à API da OpenAI. Verifique sua conexão com a internet.');
+    }
+    throw error;
+  }
+}
+
+/**
+ * Chama a API do Ollama para resposta JSON
+ */
+async function callOllamaJSON(
+  prompt: string,
+  model: string,
+  jsonSchema: any
+): Promise<OllamaJSONResponse> {
+  try {
+    const OLLAMA_URL = getOllamaURL();
+
     const response = await fetch(`${OLLAMA_URL}/api/chat`, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
       },
       body: JSON.stringify({
-        model: modelName,
+        model: model,
         messages: [
           {
             role: 'user',
             content: prompt,
           },
         ],
-        stream: false, // Para receber resposta completa de uma vez
-        format: jsonSchema, // Usa JSON schema para forçar formato
+        stream: false,
+        format: jsonSchema,
       }),
     });
 
@@ -223,19 +381,15 @@ export async function generateOllamaJSONResponse(
 
     const rawResponse = data.message.content.trim();
 
-    // Tenta fazer parse do JSON
     let jsonResponse: OllamaJSONResponse;
 
     try {
-      // Tenta extrair JSON se vier dentro de markdown code blocks
       let jsonString = rawResponse;
       
-      // Remove markdown code blocks se existirem
       const jsonMatch = rawResponse.match(/```(?:json)?\s*(\{[\s\S]*\})\s*```/);
       if (jsonMatch) {
         jsonString = jsonMatch[1];
       } else {
-        // Tenta encontrar JSON dentro da resposta
         const jsonObjectMatch = rawResponse.match(/\{[\s\S]*\}/);
         if (jsonObjectMatch) {
           jsonString = jsonObjectMatch[0];
@@ -244,13 +398,11 @@ export async function generateOllamaJSONResponse(
 
       jsonResponse = JSON.parse(jsonString);
 
-      // Valida se tem os campos obrigatórios
       if (!jsonResponse.resposta) {
         throw new Error('Campo "resposta" não encontrado no JSON');
       }
 
     } catch (parseError) {
-      // Fallback: retorna a resposta como texto
       jsonResponse = {
         resposta: rawResponse,
       };
