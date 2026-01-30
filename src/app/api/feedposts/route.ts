@@ -2,6 +2,12 @@ import { NextRequest, NextResponse } from 'next/server';
 import connectDB from '@/lib/db';
 import FeedPost from '@/lib/models/FeedPost';
 import { postToInstagramFeed } from '@/lib/utils/postInstagramFeed';
+
+interface InstagramPostResult {
+  id: string;
+  success: boolean;
+  error?: string;
+}
 import { startScheduledPostsProcessor } from '@/lib/utils/processScheduledPosts';
 
 // Inicia o processador de posts agendados quando o módulo é carregado
@@ -79,7 +85,7 @@ export async function POST(request: NextRequest) {
     await newPost.save();
 
     // Se for para postar agora (statusPost = true), posta no Instagram
-    let instagramResult = null;
+    let instagramResult: InstagramPostResult | null = null;
     if (statusPost === true) {
       try {
         console.log('📸 Iniciando postagem no Instagram...');
