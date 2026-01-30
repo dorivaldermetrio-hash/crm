@@ -187,7 +187,7 @@ export async function listCampaigns(
     // Executa a query para obter as campanhas
     const campaigns = await customer.report({
       entity: 'campaign',
-      attributes: attributes,
+      attributes: attributes as any,
       constraints: constraints,
       limit: options?.limit || 1000, // Limite padrão de 1000 campanhas
     });
