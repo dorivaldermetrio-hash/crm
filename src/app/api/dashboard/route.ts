@@ -266,8 +266,8 @@ export async function GET(request: NextRequest) {
 
     [...todosContatos, ...todosContatosInstagram].forEach((contato: any) => {
       const status = contato.status || 'Novo Contato';
-      if (funilResumo.hasOwnProperty(status)) {
-        funilResumo[status]++;
+      if (status in funilResumo) {
+        (funilResumo as Record<string, number>)[status]++;
       }
     });
 
