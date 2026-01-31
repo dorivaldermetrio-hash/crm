@@ -2,6 +2,23 @@ import webpush from 'web-push';
 import connectDB from '@/lib/db';
 import PushSubscription from '@/lib/models/PushSubscription';
 
+// Suprime o warning de depreciação do url.parse() usado pela biblioteca web-push
+// Isso evita que o warning interrompa o fluxo da aplicação
+if (typeof process !== 'undefined') {
+  // Captura warnings antes de serem emitidos
+  const originalEmitWarning = process.emitWarning;
+  process.emitWarning = function(warning: any, type?: string, code?: string, ...args: any[]) {
+    // Ignora apenas o warning específico do url.parse() (DEP0169)
+    if (code === 'DEP0169' || 
+        (typeof warning === 'string' && warning.includes('url.parse()')) ||
+        (warning && typeof warning === 'object' && warning.message && warning.message.includes('url.parse()'))) {
+      return;
+    }
+    // Para todos os outros warnings, chama o comportamento padrão
+    return originalEmitWarning.apply(process, [warning, type, code, ...args] as any);
+  };
+}
+
 // Configura VAPID keys
 const vapidPublicKey = process.env.VAPID_PUBLIC_KEY;
 const vapidPrivateKey = process.env.VAPID_PRIVATE_KEY;
@@ -52,16 +69,19 @@ export async function sendPushToSubscription(
       data: payload.data || {},
     });
 
-    await webpush.sendNotification(
-      {
-        endpoint: subscription.endpoint,
-        keys: {
-          p256dh: subscription.keys.p256dh,
-          auth: subscription.keys.auth,
+    // Envolve em Promise para garantir que warnings não interrompam o fluxo
+    await Promise.resolve().then(async () => {
+      await webpush.sendNotification(
+        {
+          endpoint: subscription.endpoint,
+          keys: {
+            p256dh: subscription.keys.p256dh,
+            auth: subscription.keys.auth,
+          },
         },
-      },
-      notificationPayload
-    );
+        notificationPayload
+      );
+    });
 
     return true;
   } catch (error: any) {
@@ -71,9 +91,11 @@ export async function sendPushToSubscription(
       try {
         await PushSubscription.deleteOne({ endpoint: subscription.endpoint });
       } catch (deleteError) {
+        // Ignora erros ao remover subscription - não deve interromper o fluxo
         console.error('Erro ao remover subscription inválida:', deleteError);
       }
     } else {
+      // Log do erro mas não propaga - notificações não devem interromper o fluxo principal
       console.error('Erro ao enviar notificação push:', error);
     }
     return false;
