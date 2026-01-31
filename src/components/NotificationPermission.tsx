@@ -63,7 +63,7 @@ export default function NotificationPermission() {
       console.log('2️⃣ Verificando service worker...');
       
       // Verifica se já existe um service worker registrado
-      let registration = await navigator.serviceWorker.getRegistration();
+      let registration: ServiceWorkerRegistration | null = await navigator.serviceWorker.getRegistration();
       
       if (!registration) {
         console.log('   Service Worker não encontrado, tentando registrar...');
@@ -76,9 +76,15 @@ export default function NotificationPermission() {
         } catch (regError) {
           console.error('   Erro ao registrar service worker:', regError);
           // Tenta usar o service worker do next-pwa
-          registration = await navigator.serviceWorker.register('/_next/static/chunks/sw.js', {
-            scope: '/',
-          }).catch(() => null);
+          try {
+            registration = await navigator.serviceWorker.register('/_next/static/chunks/sw.js', {
+              scope: '/',
+            });
+            console.log('   Service Worker do next-pwa registrado');
+          } catch (nextPwaError) {
+            console.error('   Erro ao registrar service worker do next-pwa:', nextPwaError);
+            registration = null;
+          }
         }
       }
       
