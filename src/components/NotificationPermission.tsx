@@ -63,7 +63,7 @@ export default function NotificationPermission() {
       console.log('2️⃣ Verificando service worker...');
       
       // Verifica se já existe um service worker registrado
-      let registration: ServiceWorkerRegistration | null = await navigator.serviceWorker.getRegistration();
+      let registration: ServiceWorkerRegistration | null = (await navigator.serviceWorker.getRegistration()) || null;
       
       if (!registration) {
         console.log('   Service Worker não encontrado, tentando registrar...');
