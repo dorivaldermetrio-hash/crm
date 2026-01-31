@@ -19,10 +19,18 @@ export default function NotificationPermission() {
       
       // Verifica se o service worker está registrado
       if ('serviceWorker' in navigator) {
-        navigator.serviceWorker.ready.then((registration) => {
-          console.log('✅ Service Worker registrado:', registration);
+        navigator.serviceWorker.getRegistrations().then((registrations) => {
+          console.log('📋 Service Workers registrados:', registrations.length);
+          if (registrations.length > 0) {
+            console.log('✅ Service Worker encontrado:', registrations[0].scope);
+            registrations.forEach((reg, index) => {
+              console.log(`   SW ${index + 1}: ${reg.scope} - Estado: ${reg.active?.state || 'N/A'}`);
+            });
+          } else {
+            console.warn('⚠️ Nenhum Service Worker registrado. O PWA pode não estar funcionando corretamente.');
+          }
         }).catch((error) => {
-          console.error('❌ Erro ao verificar Service Worker:', error);
+          console.error('❌ Erro ao verificar Service Workers:', error);
         });
       }
     }
@@ -37,10 +45,13 @@ export default function NotificationPermission() {
     try {
       setIsSubscribing(true);
       setSubscriptionStatus('idle');
+      console.log('🔔 Iniciando processo de ativação de notificações...');
 
       // 1. Solicita permissão para notificações
+      console.log('1️⃣ Solicitando permissão de notificações...');
       const notificationPermission = await Notification.requestPermission();
       setPermission(notificationPermission);
+      console.log('   Permissão:', notificationPermission);
 
       if (notificationPermission !== 'granted') {
         alert('Permissão de notificações negada. Você não receberá notificações.');
@@ -48,18 +59,81 @@ export default function NotificationPermission() {
         return;
       }
 
-      // 2. Registra service worker (já deve estar registrado pelo next-pwa)
-      const registration = await navigator.serviceWorker.ready;
+      // 2. Verifica e registra service worker se necessário
+      console.log('2️⃣ Verificando service worker...');
+      
+      // Verifica se já existe um service worker registrado
+      let registration = await navigator.serviceWorker.getRegistration();
+      
+      if (!registration) {
+        console.log('   Service Worker não encontrado, tentando registrar...');
+        // Tenta registrar o service worker manualmente
+        try {
+          registration = await navigator.serviceWorker.register('/sw.js', {
+            scope: '/',
+          });
+          console.log('   Service Worker registrado manualmente');
+        } catch (regError) {
+          console.error('   Erro ao registrar service worker:', regError);
+          // Tenta usar o service worker do next-pwa
+          registration = await navigator.serviceWorker.register('/_next/static/chunks/sw.js', {
+            scope: '/',
+          }).catch(() => null);
+        }
+      }
+      
+      if (!registration) {
+        throw new Error('Não foi possível registrar o service worker. Verifique se o PWA está configurado corretamente.');
+      }
+      
+      // Aguarda o service worker ficar ativo
+      console.log('   Aguardando service worker ficar ativo...');
+      if (registration.installing) {
+        await new Promise((resolve) => {
+          registration.installing!.addEventListener('statechange', function() {
+            if (this.state === 'installed' || this.state === 'activated') {
+              resolve(undefined);
+            }
+          });
+        });
+      } else if (registration.waiting) {
+        await new Promise((resolve) => {
+          registration.waiting!.addEventListener('statechange', function() {
+            if (this.state === 'activated') {
+              resolve(undefined);
+            }
+          });
+        });
+      }
+      
+      // Tenta aguardar o ready, mas não trava se não funcionar
+      try {
+        await Promise.race([
+          navigator.serviceWorker.ready,
+          new Promise((_, reject) => setTimeout(() => reject(new Error('Timeout')), 5000))
+        ]);
+        console.log('   Service Worker pronto!');
+      } catch {
+        console.warn('   Service Worker pode não estar totalmente pronto, mas continuando...');
+      }
 
       // 3. Busca VAPID public key do servidor
+      console.log('3️⃣ Buscando VAPID public key...');
       const vapidPublicKeyResponse = await fetch('/api/push/vapid-public-key');
-      const { publicKey } = await vapidPublicKeyResponse.json();
-
-      if (!publicKey) {
-        throw new Error('VAPID public key não encontrada');
+      
+      if (!vapidPublicKeyResponse.ok) {
+        throw new Error(`Erro ao buscar VAPID key: ${vapidPublicKeyResponse.status}`);
+      }
+      
+      const vapidData = await vapidPublicKeyResponse.json();
+      console.log('   Resposta VAPID:', vapidData);
+      
+      if (!vapidData.publicKey) {
+        throw new Error('VAPID public key não encontrada na resposta');
       }
 
       // 4. Converte a chave pública para formato Uint8Array
+      console.log('4️⃣ Convertendo chave pública...');
       const urlBase64ToUint8Array = (base64String: string) => {
         const padding = '='.repeat((4 - (base64String.length % 4)) % 4);
         const base64 = (base64String + padding)
@@ -75,16 +149,25 @@ export default function NotificationPermission() {
         return outputArray;
       };
 
-      const applicationServerKey = urlBase64ToUint8Array(publicKey);
+      const applicationServerKey = urlBase64ToUint8Array(vapidData.publicKey);
+      console.log('   Chave convertida com sucesso');
 
       // 5. Cria subscription
+      console.log('5️⃣ Criando subscription push...');
+      
+      // Verifica se o pushManager está disponível
+      if (!registration.pushManager) {
+        throw new Error('Push Manager não está disponível. O service worker pode não suportar push notifications.');
+      }
+      
       const subscription = await registration.pushManager.subscribe({
         userVisibleOnly: true,
         applicationServerKey: applicationServerKey,
       });
+      console.log('   Subscription criada:', subscription.endpoint.substring(0, 50) + '...');
 
       // 6. Envia subscription para o backend
-      console.log('📤 Enviando subscription para o backend...');
+      console.log('6️⃣ Enviando subscription para o backend...');
       const response = await fetch('/api/push/subscribe', {
         method: 'POST',
         headers: {
@@ -101,6 +184,13 @@ export default function NotificationPermission() {
         }),
       });
 
+      console.log('   Status da resposta:', response.status);
+      
+      if (!response.ok) {
+        const errorText = await response.text();
+        throw new Error(`Erro HTTP ${response.status}: ${errorText}`);
+      }
+
       const data = await response.json();
       console.log('📥 Resposta do backend:', data);
 
@@ -112,9 +202,11 @@ export default function NotificationPermission() {
         throw new Error(data.error || 'Erro ao salvar subscription');
       }
     } catch (error: any) {
-      console.error('Erro ao configurar notificações:', error);
+      console.error('❌ Erro completo ao configurar notificações:', error);
+      console.error('   Stack:', error.stack);
       setSubscriptionStatus('error');
-      alert('Erro ao configurar notificações: ' + (error.message || 'Erro desconhecido'));
+      setIsSubscribing(false);
+      alert('Erro ao configurar notificações: ' + (error.message || 'Erro desconhecido') + '\n\nVerifique o console para mais detalhes.');
     } finally {
       setIsSubscribing(false);
     }
