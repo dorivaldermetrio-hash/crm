@@ -68,7 +68,8 @@ export default function NotificationPermission() {
       if (!registration) {
         console.log('   Service Worker não encontrado, tentando registrar...');
         try {
-          // Tenta registrar o service worker manualmente (sw.js na raiz do public)
+          // Tenta registrar o service worker via rota API
+          // A rota /sw.js serve o service worker diretamente
           registration = await navigator.serviceWorker.register('/sw.js', {
             scope: '/',
           });
@@ -78,7 +79,7 @@ export default function NotificationPermission() {
           throw new Error(
             'Não foi possível registrar o service worker.\n\n' +
             'Erro: ' + (regError.message || 'Erro desconhecido') + '\n\n' +
-            'Verifique se o arquivo sw.js existe e está acessível em /sw.js'
+            'Verifique se a rota /sw.js está funcionando'
           );
         }
       } else {
