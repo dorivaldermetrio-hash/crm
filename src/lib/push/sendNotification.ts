@@ -133,6 +133,10 @@ export async function sendMessageNotification(
   mensagemTexto: string,
   contatoId: string
 ): Promise<void> {
+  console.log('📨 Enviando notificação push para mensagem do WhatsApp...');
+  console.log('   Contato:', contatoNome);
+  console.log('   Mensagem:', mensagemTexto.substring(0, 50) + '...');
+  
   const payload: NotificationPayload = {
     title: `Nova mensagem de ${contatoNome}`,
     body: mensagemTexto.length > 100 
@@ -141,10 +145,11 @@ export async function sendMessageNotification(
     icon: '/icon-192x192.png',
     badge: '/icon-192x192.png',
     data: {
-      url: `/conversas`,
+      url: `/conversas?contatoId=${contatoId}`,
       contatoId: contatoId,
     },
   };
 
-  await sendPushToAllSubscriptions(payload);
+  const result = await sendPushToAllSubscriptions(payload);
+  console.log(`📊 Resultado: ${result.sent} enviadas, ${result.failed} falharam`);
 }

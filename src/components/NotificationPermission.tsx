@@ -13,7 +13,18 @@ export default function NotificationPermission() {
   useEffect(() => {
     // Verifica permissão atual
     if ('Notification' in window) {
-      setPermission(Notification.permission);
+      const currentPermission = Notification.permission;
+      setPermission(currentPermission);
+      console.log('🔔 Permissão de notificações:', currentPermission);
+      
+      // Verifica se o service worker está registrado
+      if ('serviceWorker' in navigator) {
+        navigator.serviceWorker.ready.then((registration) => {
+          console.log('✅ Service Worker registrado:', registration);
+        }).catch((error) => {
+          console.error('❌ Erro ao verificar Service Worker:', error);
+        });
+      }
     }
   }, []);
 
@@ -73,6 +84,7 @@ export default function NotificationPermission() {
       });
 
       // 6. Envia subscription para o backend
+      console.log('📤 Enviando subscription para o backend...');
       const response = await fetch('/api/push/subscribe', {
         method: 'POST',
         headers: {
@@ -90,10 +102,12 @@ export default function NotificationPermission() {
       });
 
       const data = await response.json();
+      console.log('📥 Resposta do backend:', data);
 
       if (data.success) {
         setSubscriptionStatus('success');
-        console.log('✅ Subscription salva com sucesso');
+        console.log('✅ Subscription salva com sucesso!');
+        console.log('🔔 Notificações ativadas! Você receberá notificações quando chegar mensagens.');
       } else {
         throw new Error(data.error || 'Erro ao salvar subscription');
       }

@@ -82,20 +82,28 @@ export async function POST(request: NextRequest) {
       // Só envia para mensagens de texto ou áudio (com texto na notificação)
       if (extractedData.tipo === 'texto' || extractedData.tipo === 'audio') {
         try {
+          console.log('📬 Tentando enviar notificação push para mensagem recebida...');
           const contatoNome = extractedData.contatoNome || extractedData.wa_id || 'Contato';
           const mensagemTexto = extractedData.tipo === 'audio' 
             ? 'Nova mensagem de áudio' 
             : extractedData.mensagem || 'Nova mensagem';
+          
+          console.log('   Tipo:', extractedData.tipo);
+          console.log('   Contato:', contatoNome);
+          console.log('   ContatoId:', result.contatoId);
           
           await sendMessageNotification(
             contatoNome,
             mensagemTexto,
             result.contatoId
           );
+          console.log('✅ Notificação push enviada com sucesso');
         } catch (error) {
           // Não interrompe o fluxo se houver erro na notificação
-          console.error('Erro ao enviar notificação push:', error);
+          console.error('❌ Erro ao enviar notificação push:', error);
         }
+      } else {
+        console.log('⏭️ Pulando notificação push - tipo de mensagem:', extractedData.tipo);
       }
     }
 

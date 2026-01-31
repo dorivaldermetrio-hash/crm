@@ -23,6 +23,7 @@ import { RiRobotLine, RiWhatsappLine, RiInstagramLine } from 'react-icons/ri';
 import Link from 'next/link';
 import { formatDistanceToNow } from 'date-fns';
 import { ptBR } from 'date-fns/locale';
+import NotificationPermission from '@/components/NotificationPermission';
 
 interface DashboardData {
   metricas: {
@@ -284,6 +285,11 @@ export default function DashboardPage() {
                     Contatos novos
                   </p>
                 </div>
+              </div>
+
+              {/* Notificações Push */}
+              <div className="mb-4 sm:mb-6">
+                <NotificationPermission />
               </div>
 
               {/* Gráfico de Tendência e Ações Rápidas */}
