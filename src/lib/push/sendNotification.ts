@@ -6,9 +6,9 @@ import PushSubscription from '@/lib/models/PushSubscription';
 // Isso evita que o warning interrompa o fluxo da aplicação
 if (typeof process !== 'undefined' && process.on) {
   // Listener que filtra apenas o warning específico do url.parse() (DEP0169)
-  process.on('warning', (warning) => {
+  process.on('warning', (warning: Error & { code?: string }) => {
     // Ignora apenas o warning DEP0169 sobre url.parse()
-    if (warning.name === 'DeprecationWarning' && warning.code === 'DEP0169') {
+    if (warning.name === 'DeprecationWarning' && (warning as any).code === 'DEP0169') {
       // Silenciosamente ignora este warning específico
       return;
     }
