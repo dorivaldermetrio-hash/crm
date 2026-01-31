@@ -85,6 +85,8 @@ export async function POST(request: NextRequest) {
         // Executa de forma não-bloqueante (fire and forget)
         // Só envia se tiver contatoId válido
         if (result.contatoId) {
+          // Salva o contatoId em uma variável para garantir que o TypeScript entenda o tipo
+          const contatoId = result.contatoId;
           setImmediate(async () => {
             try {
               console.log('📬 Tentando enviar notificação push para mensagem recebida...');
@@ -95,12 +97,12 @@ export async function POST(request: NextRequest) {
               
               console.log('   Tipo:', extractedData.tipo);
               console.log('   Contato:', contatoNome);
-              console.log('   ContatoId:', result.contatoId);
+              console.log('   ContatoId:', contatoId);
               
               await sendMessageNotification(
                 contatoNome,
                 mensagemTexto,
-                result.contatoId
+                contatoId
               );
               console.log('✅ Notificação push enviada com sucesso');
             } catch (error) {
