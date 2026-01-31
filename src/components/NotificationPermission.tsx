@@ -59,40 +59,45 @@ export default function NotificationPermission() {
         return;
       }
 
-      // 2. Aguarda o service worker ficar pronto (next-pwa registra automaticamente)
-      console.log('2️⃣ Aguardando service worker ficar pronto...');
+      // 2. Verifica e registra service worker
+      console.log('2️⃣ Verificando service worker...');
       
-      // O next-pwa com register: true registra automaticamente o service worker
-      // Apenas aguardamos ele ficar pronto
-      let registration: ServiceWorkerRegistration;
+      // Verifica se já existe um service worker registrado
+      let registration: ServiceWorkerRegistration | null = (await navigator.serviceWorker.getRegistration()) || null;
       
+      if (!registration) {
+        console.log('   Service Worker não encontrado, tentando registrar...');
+        try {
+          // Tenta registrar o service worker manualmente (sw.js na raiz do public)
+          registration = await navigator.serviceWorker.register('/sw.js', {
+            scope: '/',
+          });
+          console.log('   Service Worker registrado com sucesso!');
+        } catch (regError: any) {
+          console.error('   Erro ao registrar service worker:', regError);
+          throw new Error(
+            'Não foi possível registrar o service worker.\n\n' +
+            'Erro: ' + (regError.message || 'Erro desconhecido') + '\n\n' +
+            'Verifique se o arquivo sw.js existe e está acessível em /sw.js'
+          );
+        }
+      } else {
+        console.log('   Service Worker já registrado:', registration.scope);
+      }
+      
+      // Aguarda o service worker ficar pronto
+      console.log('   Aguardando service worker ficar pronto...');
       try {
-        // Aguarda o service worker ficar pronto com timeout
-        registration = await Promise.race([
+        await Promise.race([
           navigator.serviceWorker.ready,
-          new Promise<ServiceWorkerRegistration>((_, reject) => 
-            setTimeout(() => reject(new Error('Timeout aguardando service worker (15s)')), 15000)
+          new Promise((_, reject) => 
+            setTimeout(() => reject(new Error('Timeout')), 10000)
           )
         ]);
         console.log('   Service Worker pronto!');
-      } catch (error: any) {
-        console.error('   Erro ao aguardar service worker:', error);
-        
-        // Tenta verificar se há algum service worker registrado
-        const registrations = await navigator.serviceWorker.getRegistrations();
-        if (registrations.length > 0) {
-          console.log('   Usando service worker existente:', registrations[0].scope);
-          registration = registrations[0];
-        } else {
-          throw new Error(
-            'Service Worker não está registrado.\n\n' +
-            'Possíveis causas:\n' +
-            '1. O next-pwa pode não estar gerando o service worker corretamente\n' +
-            '2. O build pode não ter incluído o service worker\n' +
-            '3. Verifique se o arquivo sw.js existe em public/\n\n' +
-            'Solução: Verifique os logs do build na Vercel e confirme que o next-pwa está gerando o service worker.'
-          );
-        }
+      } catch (timeoutError) {
+        console.warn('   Timeout ao aguardar service worker, mas continuando...');
+        // Continua mesmo com timeout, pois já temos o registration
       }
 
       // 3. Busca VAPID public key do servidor
