@@ -7,16 +7,37 @@ import PushSubscription from '@/lib/models/PushSubscription';
 if (typeof process !== 'undefined') {
   // Captura warnings antes de serem emitidos
   const originalEmitWarning = process.emitWarning;
-  process.emitWarning = function(warning: any, type?: string, code?: string, ...args: any[]) {
+  process.emitWarning = function(warning: string | Error, typeOrOptions?: string | { type?: string; code?: string; ctor?: Function }, codeOrCtor?: string | Function, ctor?: Function) {
     // Ignora apenas o warning específico do url.parse() (DEP0169)
-    if (code === 'DEP0169' || 
-        (typeof warning === 'string' && warning.includes('url.parse()')) ||
-        (warning && typeof warning === 'object' && warning.message && warning.message.includes('url.parse()'))) {
+    let shouldIgnore = false;
+    
+    // Verifica se é um objeto de opções
+    if (typeof typeOrOptions === 'object' && typeOrOptions !== null) {
+      if (typeOrOptions.code === 'DEP0169') {
+        shouldIgnore = true;
+      }
+    } else if (typeof codeOrCtor === 'string' && codeOrCtor === 'DEP0169') {
+      shouldIgnore = true;
+    }
+    
+    // Verifica se a mensagem contém url.parse()
+    if (typeof warning === 'string' && warning.includes('url.parse()')) {
+      shouldIgnore = true;
+    } else if (warning instanceof Error && warning.message && warning.message.includes('url.parse()')) {
+      shouldIgnore = true;
+    }
+    
+    if (shouldIgnore) {
       return;
     }
+    
     // Para todos os outros warnings, chama o comportamento padrão
-    return originalEmitWarning.apply(process, [warning, type, code, ...args] as any);
-  };
+    if (typeof typeOrOptions === 'object' && typeOrOptions !== null) {
+      return originalEmitWarning.call(process, warning, typeOrOptions);
+    } else {
+      return originalEmitWarning.call(process, warning, typeOrOptions, codeOrCtor, ctor);
+    }
+  } as typeof process.emitWarning;
 }
 
 // Configura VAPID keys
