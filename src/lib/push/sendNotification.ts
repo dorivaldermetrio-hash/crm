@@ -4,40 +4,16 @@ import PushSubscription from '@/lib/models/PushSubscription';
 
 // Suprime o warning de depreciação do url.parse() usado pela biblioteca web-push
 // Isso evita que o warning interrompa o fluxo da aplicação
-if (typeof process !== 'undefined') {
-  // Captura warnings antes de serem emitidos
-  const originalEmitWarning = process.emitWarning;
-  process.emitWarning = function(warning: string | Error, typeOrOptions?: string | { type?: string; code?: string; ctor?: Function }, codeOrCtor?: string | Function, ctor?: Function) {
-    // Ignora apenas o warning específico do url.parse() (DEP0169)
-    let shouldIgnore = false;
-    
-    // Verifica se é um objeto de opções
-    if (typeof typeOrOptions === 'object' && typeOrOptions !== null) {
-      if (typeOrOptions.code === 'DEP0169') {
-        shouldIgnore = true;
-      }
-    } else if (typeof codeOrCtor === 'string' && codeOrCtor === 'DEP0169') {
-      shouldIgnore = true;
-    }
-    
-    // Verifica se a mensagem contém url.parse()
-    if (typeof warning === 'string' && warning.includes('url.parse()')) {
-      shouldIgnore = true;
-    } else if (warning instanceof Error && warning.message && warning.message.includes('url.parse()')) {
-      shouldIgnore = true;
-    }
-    
-    if (shouldIgnore) {
+if (typeof process !== 'undefined' && process.on) {
+  // Listener que filtra apenas o warning específico do url.parse() (DEP0169)
+  process.on('warning', (warning) => {
+    // Ignora apenas o warning DEP0169 sobre url.parse()
+    if (warning.name === 'DeprecationWarning' && warning.code === 'DEP0169') {
+      // Silenciosamente ignora este warning específico
       return;
     }
-    
-    // Para todos os outros warnings, chama o comportamento padrão
-    if (typeof typeOrOptions === 'object' && typeOrOptions !== null) {
-      return originalEmitWarning.call(process, warning, typeOrOptions);
-    } else {
-      return originalEmitWarning.call(process, warning, typeOrOptions, codeOrCtor, ctor);
-    }
-  } as typeof process.emitWarning;
+    // Para todos os outros warnings, mantém o comportamento padrão (exibe no console)
+  });
 }
 
 // Configura VAPID keys
