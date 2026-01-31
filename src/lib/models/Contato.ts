@@ -131,8 +131,8 @@ const ContatoSchema = new Schema(
   }
 );
 
-// Índice único no campo contato
-ContatoSchema.index({ contato: 1 }, { unique: true });
+// Índice único já está definido no campo contato com unique: true
+// Não precisa definir novamente com schema.index()
 
 export interface IContato {
   _id?: string;

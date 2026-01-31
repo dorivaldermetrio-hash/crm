@@ -33,8 +33,8 @@ const AtendimentoAISchema = new Schema(
   }
 );
 
-// Índice único no campo nome
-AtendimentoAISchema.index({ nome: 1 }, { unique: true });
+// Índice único já está definido no campo nome com unique: true
+// Não precisa definir novamente com schema.index()
 
 export interface IAtendimentoAI {
   _id?: string;
