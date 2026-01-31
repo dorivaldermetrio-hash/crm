@@ -59,68 +59,40 @@ export default function NotificationPermission() {
         return;
       }
 
-      // 2. Verifica e registra service worker se necessário
-      console.log('2️⃣ Verificando service worker...');
+      // 2. Aguarda o service worker ficar pronto (next-pwa registra automaticamente)
+      console.log('2️⃣ Aguardando service worker ficar pronto...');
       
-      // Verifica se já existe um service worker registrado
-      let registration: ServiceWorkerRegistration | null = (await navigator.serviceWorker.getRegistration()) || null;
+      // O next-pwa com register: true registra automaticamente o service worker
+      // Apenas aguardamos ele ficar pronto
+      let registration: ServiceWorkerRegistration;
       
-      if (!registration) {
-        console.log('   Service Worker não encontrado, tentando registrar...');
-        // Tenta registrar o service worker manualmente
-        try {
-          registration = await navigator.serviceWorker.register('/sw.js', {
-            scope: '/',
-          });
-          console.log('   Service Worker registrado manualmente');
-        } catch (regError) {
-          console.error('   Erro ao registrar service worker:', regError);
-          // Tenta usar o service worker do next-pwa
-          try {
-            registration = await navigator.serviceWorker.register('/_next/static/chunks/sw.js', {
-              scope: '/',
-            });
-            console.log('   Service Worker do next-pwa registrado');
-          } catch (nextPwaError) {
-            console.error('   Erro ao registrar service worker do next-pwa:', nextPwaError);
-            registration = null;
-          }
-        }
-      }
-      
-      if (!registration) {
-        throw new Error('Não foi possível registrar o service worker. Verifique se o PWA está configurado corretamente.');
-      }
-      
-      // Aguarda o service worker ficar ativo
-      console.log('   Aguardando service worker ficar ativo...');
-      if (registration.installing) {
-        await new Promise((resolve) => {
-          registration.installing!.addEventListener('statechange', function() {
-            if (this.state === 'installed' || this.state === 'activated') {
-              resolve(undefined);
-            }
-          });
-        });
-      } else if (registration.waiting) {
-        await new Promise((resolve) => {
-          registration.waiting!.addEventListener('statechange', function() {
-            if (this.state === 'activated') {
-              resolve(undefined);
-            }
-          });
-        });
-      }
-      
-      // Tenta aguardar o ready, mas não trava se não funcionar
       try {
-        await Promise.race([
+        // Aguarda o service worker ficar pronto com timeout
+        registration = await Promise.race([
           navigator.serviceWorker.ready,
-          new Promise((_, reject) => setTimeout(() => reject(new Error('Timeout')), 5000))
+          new Promise<ServiceWorkerRegistration>((_, reject) => 
+            setTimeout(() => reject(new Error('Timeout aguardando service worker (15s)')), 15000)
+          )
         ]);
         console.log('   Service Worker pronto!');
-      } catch {
-        console.warn('   Service Worker pode não estar totalmente pronto, mas continuando...');
+      } catch (error: any) {
+        console.error('   Erro ao aguardar service worker:', error);
+        
+        // Tenta verificar se há algum service worker registrado
+        const registrations = await navigator.serviceWorker.getRegistrations();
+        if (registrations.length > 0) {
+          console.log('   Usando service worker existente:', registrations[0].scope);
+          registration = registrations[0];
+        } else {
+          throw new Error(
+            'Service Worker não está registrado.\n\n' +
+            'Possíveis causas:\n' +
+            '1. O next-pwa pode não estar gerando o service worker corretamente\n' +
+            '2. O build pode não ter incluído o service worker\n' +
+            '3. Verifique se o arquivo sw.js existe em public/\n\n' +
+            'Solução: Verifique os logs do build na Vercel e confirme que o next-pwa está gerando o service worker.'
+          );
+        }
       }
 
       // 3. Busca VAPID public key do servidor

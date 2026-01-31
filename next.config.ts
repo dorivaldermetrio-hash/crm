@@ -13,8 +13,10 @@ const pwaConfig = withPWA({
   register: true,
   skipWaiting: true,
   disable: process.env.NODE_ENV === "development",
+  sw: "sw.js", // Nome do arquivo do service worker
   // Adiciona scripts customizados ao service worker
   importScripts: ['/sw-custom.js'],
+  buildExcludes: [/middleware-manifest\.json$/],
 });
 
 export default pwaConfig(nextConfig);
