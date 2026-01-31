@@ -83,30 +83,35 @@ export async function POST(request: NextRequest) {
       // IMPORTANTE: Executa de forma assíncrona para não bloquear o fluxo principal
       if (extractedData.tipo === 'texto' || extractedData.tipo === 'audio') {
         // Executa de forma não-bloqueante (fire and forget)
-        setImmediate(async () => {
-          try {
-            console.log('📬 Tentando enviar notificação push para mensagem recebida...');
-            const contatoNome = extractedData.contatoNome || extractedData.wa_id || 'Contato';
-            const mensagemTexto = extractedData.tipo === 'audio' 
-              ? 'Nova mensagem de áudio' 
-              : extractedData.mensagem || 'Nova mensagem';
-            
-            console.log('   Tipo:', extractedData.tipo);
-            console.log('   Contato:', contatoNome);
-            console.log('   ContatoId:', result.contatoId);
-            
-            await sendMessageNotification(
-              contatoNome,
-              mensagemTexto,
-              result.contatoId
-            );
-            console.log('✅ Notificação push enviada com sucesso');
-          } catch (error) {
-            // Não interrompe o fluxo se houver erro na notificação
-            // Erros são logados mas não propagados
-            console.error('❌ Erro ao enviar notificação push (não crítico):', error);
-          }
-        });
+        // Só envia se tiver contatoId válido
+        if (result.contatoId) {
+          setImmediate(async () => {
+            try {
+              console.log('📬 Tentando enviar notificação push para mensagem recebida...');
+              const contatoNome = extractedData.contatoNome || extractedData.wa_id || 'Contato';
+              const mensagemTexto = extractedData.tipo === 'audio' 
+                ? 'Nova mensagem de áudio' 
+                : extractedData.mensagem || 'Nova mensagem';
+              
+              console.log('   Tipo:', extractedData.tipo);
+              console.log('   Contato:', contatoNome);
+              console.log('   ContatoId:', result.contatoId);
+              
+              await sendMessageNotification(
+                contatoNome,
+                mensagemTexto,
+                result.contatoId
+              );
+              console.log('✅ Notificação push enviada com sucesso');
+            } catch (error) {
+              // Não interrompe o fluxo se houver erro na notificação
+              // Erros são logados mas não propagados
+              console.error('❌ Erro ao enviar notificação push (não crítico):', error);
+            }
+          });
+        } else {
+          console.log('⏭️ Pulando notificação push - contatoId não disponível');
+        }
       } else {
         console.log('⏭️ Pulando notificação push - tipo de mensagem:', extractedData.tipo);
       }
