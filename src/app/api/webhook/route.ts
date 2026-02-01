@@ -19,6 +19,14 @@ import { saveSystemMessage } from '@/lib/utils/saveSystemMessage';
 import { emitEvent } from '@/app/api/events/route';
 import { scheduleAIProcessing } from '@/lib/utils/messageDebouncer';
 import { sendMessageNotification } from '@/lib/push/sendNotification';
+import { criarEventoNoGoogleCalendar } from '@/lib/google-calendar/sync';
+import { isGoogleCalendarConnected } from '@/lib/google-calendar/client';
+import { getUserId } from '@/lib/utils/getUserId';
+import Agendamento from '@/lib/models/Agendamento';
+import { criarEventoNoGoogleCalendar } from '@/lib/google-calendar/sync';
+import { isGoogleCalendarConnected } from '@/lib/google-calendar/client';
+import { getUserId } from '@/lib/utils/getUserId';
+import Agendamento from '@/lib/models/Agendamento';
 
 // Token de verificação do webhook (configure no Meta Developers)
 // Em produção, use variável de ambiente
@@ -316,6 +324,34 @@ export async function POST(request: NextRequest) {
               }
 
               console.log(`✅ Agendamento criado com sucesso! ID: ${resultadoAgendamento.agendamentoId}`);
+
+              // 4.4.1. Sincroniza com Google Calendar se estiver conectado
+              if (resultadoAgendamento.agendamentoId) {
+                try {
+                  const agendamentoCriado = await Agendamento.findById(resultadoAgendamento.agendamentoId);
+                  if (agendamentoCriado) {
+                    const userId = getUserId();
+                    const googleCalendarConnected = await isGoogleCalendarConnected(userId);
+                    
+                    if (googleCalendarConnected) {
+                      console.log('📅 Sincronizando agendamento criado pela IA com Google Calendar...');
+                      const googleEventId = await criarEventoNoGoogleCalendar(agendamentoCriado, userId);
+                      if (googleEventId) {
+                        agendamentoCriado.googleEventId = googleEventId;
+                        await agendamentoCriado.save();
+                        console.log('✅ Agendamento sincronizado com Google Calendar. Event ID:', googleEventId);
+                      } else {
+                        console.log('⚠️ Não foi possível sincronizar com Google Calendar (agendamento foi criado localmente)');
+                      }
+                    } else {
+                      console.log('ℹ️ Google Calendar não está conectado. Agendamento criado apenas localmente.');
+                    }
+                  }
+                } catch (syncError) {
+                  console.error('⚠️ Erro ao sincronizar agendamento com Google Calendar (não crítico):', syncError);
+                  // Não falha o fluxo se a sincronização falhar
+                }
+              }
 
               // 4.5. Executa Agendamento Aceito
               const promptAgendamentoAceito = await AtendimentoAI.findOne({ nome: 'Agendamento Aceito' }).lean();
