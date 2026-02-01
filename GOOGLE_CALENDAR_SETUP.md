@@ -97,7 +97,7 @@ Após conectar, todos os agendamentos serão automaticamente sincronizados:
 
 ### Desconectar
 
-Para desconectar, você precisaria deletar o registro do MongoDB manualmente ou criar uma funcionalidade de desconexão (não implementada ainda).
+Para desconectar, clique no botão "X" ao lado do status "Conectado" na página da agenda.
 
 ## 🔍 Verificação
 
@@ -156,7 +156,7 @@ db.getCollection('google-calendar-accounts').find({})
 
 4. **Calendário**: Por padrão, usa o calendário "primary". Você pode modificar isso no modelo `GoogleCalendarAccount`.
 
-5. **Sincronização Bidirecional**: Atualmente, apenas sincroniza do sistema para o Google Calendar. Eventos criados diretamente no Google Calendar não aparecem no sistema.
+5. **Sincronização Bidirecional**: O sistema agora sincroniza eventos do Google Calendar para o CRM através de webhooks. Veja `GOOGLE_CALENDAR_WEBHOOK_SETUP.md` para mais detalhes.
 
 ## 🔐 Segurança
 
@@ -170,3 +170,23 @@ db.getCollection('google-calendar-accounts').find({})
 - [Google Calendar API Documentation](https://developers.google.com/calendar/api)
 - [OAuth 2.0 for Web Applications](https://developers.google.com/identity/protocols/oauth2/web-server)
 - [googleapis npm package](https://www.npmjs.com/package/googleapis)
+
+## 📝 Exemplo de Logs
+
+Quando você conectar e criar eventos, verá logs similares a estes:
+
+```
+🔐 Redirecionando para autorização Google Calendar OAuth...
+📍 URL: https://accounts.google.com/o/oauth2/v2/auth?client_id=SEU_CLIENT_ID...
+🔄 Trocando código de autorização por tokens...
+✅ Tokens obtidos com sucesso!
+✅ Refresh token salvo no MongoDB com sucesso!
+
+✅ Agendamento criado: { id: '...', nome: 'Nome do Evento' }
+🔍 Verificando disponibilidade do Google Calendar API...
+🔄 Renovando access token do Google Calendar...
+✅ Access token renovado com sucesso
+📋 Evento formatado para Google Calendar: { ... }
+📅 Criando evento no Google Calendar: { ... }
+✅ Evento criado no Google Calendar: event_id_aqui
+```
