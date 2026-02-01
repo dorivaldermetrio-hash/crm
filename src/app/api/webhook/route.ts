@@ -23,10 +23,6 @@ import { criarEventoNoGoogleCalendar } from '@/lib/google-calendar/sync';
 import { isGoogleCalendarConnected } from '@/lib/google-calendar/client';
 import { getUserId } from '@/lib/utils/getUserId';
 import Agendamento from '@/lib/models/Agendamento';
-import { criarEventoNoGoogleCalendar } from '@/lib/google-calendar/sync';
-import { isGoogleCalendarConnected } from '@/lib/google-calendar/client';
-import { getUserId } from '@/lib/utils/getUserId';
-import Agendamento from '@/lib/models/Agendamento';
 
 // Token de verificação do webhook (configure no Meta Developers)
 // Em produção, use variável de ambiente

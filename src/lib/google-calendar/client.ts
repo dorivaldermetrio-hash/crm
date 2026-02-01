@@ -5,7 +5,6 @@
  * usando o refresh_token armazenado no MongoDB
  */
 
-import { google } from 'googleapis';
 import { OAuth2Client } from 'google-auth-library';
 import connectDB from '@/lib/db';
 import GoogleCalendarAccount from '@/lib/models/GoogleCalendarAccount';
@@ -114,106 +113,17 @@ export async function getGoogleCalendarClient(userId?: string): Promise<OAuth2Cl
 }
 
 /**
+ * @deprecated Esta função não é mais usada. Use getGoogleCalendarClient() e faça requisições manuais com auth.request()
  * Obtém a instância do Google Calendar API
  * @param userId - ID do usuário (opcional)
  * @param oauth2Client - Cliente OAuth2 opcional (para reutilizar uma instância já autenticada)
  * @returns Instância do calendar API ou null
  */
-export async function getCalendarAPI(userId?: string, oauth2Client?: OAuth2ClientType) {
-  // Se um cliente OAuth2 já foi fornecido, usa ele
-  // Caso contrário, obtém um novo
-  let auth = oauth2Client;
-  let account = null;
-  
-  if (!auth) {
-    auth = await getGoogleCalendarClient(userId);
-    if (!auth) {
-      console.error('❌ Não foi possível obter cliente OAuth2');
-      return null;
-    }
-  }
-  
-  // Busca a conta para ter acesso ao refresh_token se necessário
-  try {
-    await connectDB();
-    const user = userId || getUserId();
-    account = await GoogleCalendarAccount.findOne({ userId: user }).lean();
-  } catch (error) {
-    console.warn('⚠️ Não foi possível buscar conta do Google Calendar');
-  }
-  
-  // Verifica se o auth tem access_token antes de criar a API
-  const credentials = auth.credentials;
-  if (!credentials.access_token) {
-    console.error('❌ Access token não encontrado nas credenciais do cliente OAuth2');
-    console.error('   Credenciais disponíveis:', Object.keys(credentials));
-    return null;
-  }
-  
-  // Garante que o auth está configurado corretamente
-  // O googleapis usa o auth automaticamente, mas vamos garantir que está válido
-  console.log('✅ Criando instância do Calendar API com auth válido');
-  console.log('   Access token presente:', !!credentials.access_token);
-  console.log('   Token expira em:', credentials.expiry_date ? new Date(credentials.expiry_date).toISOString() : 'não fornecido');
-  console.log('   Scopes:', credentials.scope || 'não fornecido');
-  
-  // IMPORTANTE: Garante que o auth tem um interceptor configurado
-  // O OAuth2Client do google-auth-library já tem isso, mas vamos garantir
-  // que as credenciais estão corretas antes de criar a API
-  
-  // IMPORTANTE: O googleapis usa o OAuth2Client através do método request()
-  // que automaticamente adiciona o header Authorization com o access_token
-  // Mas precisamos garantir que o auth está configurado corretamente
-  
-  // Verifica se o auth tem o método request (deve ter, é OAuth2Client)
-  if (typeof auth.request !== 'function') {
-    console.error('❌ O auth não tem método request() - não é um OAuth2Client válido');
-    return null;
-  }
-  
-  // IMPORTANTE: O googleapis pode ter problemas se o auth não estiver totalmente sincronizado
-  // Vamos garantir que o auth está atualizado e configurado corretamente ANTES de criar a API
-  
-  // Força uma verificação e renovação do token se necessário
-  const now = Date.now();
-  const expiryTime = credentials.expiry_date || 0;
-  const timeUntilExpiry = expiryTime - now;
-  
-  // Se o token expira em menos de 5 minutos, renova AGORA
-  if (timeUntilExpiry < 300000 && account) {
-    console.log('   Token expira em breve, renovando antes de criar API...');
-    try {
-      const { credentials: newCredentials } = await auth.refreshAccessToken();
-      auth.setCredentials({
-        ...newCredentials,
-        refresh_token: credentials.refresh_token || account.refreshToken,
-      });
-      console.log('   Token renovado com sucesso antes de criar API');
-    } catch (refreshError) {
-      console.error('   Erro ao renovar token:', refreshError);
-    }
-  }
-  
-  // IMPORTANTE: Garante que o auth tem um interceptor configurado
-  // O OAuth2Client precisa ter o método on('tokens') configurado para o googleapis funcionar corretamente
-  // Vamos verificar se o auth está configurado para atualizar tokens automaticamente
-  
-  // Cria a instância do Calendar API
-  // O googleapis usa o auth através de um interceptor que adiciona o header Authorization
-  // Mas pode haver problemas se o auth não estiver totalmente configurado
-  const calendar = google.calendar({ 
-    version: 'v3', 
-    auth: auth, // Passa explicitamente o auth
-  });
-  
-  // Log adicional para debug
-  console.log('   Instância do Calendar API criada');
-  console.log('   Auth type:', auth.constructor.name);
-  console.log('   Auth tem método request:', typeof auth.request === 'function');
-  console.log('   Access token (primeiros 20 chars):', auth.credentials.access_token?.substring(0, 20) + '...');
-  console.log('   Token expira em:', auth.credentials.expiry_date ? new Date(auth.credentials.expiry_date).toISOString() : 'não fornecido');
-  
-  return calendar;
+export async function getCalendarAPI(userId?: string, oauth2Client?: OAuth2Client) {
+  // Esta função foi descontinuada porque removemos googleapis
+  // Use getGoogleCalendarClient() e faça requisições manuais com auth.request()
+  console.warn('⚠️ getCalendarAPI está deprecada. Use getGoogleCalendarClient() e faça requisições manuais.');
+  return null;
 }
 
 /**

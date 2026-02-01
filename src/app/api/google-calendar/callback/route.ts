@@ -1,6 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { OAuth2Client } from 'google-auth-library';
-import { google } from 'googleapis';
 import connectDB from '@/lib/db';
 import GoogleCalendarAccount from '@/lib/models/GoogleCalendarAccount';
 import { getUserId } from '@/lib/utils/getUserId';
@@ -101,9 +100,12 @@ export async function GET(request: NextRequest) {
     let email = '';
     try {
       oauth2Client.setCredentials({ access_token: accessToken });
-      const oauth2 = google.oauth2({ version: 'v2', auth: oauth2Client });
-      const userInfo = await oauth2.userinfo.get();
-      email = userInfo.data.email || '';
+      // Faz requisição manual para obter informações do usuário
+      const response = await oauth2Client.request({
+        url: 'https://www.googleapis.com/oauth2/v2/userinfo',
+        method: 'GET',
+      });
+      email = response.data?.email || '';
     } catch (e) {
       console.warn('⚠️ Não foi possível obter email do usuário');
     }

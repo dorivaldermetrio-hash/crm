@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { getGoogleCalendarClient, getCalendarAPI, isGoogleCalendarConnected, getGoogleCalendarAccount } from '@/lib/google-calendar/client';
+import { getGoogleCalendarClient, isGoogleCalendarConnected, getGoogleCalendarAccount } from '@/lib/google-calendar/client';
 import { getUserId } from '@/lib/utils/getUserId';
 
 /**
@@ -70,70 +70,28 @@ export async function GET(request: NextRequest) {
       scopes: credentials.scope || 'não fornecido',
     });
 
-    // 4. Tenta obter API do Calendar (reutilizando o oauth2Client já autenticado)
-    console.log('   Obtendo API do Calendar...');
-    const calendar = await getCalendarAPI(userId, oauth2Client);
-    
-    if (!calendar) {
-      return NextResponse.json(
-        {
-          success: false,
-          error: 'Não foi possível obter API do Calendar',
-          connected: false,
-        },
-        { status: 500 }
-      );
-    }
-
-    // 5. Testa se o auth está funcionando fazendo uma requisição direta primeiro
+    // 4. Testa se o auth está funcionando fazendo uma requisição manual
     console.log('   Verificando se o auth está funcionando...');
-    try {
-      // Testa se o auth pode fazer uma requisição simples
-      const testAuth = oauth2Client.credentials;
-      console.log('   Auth credentials antes da chamada:', {
-        hasAccessToken: !!testAuth.access_token,
-        accessTokenPreview: testAuth.access_token ? testAuth.access_token.substring(0, 30) + '...' : 'não presente',
-        expiryDate: testAuth.expiry_date ? new Date(testAuth.expiry_date).toISOString() : 'não fornecido',
-      });
-    } catch (authError) {
-      console.error('   Erro ao verificar auth:', authError);
-    }
+    const testAuth = oauth2Client.credentials;
+    console.log('   Auth credentials antes da chamada:', {
+      hasAccessToken: !!testAuth.access_token,
+      accessTokenPreview: testAuth.access_token ? testAuth.access_token.substring(0, 30) + '...' : 'não presente',
+      expiryDate: testAuth.expiry_date ? new Date(testAuth.expiry_date).toISOString() : 'não fornecido',
+    });
 
-    // 6. Testa fazer uma requisição manual primeiro para verificar se o auth funciona
+    // 5. Testa fazer uma requisição manual para listar calendários
     console.log('   Testando requisição manual com o auth...');
     try {
-      // Tenta fazer uma requisição manual usando o oauth2Client diretamente
+      const calendarId = account.calendarId || 'primary';
       const testResponse = await oauth2Client.request({
-        url: 'https://www.googleapis.com/calendar/v3/users/me/calendarList',
+        url: 'https://www.googleapis.com/calendar/v3/calendars',
         method: 'GET',
         params: {
           maxResults: 1,
         },
       });
-      console.log('   ✅ Requisição manual funcionou!', testResponse.status);
-    } catch (manualError: any) {
-      console.error('   ❌ Requisição manual falhou:', manualError.message);
-      console.error('   Status:', manualError.response?.status);
-      console.error('   Data:', JSON.stringify(manualError.response?.data, null, 2));
-    }
-
-    // 7. Tenta listar calendários usando a API do googleapis
-    // IMPORTANTE: Como a requisição manual funciona mas o googleapis não,
-    // vamos recriar a instância do Calendar API ANTES de fazer a chamada
-    // para garantir que está usando o auth mais recente
-    console.log('   Recriando instância do Calendar API com auth atualizado...');
-    const calendarFresh = google.calendar({ 
-      version: 'v3', 
-      auth: oauth2Client, // Usa o auth já autenticado
-    });
-    
-    console.log('   Testando acesso à API (listando calendários)...');
-    try {
-      const calendars = await calendarFresh.calendarList.list({
-        maxResults: 1,
-      });
-
-      console.log('✅ Teste bem-sucedido!');
+      
+      console.log('✅ Requisição manual funcionou!', testResponse.status);
       
       return NextResponse.json(
         {
@@ -145,7 +103,7 @@ export async function GET(request: NextRequest) {
           },
           test: {
             canAccessAPI: true,
-            calendarsFound: calendars.data.items?.length || 0,
+            method: 'manual_request',
           },
         },
         { status: 200 }
