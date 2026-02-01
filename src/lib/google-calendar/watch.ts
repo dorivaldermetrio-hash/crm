@@ -62,18 +62,24 @@ export async function configurarWatchGoogleCalendar(userId?: string): Promise<bo
       },
     });
 
-    if (response.data) {
+    const responseData = response.data as { resourceId?: string; expiration?: string | number } | undefined;
+    if (responseData) {
       console.log('✅ Watch configurado com sucesso');
-      console.log('   Resource ID:', response.data.resourceId);
-      console.log('   Expiration:', response.data.expiration ? new Date(response.data.expiration).toISOString() : 'não fornecido');
+      console.log('   Resource ID:', responseData.resourceId);
+      const expirationValue = responseData.expiration 
+        ? (typeof responseData.expiration === 'string' 
+            ? parseInt(responseData.expiration) 
+            : responseData.expiration)
+        : null;
+      console.log('   Expiration:', expirationValue ? new Date(expirationValue).toISOString() : 'não fornecido');
       
       // Salva o resourceId e expiration na conta para poder parar o watch depois
       await connectDB();
       await GoogleCalendarAccount.findOneAndUpdate(
         { userId: user },
         {
-          watchResourceId: response.data.resourceId,
-          watchExpiration: response.data.expiration ? new Date(response.data.expiration) : null,
+          watchResourceId: responseData.resourceId,
+          watchExpiration: expirationValue ? new Date(expirationValue) : null,
         }
       );
       

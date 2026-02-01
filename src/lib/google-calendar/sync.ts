@@ -144,9 +144,10 @@ export async function criarEventoNoGoogleCalendar(
       data: evento,
     });
 
-    if (response.data?.id) {
-      console.log('✅ Evento criado no Google Calendar:', response.data.id);
-      return response.data.id as string;
+    const responseData = response.data as { id?: string } | undefined;
+    if (responseData?.id) {
+      console.log('✅ Evento criado no Google Calendar:', responseData.id);
+      return responseData.id;
     }
 
     console.warn('⚠️ Evento criado mas sem ID retornado');
