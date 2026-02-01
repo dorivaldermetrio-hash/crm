@@ -1,7 +1,7 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import { X, Pencil } from 'lucide-react';
+import { X, Pencil, Trash2 } from 'lucide-react';
 
 interface VisualizarAgendamentoModalProps {
   isOpen: boolean;
@@ -29,8 +29,10 @@ export default function VisualizarAgendamentoModal({
   });
   const [loading, setLoading] = useState(false);
   const [saving, setSaving] = useState(false);
+  const [deleting, setDeleting] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [success, setSuccess] = useState(false);
+  const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
 
   // Carrega o agendamento quando o modal abre
   useEffect(() => {
@@ -190,6 +192,38 @@ export default function VisualizarAgendamentoModal({
     });
   };
 
+  const handleDeletar = async () => {
+    if (!agendamentoId) return;
+
+    setDeleting(true);
+    setError(null);
+
+    try {
+      const response = await fetch(`/api/agendamentos/${agendamentoId}`, {
+        method: 'DELETE',
+      });
+
+      const result = await response.json();
+
+      if (result.success) {
+        setSuccess(true);
+        setTimeout(() => {
+          onSuccess();
+          onClose();
+        }, 1000);
+      } else {
+        setError(result.error || 'Erro ao deletar agendamento');
+        setShowDeleteConfirm(false);
+      }
+    } catch (err) {
+      console.error('Erro ao deletar agendamento:', err);
+      setError('Erro ao conectar com o servidor');
+      setShowDeleteConfirm(false);
+    } finally {
+      setDeleting(false);
+    }
+  };
+
   if (!isOpen) return null;
 
   return (
@@ -209,13 +243,22 @@ export default function VisualizarAgendamentoModal({
           </h2>
           <div className="flex items-center gap-2">
             {!isEditing && (
-              <button
-                onClick={() => setIsEditing(true)}
-                className="p-2 rounded-lg text-slate-400 hover:text-blue-400 hover:bg-slate-700 transition-colors"
-                title="Editar"
-              >
-                <Pencil className="w-5 h-5" />
-              </button>
+              <>
+                <button
+                  onClick={() => setIsEditing(true)}
+                  className="p-2 rounded-lg text-slate-400 hover:text-blue-400 hover:bg-slate-700 transition-colors"
+                  title="Editar"
+                >
+                  <Pencil className="w-5 h-5" />
+                </button>
+                <button
+                  onClick={() => setShowDeleteConfirm(true)}
+                  className="p-2 rounded-lg text-slate-400 hover:text-red-400 hover:bg-slate-700 transition-colors"
+                  title="Excluir"
+                >
+                  <Trash2 className="w-5 h-5" />
+                </button>
+              </>
             )}
             <button
               onClick={onClose}
@@ -369,7 +412,9 @@ export default function VisualizarAgendamentoModal({
               {/* Success Message */}
               {success && (
                 <div className="p-3 bg-green-900/20 border border-green-800 rounded-lg">
-                  <p className="text-sm text-green-400">Status atualizado com sucesso!</p>
+                  <p className="text-sm text-green-400">
+                    {deleting ? 'Agendamento deletado com sucesso!' : 'Status atualizado com sucesso!'}
+                  </p>
                 </div>
               )}
 
@@ -427,6 +472,39 @@ export default function VisualizarAgendamentoModal({
           ) : null}
         </div>
       </div>
+
+      {/* Modal de Confirmação de Exclusão */}
+      {showDeleteConfirm && (
+        <div className="fixed inset-0 z-[60] flex items-center justify-center p-4">
+          <div
+            className="absolute inset-0 bg-black/70 backdrop-blur-sm"
+            onClick={() => setShowDeleteConfirm(false)}
+          />
+          <div className="relative w-full max-w-md bg-slate-800 rounded-xl border border-slate-700 shadow-xl z-[61] p-6">
+            <h3 className="text-lg font-bold text-white mb-2">Confirmar Exclusão</h3>
+            <p className="text-slate-300 mb-6">
+              Tem certeza que deseja excluir o agendamento <strong className="text-white">{agendamento?.nome}</strong>?
+              Esta ação não pode ser desfeita e o evento será removido tanto do sistema quanto do Google Calendar.
+            </p>
+            <div className="flex items-center justify-end gap-3">
+              <button
+                onClick={() => setShowDeleteConfirm(false)}
+                disabled={deleting}
+                className="px-4 py-2 rounded-lg font-medium text-slate-300 bg-slate-700 hover:bg-slate-600 transition-colors disabled:opacity-50"
+              >
+                Cancelar
+              </button>
+              <button
+                onClick={handleDeletar}
+                disabled={deleting}
+                className="px-4 py-2 rounded-lg font-medium text-white bg-red-600 hover:bg-red-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+              >
+                {deleting ? 'Excluindo...' : 'Excluir'}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }

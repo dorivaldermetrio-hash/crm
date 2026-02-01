@@ -1,6 +1,9 @@
 import { NextRequest, NextResponse } from 'next/server';
 import connectDB from '@/lib/db';
 import Agendamento from '@/lib/models/Agendamento';
+import { criarEventoNoGoogleCalendar } from '@/lib/google-calendar/sync';
+import { isGoogleCalendarConnected } from '@/lib/google-calendar/client';
+import { getUserId } from '@/lib/utils/getUserId';
 
 /**
  * API Route para gerenciar agendamentos
@@ -64,6 +67,24 @@ export async function POST(request: NextRequest) {
       nome: agendamento.nome,
     });
 
+    // Sincroniza com Google Calendar se estiver conectado
+    const userId = getUserId(request);
+    const googleCalendarConnected = await isGoogleCalendarConnected(userId);
+    
+    if (googleCalendarConnected) {
+      try {
+        const googleEventId = await criarEventoNoGoogleCalendar(agendamento, userId);
+        if (googleEventId) {
+          agendamento.googleEventId = googleEventId;
+          await agendamento.save();
+          console.log('✅ Agendamento sincronizado com Google Calendar');
+        }
+      } catch (error) {
+        console.error('⚠️ Erro ao sincronizar com Google Calendar (agendamento foi criado localmente):', error);
+        // Não falha a criação do agendamento se a sincronização falhar
+      }
+    }
+
     return NextResponse.json(
       {
         success: true,
@@ -76,6 +97,7 @@ export async function POST(request: NextRequest) {
           horarioInicio: agendamento.horarioInicio,
           duracao: agendamento.duracao,
           status: agendamento.status,
+          googleEventId: agendamento.googleEventId || null,
         },
       },
       { status: 201 }

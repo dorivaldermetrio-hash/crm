@@ -1,0 +1,133 @@
+/**
+ * Funções para configurar watch (webhooks) do Google Calendar
+ * 
+ * Permite receber notificações quando eventos são criados, atualizados ou deletados
+ * no Google Calendar do usuário
+ */
+
+import { getGoogleCalendarClient, getGoogleCalendarAccount } from './client';
+import { getUserId } from '@/lib/utils/getUserId';
+import connectDB from '@/lib/db';
+import GoogleCalendarAccount from '@/lib/models/GoogleCalendarAccount';
+
+/**
+ * Configura um watch (webhook) para o Google Calendar
+ * @param userId - ID do usuário (opcional)
+ * @returns true se configurado com sucesso
+ */
+export async function configurarWatchGoogleCalendar(userId?: string): Promise<boolean> {
+  try {
+    const auth = await getGoogleCalendarClient(userId);
+    if (!auth) {
+      console.log('⚠️ Cliente Google Calendar não disponível');
+      return false;
+    }
+
+    const account = await getGoogleCalendarAccount(userId);
+    if (!account) {
+      console.log('⚠️ Conta do Google Calendar não encontrada');
+      return false;
+    }
+
+    const calendarId = account.calendarId || 'primary';
+    const user = userId || getUserId();
+
+    // URL do webhook (deve ser acessível publicamente)
+    const webhookUrl = process.env.GOOGLE_CALENDAR_WEBHOOK_URL || 
+      `${process.env.NEXT_PUBLIC_BASE_URL || 'http://localhost:3000'}/api/google-calendar/webhook`;
+
+    // Gera um ID único para este watch
+    const channelId = `watch-${user}-${Date.now()}`;
+    
+    // Token para identificar o usuário no webhook
+    const channelToken = user;
+
+    console.log('📡 Configurando watch do Google Calendar...');
+    console.log('   Calendar ID:', calendarId);
+    console.log('   Webhook URL:', webhookUrl);
+    console.log('   Channel ID:', channelId);
+
+    // Configura o watch usando requisição manual
+    const response = await auth.request({
+      url: `https://www.googleapis.com/calendar/v3/calendars/${encodeURIComponent(calendarId)}/events/watch`,
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      data: {
+        id: channelId,
+        type: 'web_hook',
+        address: webhookUrl,
+        token: channelToken,
+      },
+    });
+
+    if (response.data) {
+      console.log('✅ Watch configurado com sucesso');
+      console.log('   Resource ID:', response.data.resourceId);
+      console.log('   Expiration:', response.data.expiration ? new Date(response.data.expiration).toISOString() : 'não fornecido');
+      
+      // Salva o resourceId e expiration na conta para poder parar o watch depois
+      await connectDB();
+      await GoogleCalendarAccount.findOneAndUpdate(
+        { userId: user },
+        {
+          watchResourceId: response.data.resourceId,
+          watchExpiration: response.data.expiration ? new Date(response.data.expiration) : null,
+        }
+      );
+      
+      return true;
+    }
+
+    return false;
+  } catch (error: any) {
+    console.error('❌ Erro ao configurar watch do Google Calendar:', error);
+    if (error.response) {
+      console.error('   Status:', error.response.status);
+      console.error('   Data:', JSON.stringify(error.response.data, null, 2));
+    }
+    return false;
+  }
+}
+
+/**
+ * Para um watch do Google Calendar
+ * @param resourceId - ID do recurso do watch
+ * @param userId - ID do usuário (opcional)
+ * @returns true se parado com sucesso
+ */
+export async function pararWatchGoogleCalendar(resourceId: string, userId?: string): Promise<boolean> {
+  try {
+    const auth = await getGoogleCalendarClient(userId);
+    if (!auth) {
+      console.log('⚠️ Cliente Google Calendar não disponível');
+      return false;
+    }
+
+    console.log('🛑 Parando watch do Google Calendar...');
+    console.log('   Resource ID:', resourceId);
+
+    // Para o watch usando requisição manual
+    await auth.request({
+      url: 'https://www.googleapis.com/calendar/v3/channels/stop',
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      data: {
+        id: resourceId,
+      },
+    });
+
+    console.log('✅ Watch parado com sucesso');
+    return true;
+  } catch (error: any) {
+    console.error('❌ Erro ao parar watch do Google Calendar:', error);
+    if (error.response) {
+      console.error('   Status:', error.response.status);
+      console.error('   Data:', JSON.stringify(error.response.data, null, 2));
+    }
+    return false;
+  }
+}

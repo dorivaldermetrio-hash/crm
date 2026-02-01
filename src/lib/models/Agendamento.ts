@@ -40,6 +40,11 @@ const AgendamentoSchema = new Schema(
       default: 'agendado',
       trim: true,
     },
+    googleEventId: {
+      type: String,
+      default: null,
+      trim: true,
+    },
   },
   {
     timestamps: true,
@@ -55,6 +60,7 @@ export interface IAgendamento {
   horarioInicio: string;
   duracao: string;
   status: string;
+  googleEventId?: string | null;
   createdAt?: Date;
   updatedAt?: Date;
 }

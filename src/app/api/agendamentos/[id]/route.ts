@@ -1,6 +1,9 @@
 import { NextRequest, NextResponse } from 'next/server';
 import connectDB from '@/lib/db';
 import Agendamento from '@/lib/models/Agendamento';
+import { atualizarEventoNoGoogleCalendar, deletarEventoNoGoogleCalendar } from '@/lib/google-calendar/sync';
+import { isGoogleCalendarConnected } from '@/lib/google-calendar/client';
+import { getUserId } from '@/lib/utils/getUserId';
 
 /**
  * API Route para atualizar um agendamento específico
@@ -43,6 +46,20 @@ export async function PUT(
       id: agendamento._id.toString(),
       status: agendamento.status,
     });
+
+    // Sincroniza com Google Calendar se estiver conectado e tiver googleEventId
+    const userId = getUserId(request);
+    const googleCalendarConnected = await isGoogleCalendarConnected(userId);
+    
+    if (googleCalendarConnected && agendamento.googleEventId) {
+      try {
+        await atualizarEventoNoGoogleCalendar(agendamento.googleEventId, agendamento, userId);
+        console.log('✅ Agendamento atualizado no Google Calendar');
+      } catch (error) {
+        console.error('⚠️ Erro ao atualizar no Google Calendar (agendamento foi atualizado localmente):', error);
+        // Não falha a atualização do agendamento se a sincronização falhar
+      }
+    }
 
     return NextResponse.json(
       {
@@ -116,3 +133,68 @@ export async function GET(
   }
 }
 
+/**
+ * API Route para deletar um agendamento específico
+ * DELETE /api/agendamentos/[id] - Deleta um agendamento
+ */
+export async function DELETE(
+  request: NextRequest,
+  { params }: { params: Promise<{ id: string }> }
+) {
+  try {
+    await connectDB();
+
+    const { id } = await params;
+
+    // Busca o agendamento antes de deletar
+    const agendamento = await Agendamento.findById(id);
+
+    if (!agendamento) {
+      return NextResponse.json(
+        {
+          success: false,
+          error: 'Agendamento não encontrado',
+        },
+        { status: 404 }
+      );
+    }
+
+    // Sincroniza com Google Calendar se estiver conectado e tiver googleEventId
+    const userId = getUserId(request);
+    const googleCalendarConnected = await isGoogleCalendarConnected(userId);
+    
+    if (googleCalendarConnected && agendamento.googleEventId) {
+      try {
+        await deletarEventoNoGoogleCalendar(agendamento.googleEventId, userId);
+        console.log('✅ Evento deletado no Google Calendar');
+      } catch (error) {
+        console.error('⚠️ Erro ao deletar no Google Calendar (agendamento será deletado localmente):', error);
+        // Não falha a deleção do agendamento se a sincronização falhar
+      }
+    }
+
+    // Deleta o agendamento
+    await Agendamento.findByIdAndDelete(id);
+
+    console.log('✅ Agendamento deletado:', {
+      id: id,
+    });
+
+    return NextResponse.json(
+      {
+        success: true,
+        message: 'Agendamento deletado com sucesso',
+      },
+      { status: 200 }
+    );
+  } catch (error: any) {
+    console.error('❌ Erro ao deletar agendamento:', error);
+    return NextResponse.json(
+      {
+        success: false,
+        error: error instanceof Error ? error.message : 'Erro desconhecido',
+      },
+      { status: 500 }
+    );
+  }
+}

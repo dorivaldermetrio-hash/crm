@@ -67,6 +67,28 @@ export default function AgendaPage() {
   const [horariosDisponiveis, setHorariosDisponiveis] = useState<Array<{ data: string; horario: string; dataFormatada: string }>>([]);
   const [carregandoHorarios, setCarregandoHorarios] = useState(false);
   const [mostrarHorarios, setMostrarHorarios] = useState(false);
+  const [googleCalendarConnected, setGoogleCalendarConnected] = useState(false);
+  const [googleCalendarEmail, setGoogleCalendarEmail] = useState<string | null>(null);
+  const [verificandoGoogleCalendar, setVerificandoGoogleCalendar] = useState(true);
+  const [googleCalendarMessage, setGoogleCalendarMessage] = useState<{ type: 'success' | 'error'; text: string } | null>(null);
+
+  // Verifica status do Google Calendar
+  const verificarGoogleCalendar = async () => {
+    try {
+      setVerificandoGoogleCalendar(true);
+      const response = await fetch('/api/google-calendar/status');
+      const result = await response.json();
+      
+      if (result.success) {
+        setGoogleCalendarConnected(result.connected);
+        setGoogleCalendarEmail(result.account?.email || null);
+      }
+    } catch (error) {
+      console.error('Erro ao verificar Google Calendar:', error);
+    } finally {
+      setVerificandoGoogleCalendar(false);
+    }
+  };
 
   // Calcula o margin-left baseado no estado do sidebar
   const getMainMargin = () => {
@@ -300,6 +322,46 @@ export default function AgendaPage() {
   useEffect(() => {
     fetchAgendamentos();
     fetchConfig();
+    verificarGoogleCalendar();
+  }, []);
+
+  // Verifica novamente quando volta para a página (após callback OAuth)
+  useEffect(() => {
+    if (typeof window === 'undefined') return;
+    
+    const urlParams = new URLSearchParams(window.location.search);
+    const connected = urlParams.get('connected');
+    const error = urlParams.get('error');
+    
+    if (connected === 'true') {
+      setGoogleCalendarMessage({
+        type: 'success',
+        text: '✅ Google Calendar conectado com sucesso! Seus agendamentos serão sincronizados automaticamente.',
+      });
+      verificarGoogleCalendar();
+      // Remove os parâmetros da URL
+      window.history.replaceState({}, '', '/agenda');
+      // Remove mensagem após 5 segundos
+      setTimeout(() => setGoogleCalendarMessage(null), 5000);
+    } else if (error) {
+      const errorMessages: Record<string, string> = {
+        'no_code': 'Código de autorização não recebido',
+        'no_refresh_token': 'Token de renovação não obtido',
+        'invalid_grant': 'Código de autorização inválido ou expirado',
+        'config': 'Configuração incorreta',
+        'no_tokens': 'Não foi possível obter os tokens',
+      };
+      
+      setGoogleCalendarMessage({
+        type: 'error',
+        text: `Erro ao conectar Google Calendar: ${errorMessages[error] || 'Erro desconhecido'}`,
+      });
+      verificarGoogleCalendar();
+      // Remove os parâmetros da URL
+      window.history.replaceState({}, '', '/agenda');
+      // Remove mensagem após 10 segundos
+      setTimeout(() => setGoogleCalendarMessage(null), 10000);
+    }
   }, []);
 
   // Detecta dark mode
@@ -464,6 +526,23 @@ export default function AgendaPage() {
         <div className="w-full max-w-full">
           {/* Header */}
           <div className="mb-4 sm:mb-6">
+            {/* Mensagens de feedback do Google Calendar */}
+            {googleCalendarMessage && (
+              <div className={`mb-4 p-3 rounded-lg border ${
+                googleCalendarMessage.type === 'success'
+                  ? 'bg-green-50 dark:bg-green-900/20 border-green-200 dark:border-green-800'
+                  : 'bg-red-50 dark:bg-red-900/20 border-red-200 dark:border-red-800'
+              }`}>
+                <p className={`text-sm ${
+                  googleCalendarMessage.type === 'success'
+                    ? 'text-green-800 dark:text-green-200'
+                    : 'text-red-800 dark:text-red-200'
+                }`}>
+                  {googleCalendarMessage.text}
+                </p>
+              </div>
+            )}
+            
             <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 sm:gap-4 mb-3 sm:mb-4">
               <div className="min-w-0 flex-1">
                 <h1 className="text-xl sm:text-2xl md:text-3xl font-bold text-slate-900 dark:text-white mb-1 sm:mb-2 truncate">
@@ -473,14 +552,78 @@ export default function AgendaPage() {
                   Gerencie seus agendamentos e compromissos
                 </p>
               </div>
-              <button
-                onClick={() => setModalAberto(true)}
-                className="px-4 sm:px-6 py-2.5 sm:py-3 bg-gradient-to-r from-blue-600 to-blue-500 text-white rounded-xl text-sm sm:text-base font-semibold hover:from-blue-700 hover:to-blue-600 transition-all duration-300 shadow-lg hover:shadow-xl flex items-center gap-2 w-full sm:w-auto justify-center sm:justify-start flex-shrink-0"
-              >
-                <Plus className="w-4 h-4 sm:w-5 sm:h-5" />
-                <span className="hidden sm:inline">Criar Evento</span>
-                <span className="sm:hidden">Criar</span>
-              </button>
+              <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-2 sm:gap-3 w-full sm:w-auto">
+                {/* Botão Google Calendar */}
+                {googleCalendarConnected ? (
+                  <div className="flex items-center gap-2 px-3 sm:px-4 py-2 sm:py-2.5 bg-green-600 text-white rounded-xl text-xs sm:text-sm font-medium">
+                    <svg className="w-4 h-4" viewBox="0 0 24 24" fill="currentColor">
+                      <path d="M19 4h-1V2h-2v2H8V2H6v2H5c-1.11 0-1.99.9-1.99 2L3 20c0 1.1.89 2 2 2h14c1.1 0 2-.9 2-2V6c0-1.1-.9-2-2-2zm0 16H5V10h14v10zm0-12H5V6h14v2z"/>
+                    </svg>
+                    <span className="hidden sm:inline">
+                      {googleCalendarEmail ? `Conectado (${googleCalendarEmail})` : 'Conectado'}
+                    </span>
+                    <span className="sm:hidden">Google</span>
+                    <button
+                      onClick={async () => {
+                        if (confirm('Tem certeza que deseja desconectar o Google Calendar? Os agendamentos futuros não serão mais sincronizados.')) {
+                          try {
+                            const response = await fetch('/api/google-calendar/disconnect', {
+                              method: 'DELETE',
+                            });
+                            const result = await response.json();
+                            
+                            if (result.success) {
+                              setGoogleCalendarMessage({
+                                type: 'success',
+                                text: 'Google Calendar desconectado com sucesso.',
+                              });
+                              verificarGoogleCalendar();
+                              setTimeout(() => setGoogleCalendarMessage(null), 3000);
+                            } else {
+                              setGoogleCalendarMessage({
+                                type: 'error',
+                                text: `Erro ao desconectar: ${result.error || 'Erro desconhecido'}`,
+                              });
+                              setTimeout(() => setGoogleCalendarMessage(null), 5000);
+                            }
+                          } catch (error) {
+                            console.error('Erro ao desconectar:', error);
+                            setGoogleCalendarMessage({
+                              type: 'error',
+                              text: 'Erro ao conectar com o servidor',
+                            });
+                            setTimeout(() => setGoogleCalendarMessage(null), 5000);
+                          }
+                        }
+                      }}
+                      className="ml-2 p-1 hover:bg-green-700 rounded transition-colors"
+                      title="Desconectar Google Calendar"
+                    >
+                      <X className="w-3 h-3 sm:w-4 sm:h-4" />
+                    </button>
+                  </div>
+                ) : (
+                  <a
+                    href="/api/google-calendar/auth"
+                    className="px-3 sm:px-4 py-2 sm:py-2.5 bg-white dark:bg-slate-700 text-slate-900 dark:text-white rounded-xl text-xs sm:text-sm font-medium hover:bg-slate-100 dark:hover:bg-slate-600 transition-all duration-300 shadow-sm hover:shadow-md flex items-center gap-2 justify-center flex-shrink-0"
+                  >
+                    <svg className="w-4 h-4" viewBox="0 0 24 24" fill="currentColor">
+                      <path d="M19 4h-1V2h-2v2H8V2H6v2H5c-1.11 0-1.99.9-1.99 2L3 20c0 1.1.89 2 2 2h14c1.1 0 2-.9 2-2V6c0-1.1-.9-2-2-2zm0 16H5V10h14v10zm0-12H5V6h14v2z"/>
+                    </svg>
+                    <span className="hidden sm:inline">Conectar Google Calendar</span>
+                    <span className="sm:hidden">Google</span>
+                  </a>
+                )}
+                {/* Botão Criar Evento */}
+                <button
+                  onClick={() => setModalAberto(true)}
+                  className="px-4 sm:px-6 py-2.5 sm:py-3 bg-gradient-to-r from-blue-600 to-blue-500 text-white rounded-xl text-sm sm:text-base font-semibold hover:from-blue-700 hover:to-blue-600 transition-all duration-300 shadow-lg hover:shadow-xl flex items-center gap-2 w-full sm:w-auto justify-center sm:justify-start flex-shrink-0"
+                >
+                  <Plus className="w-4 h-4 sm:w-5 sm:h-5" />
+                  <span className="hidden sm:inline">Criar Evento</span>
+                  <span className="sm:hidden">Criar</span>
+                </button>
+              </div>
             </div>
           </div>
 
