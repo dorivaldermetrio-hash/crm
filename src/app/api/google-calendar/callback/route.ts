@@ -105,7 +105,7 @@ export async function GET(request: NextRequest) {
         url: 'https://www.googleapis.com/oauth2/v2/userinfo',
         method: 'GET',
       });
-      email = response.data?.email || '';
+      email = (response.data as { email?: string })?.email || '';
     } catch (e) {
       console.warn('⚠️ Não foi possível obter email do usuário');
     }
