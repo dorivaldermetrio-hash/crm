@@ -21,7 +21,7 @@ export async function GET(request: NextRequest) {
   if (challenge) {
     // Google está verificando o webhook (formato PubSubHubbub)
     console.log('✅ Google Calendar webhook verificado:', challenge);
-    return NextResponse.text(challenge, { status: 200 });
+    return new Response(challenge, { status: 200 });
   }
   
   return NextResponse.json({ error: 'Invalid request' }, { status: 400 });
