@@ -94,7 +94,7 @@ export async function POST(request: NextRequest) {
           },
         });
 
-        const events = response.data?.items || [];
+        const events = (response.data as { items?: any[] })?.items || [];
 
         console.log(`📅 Encontrados ${events.length} eventos no Google Calendar`);
 
