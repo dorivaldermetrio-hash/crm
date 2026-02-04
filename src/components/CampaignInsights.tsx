@@ -4,6 +4,7 @@ import { AlertTriangle, Globe, TrendingUp, CheckCircle } from 'lucide-react';
 
 interface CampaignData {
   campaign?: {
+    id?: string;
     name?: string;
     status?: string;
   };

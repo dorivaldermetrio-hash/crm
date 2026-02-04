@@ -96,8 +96,9 @@ export async function GET(
       });
       
       if (campaignWithDates.length > 0) {
-        startDate = campaignWithDates[0].campaign?.start_date;
-        endDate = campaignWithDates[0].campaign?.end_date;
+        const campaignData = campaignWithDates[0].campaign as any;
+        startDate = campaignData?.start_date;
+        endDate = campaignData?.end_date;
         console.log('📅 Datas da campanha encontradas:', { startDate, endDate });
       }
     } catch (error: any) {
@@ -153,9 +154,24 @@ export async function GET(
           for (const keyword of adGroupKeywords) {
             const keywordData = keyword.ad_group_criterion?.keyword;
             if (keywordData?.text) {
+              // Converte matchType para string
+              let matchTypeStr = 'BROAD';
+              const matchType = keywordData.match_type;
+              if (typeof matchType === 'number') {
+                if (matchType === enums.KeywordMatchType.EXACT) {
+                  matchTypeStr = 'EXACT';
+                } else if (matchType === enums.KeywordMatchType.PHRASE) {
+                  matchTypeStr = 'PHRASE';
+                } else {
+                  matchTypeStr = 'BROAD';
+                }
+              } else if (typeof matchType === 'string') {
+                matchTypeStr = matchType;
+              }
+              
               keywords.push({
                 keyword: keywordData.text,
-                matchType: keywordData.match_type || 'BROAD',
+                matchType: matchTypeStr,
                 adGroupId: adGroupId.toString(),
                 adGroupName,
               });

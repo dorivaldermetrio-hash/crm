@@ -4,7 +4,7 @@ import Contato from '@/lib/models/Contato';
 import Mensagem from '@/lib/models/Mensagem';
 import mongoose from 'mongoose';
 import { sendWhatsAppMessage } from '@/lib/utils/sendWhatsAppMessage';
-import { emitEvent } from '@/app/api/events/route';
+import { emitEvent } from '@/lib/utils/emitEvent';
 
 /**
  * API Route para enviar uma mensagem (salvar no banco)

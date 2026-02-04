@@ -74,6 +74,7 @@ export default function GoogleAdsPage() {
   // Estado para dados das campanhas com métricas (para o dashboard)
   const [campaignsData, setCampaignsData] = useState<Array<{
     campaign?: {
+      id?: string;
       name?: string;
       status?: string;
     };
@@ -159,6 +160,7 @@ export default function GoogleAdsPage() {
       // Filtra campanhas removidas - não devem aparecer em nenhum componente
       const allCampaigns: Array<{
         campaign?: {
+          id?: string;
           name?: string;
           status?: string;
         };
@@ -170,7 +172,7 @@ export default function GoogleAdsPage() {
         };
       }> = [];
       
-      Object.values(result.data || {}).forEach((campaigns: any[]) => {
+        (Object.values(result.data || {}) as any[]).forEach((campaigns: any[]) => {
         campaigns.forEach((campaign: any) => {
           // Ignora campanhas removidas
           if (campaign.status === 'REMOVED') {
@@ -180,6 +182,7 @@ export default function GoogleAdsPage() {
           // Extrai dados da campanha e métricas
           allCampaigns.push({
             campaign: {
+              id: campaign.id?.toString() || '',
               name: campaign.name || 'Sem nome',
               status: campaign.status || 'UNKNOWN',
             },
@@ -2180,6 +2183,7 @@ export default function GoogleAdsPage() {
                                         ...item,
                                         campaign: {
                                           ...item.campaign,
+                                          id: editingCampaign.id,
                                           name: editingCampaign.name,
                                           status: editingCampaign.status,
                                         },

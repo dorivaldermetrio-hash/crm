@@ -2,6 +2,7 @@
 
 interface CampaignData {
   campaign?: {
+    id?: string;
     name?: string;
     status?: string;
   };

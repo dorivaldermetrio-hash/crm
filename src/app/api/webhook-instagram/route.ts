@@ -16,7 +16,7 @@ import { criarAgendamento } from '@/lib/utils/criarAgendamento';
 import { obterDatasDisponiveisServer } from '@/lib/utils/obterDatasDisponiveisServer';
 import { sendInstagramMessage } from '@/lib/utils/sendInstagramMessage';
 import { saveSystemMessage } from '@/lib/utils/saveSystemMessage';
-import { emitEvent } from '@/app/api/events/route';
+import { emitEvent } from '@/lib/utils/emitEvent';
 import { scheduleAIProcessing } from '@/lib/utils/messageDebouncer';
 import { criarEventoNoGoogleCalendar } from '@/lib/google-calendar/sync';
 import { isGoogleCalendarConnected } from '@/lib/google-calendar/client';

@@ -4,7 +4,7 @@ import ContatoDM from '@/lib/models/ContatoDM';
 import MensagemDM from '@/lib/models/MensagemDM';
 import mongoose from 'mongoose';
 import { sendInstagramMessage } from '@/lib/utils/sendInstagramMessage';
-import { emitEvent } from '@/app/api/events/route';
+import { emitEvent } from '@/lib/utils/emitEvent';
 
 /**
  * API Route para enviar uma mensagem do Instagram DM

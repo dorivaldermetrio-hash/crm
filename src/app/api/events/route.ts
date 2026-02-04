@@ -81,25 +81,3 @@ declare global {
   }> | undefined;
 }
 
-/**
- * Função utilitária para emitir eventos para todos os clientes conectados
- */
-export function emitEvent(event: {
-  type: 'nova_mensagem' | 'mensagem_enviada' | 'contato_atualizado' | 'ollama_response';
-  contatoId?: string;
-  contato?: string;
-  data?: any;
-}) {
-  if (!global.eventClients || global.eventClients.length === 0) {
-    return;
-  }
-
-  global.eventClients.forEach((client) => {
-    try {
-      client.send(event);
-    } catch (error) {
-      // Erro silencioso
-    }
-  });
-}
-
