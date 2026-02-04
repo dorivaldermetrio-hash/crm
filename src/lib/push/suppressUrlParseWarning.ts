@@ -11,12 +11,20 @@ if (typeof process !== 'undefined') {
   // Intercepta process.emitWarning para suprimir o warning DEP0169
   const originalEmitWarning = process.emitWarning;
   
-  process.emitWarning = function(
+  // Usa type assertion para evitar problemas com múltiplas assinaturas sobrecarregadas
+  (process as any).emitWarning = function(
     warning: string | Error,
-    type?: string | Function,
-    code?: string,
+    typeOrCtor?: string | Function,
+    codeOrCtor?: string | Function,
     ctor?: Function
   ) {
+    // Determina qual parâmetro é o code baseado nos tipos
+    let code: string | undefined;
+    
+    if (typeof typeOrCtor === 'string' && typeof codeOrCtor === 'string') {
+      code = codeOrCtor;
+    }
+    
     // Suprime apenas o warning DEP0169 sobre url.parse()
     if (code === 'DEP0169' || 
         (typeof warning === 'string' && warning.includes('url.parse()')) ||
@@ -25,7 +33,7 @@ if (typeof process !== 'undefined') {
     }
     
     // Para todos os outros warnings, mantém o comportamento padrão
-    return originalEmitWarning.call(this, warning, type, code, ctor);
+    return originalEmitWarning.call(this, warning, typeOrCtor, codeOrCtor, ctor);
   };
   
   // Também configura listener para warnings emitidos via process.on('warning')
