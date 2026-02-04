@@ -33,8 +33,8 @@ export async function GET(request: NextRequest) {
     const userData = {
       userId: userId,
       email: userEmail || account?.email || '',
-      name: account?.name || '',
-      picture: account?.picture || '',
+      name: '', // Nome não está armazenado no modelo GoogleCalendarAccount
+      picture: '', // Picture não está armazenado no modelo GoogleCalendarAccount
     };
 
     console.log('✅ Usuário autenticado:', userData);
