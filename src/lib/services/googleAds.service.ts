@@ -334,13 +334,17 @@ export async function createCampaign(
       },
     };
 
-    const budgetResponse = await customer.campaignBudgets.create({
-      resource_name: budgetResourceName,
-      ...budgetOperation.create,
-    });
+    const budgetResponse = await customer.campaignBudgets.create(
+      budgetOperation.create
+    );
 
-    const budgetId = budgetResponse.results?.[0]?.resource_name?.split('/')?.pop();
+    const budgetResourceNameCreated = budgetResponse.results?.[0]?.resource_name;
+    const budgetId = budgetResourceNameCreated?.split('/')?.pop();
     console.log(`✅ Orçamento criado: ${budgetId}`);
+
+    if (!budgetResourceNameCreated) {
+      throw new Error('Não foi possível obter o resource_name do budget criado');
+    }
 
     // 2. Criar Campaign
     console.log('📢 Criando campanha...');
@@ -350,7 +354,7 @@ export async function createCampaign(
         name: data.campaignName,
         advertising_channel_type: enums.AdvertisingChannelType.SEARCH,
         status: data.status === 'ENABLED' ? enums.CampaignStatus.ENABLED : enums.CampaignStatus.PAUSED,
-        campaign_budget: budgetResourceName.replace('-1', budgetId || ''),
+        campaign_budget: budgetResourceNameCreated,
         manual_cpc: {
           enhanced_cpc_enabled: false,
         },
@@ -365,10 +369,9 @@ export async function createCampaign(
       },
     };
 
-    const campaignResponse = await customer.campaigns.create({
-      resource_name: campaignResourceName,
-      ...campaignOperation.create,
-    });
+    const campaignResponse = await customer.campaigns.create(
+      campaignOperation.create
+    );
 
     const campaignId = campaignResponse.results?.[0]?.resource_name?.split('/')?.pop();
     console.log(`✅ Campanha criada: ${campaignId}`);
@@ -419,10 +422,9 @@ export async function createCampaign(
       },
     };
 
-    const adGroupResponse = await customer.adGroups.create({
-      resource_name: adGroupResourceName,
-      ...adGroupOperation.create,
-    });
+    const adGroupResponse = await customer.adGroups.create(
+      adGroupOperation.create
+    );
 
     const adGroupId = adGroupResponse.results?.[0]?.resource_name?.split('/')?.pop();
     console.log(`✅ Grupo de anúncios criado: ${adGroupId}`);
@@ -470,10 +472,9 @@ export async function createCampaign(
       },
     };
 
-    const adResponse = await customer.ads.create({
-      resource_name: adResourceName,
-      ...adOperation.create,
-    });
+    const adResponse = await customer.ads.create(
+      adOperation.create
+    );
 
     const adId = adResponse.results?.[0]?.resource_name?.split('/')?.pop();
     console.log(`✅ Anúncio criado: ${adId}`);
