@@ -33,7 +33,20 @@ if (typeof process !== 'undefined') {
     }
     
     // Para todos os outros warnings, mantém o comportamento padrão
-    return originalEmitWarning.call(this, warning, typeOrCtor, codeOrCtor, ctor);
+    // Usa apply para passar os argumentos corretamente
+    const args: any[] = [warning];
+    if (typeof typeOrCtor === 'string' && typeof codeOrCtor === 'string') {
+      // Assinatura: emitWarning(warning, { type, code, ctor? })
+      args.push({ type: typeOrCtor, code: codeOrCtor, ctor: ctor });
+    } else if (typeof typeOrCtor === 'string') {
+      // Assinatura: emitWarning(warning, type, ctor?)
+      args.push(typeOrCtor);
+      if (codeOrCtor) args.push(codeOrCtor);
+    } else if (typeof typeOrCtor === 'function') {
+      // Assinatura: emitWarning(warning, ctor)
+      args.push(typeOrCtor);
+    }
+    return (originalEmitWarning as any).apply(this, args);
   };
   
   // Também configura listener para warnings emitidos via process.on('warning')
