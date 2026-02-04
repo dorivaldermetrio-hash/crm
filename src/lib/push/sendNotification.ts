@@ -1,20 +1,9 @@
+// IMPORTANTE: Importa a supressão de warning ANTES de importar web-push
+import './suppressUrlParseWarning';
+
 import webpush from 'web-push';
 import connectDB from '@/lib/db';
 import PushSubscription from '@/lib/models/PushSubscription';
-
-// Suprime o warning de depreciação do url.parse() usado pela biblioteca web-push
-// Isso evita que o warning interrompa o fluxo da aplicação
-if (typeof process !== 'undefined' && process.on) {
-  // Listener que filtra apenas o warning específico do url.parse() (DEP0169)
-  process.on('warning', (warning: Error & { code?: string }) => {
-    // Ignora apenas o warning DEP0169 sobre url.parse()
-    if (warning.name === 'DeprecationWarning' && (warning as any).code === 'DEP0169') {
-      // Silenciosamente ignora este warning específico
-      return;
-    }
-    // Para todos os outros warnings, mantém o comportamento padrão (exibe no console)
-  });
-}
 
 // Configura VAPID keys
 const vapidPublicKey = process.env.VAPID_PUBLIC_KEY;
