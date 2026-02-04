@@ -94,15 +94,18 @@ export default function CampaignInsights({ campaignsData }: CampaignInsightsProp
     }
   });
 
-  if (bestCampaign && bestCampaign.campaign) {
-    const campaignName = bestCampaign.campaign.name || 'Campanha sem nome';
-    insights.push({
-      type: 'success',
-      title: 'Oportunidade de investimento',
-      message: `A área de ${campaignName} está trazendo clientes mais baratos. Recomendamos focar mais verba aqui para maximizar o retorno.`,
-      icon: TrendingUp,
-      campaignName,
-    });
+  if (bestCampaign) {
+    const campaign = bestCampaign.campaign;
+    if (campaign) {
+      const campaignName = campaign.name || 'Campanha sem nome';
+      insights.push({
+        type: 'success',
+        title: 'Oportunidade de investimento',
+        message: `A área de ${campaignName} está trazendo clientes mais baratos. Recomendamos focar mais verba aqui para maximizar o retorno.`,
+        icon: TrendingUp,
+        campaignName,
+      });
+    }
   }
 
   // Se não houver insights, mostra mensagem positiva
