@@ -18,7 +18,7 @@ export default function AnimatedLogo({
     const svg = svgRef.current;
     if (!svg) return;
 
-    const paths = Array.from(svg.querySelectorAll('path.logo-stroke'));
+    const paths = Array.from(svg.querySelectorAll('path.logo-stroke')) as SVGPathElement[];
 
     // Prepara cada path com o comprimento real para o efeito de desenho
     paths.forEach((path, index) => {
