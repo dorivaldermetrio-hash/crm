@@ -52,7 +52,6 @@ function getGoogleAdsClient(): GoogleAdsApi {
     client_id: clientId,
     client_secret: clientSecret,
     developer_token: developerToken,
-    login_customer_id: '7221154001', // ID da MCC de Teste
   });
 
   console.log('✅ Cliente Google Ads API inicializado com sucesso');
