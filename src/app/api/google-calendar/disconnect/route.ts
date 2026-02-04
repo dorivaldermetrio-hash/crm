@@ -12,7 +12,7 @@ export async function DELETE(request: NextRequest) {
   try {
     await connectDB();
 
-    const userId = getUserId(request);
+    const userId = await getUserId(request);
 
     console.log('🔌 Desconectando Google Calendar para userId:', userId);
 

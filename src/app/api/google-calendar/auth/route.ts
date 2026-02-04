@@ -10,7 +10,7 @@ import { getUserId } from '@/lib/utils/getUserId';
  */
 export async function GET(request: NextRequest) {
   try {
-    const userId = getUserId(request);
+    const userId = await getUserId(request);
 
     // Obtém as variáveis de ambiente
     // Pode reutilizar as credenciais do Google Ads ou usar específicas
@@ -41,12 +41,15 @@ export async function GET(request: NextRequest) {
       );
     }
 
-    // Scope necessário para Google Calendar API
-    // Usa calendar (escopo completo) para ter todas as permissões necessárias:
-    // - Criar, atualizar e deletar eventos
-    // - Listar calendários
-    // - Todas as operações do Google Calendar
-    const scope = 'https://www.googleapis.com/auth/calendar';
+    // Scopes necessários para Google Calendar API e Google Ads API
+    // Usa múltiplos escopos para permitir acesso a ambas as APIs
+    // - Google Calendar: todas as operações do calendário
+    // - Google Ads: acesso à API do Google Ads
+    const scopes = [
+      'https://www.googleapis.com/auth/calendar', // Google Calendar (escopo completo)
+      'https://www.googleapis.com/auth/adwords',   // Google Ads API
+    ];
+    const scope = scopes.join(' '); // Google OAuth aceita múltiplos escopos separados por espaço
 
     // Gera um state aleatório para segurança (proteção CSRF)
     const stateData = {

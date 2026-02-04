@@ -30,7 +30,7 @@ export async function configurarWatchGoogleCalendar(userId?: string): Promise<bo
     }
 
     const calendarId = account.calendarId || 'primary';
-    const user = userId || getUserId();
+    const user = userId || await getUserId();
 
     // URL do webhook (deve ser acessível publicamente)
     const webhookUrl = process.env.GOOGLE_CALENDAR_WEBHOOK_URL || 

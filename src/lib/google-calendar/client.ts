@@ -19,7 +19,7 @@ export async function getGoogleCalendarClient(userId?: string): Promise<OAuth2Cl
   try {
     await connectDB();
 
-    const user = userId || getUserId();
+    const user = userId || await getUserId();
     
     // Busca a conta do Google Calendar no MongoDB
     const account = await GoogleCalendarAccount.findOne({ userId: user }).lean();
@@ -134,7 +134,7 @@ export async function getCalendarAPI(userId?: string, oauth2Client?: OAuth2Clien
 export async function isGoogleCalendarConnected(userId?: string): Promise<boolean> {
   try {
     await connectDB();
-    const user = userId || getUserId();
+    const user = userId || await getUserId();
     const account = await GoogleCalendarAccount.findOne({ userId: user }).lean();
     return !!account && !!account.refreshToken;
   } catch (error) {
@@ -151,7 +151,7 @@ export async function isGoogleCalendarConnected(userId?: string): Promise<boolea
 export async function getGoogleCalendarAccount(userId?: string) {
   try {
     await connectDB();
-    const user = userId || getUserId();
+    const user = userId || await getUserId();
     const account = await GoogleCalendarAccount.findOne({ userId: user }).lean();
     return account;
   } catch (error) {

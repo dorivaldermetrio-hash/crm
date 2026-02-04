@@ -326,7 +326,7 @@ export async function POST(request: NextRequest) {
                 try {
                   const agendamentoCriado = await Agendamento.findById(resultadoAgendamento.agendamentoId);
                   if (agendamentoCriado) {
-                    const userId = getUserId();
+                    const userId = await getUserId();
                     const googleCalendarConnected = await isGoogleCalendarConnected(userId);
                     
                     if (googleCalendarConnected) {

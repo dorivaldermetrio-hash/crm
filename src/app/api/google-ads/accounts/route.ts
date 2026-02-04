@@ -23,7 +23,7 @@ export async function GET(request: NextRequest) {
 
     // Obtém userId (mockado por enquanto)
     const userIdParam = request.nextUrl.searchParams.get('userId');
-    const userId = userIdParam || getUserId(request);
+    const userId = userIdParam || await getUserId(request);
 
     console.log('📋 Listando contas do Google Ads para userId:', userId);
 

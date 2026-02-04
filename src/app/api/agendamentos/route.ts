@@ -68,7 +68,7 @@ export async function POST(request: NextRequest) {
     });
 
     // Sincroniza com Google Calendar se estiver conectado
-    const userId = getUserId(request);
+    const userId = await getUserId(request);
     const googleCalendarConnected = await isGoogleCalendarConnected(userId);
     
     if (googleCalendarConnected) {

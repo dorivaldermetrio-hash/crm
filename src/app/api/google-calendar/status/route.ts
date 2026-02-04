@@ -8,7 +8,7 @@ import { getUserId } from '@/lib/utils/getUserId';
  */
 export async function GET(request: NextRequest) {
   try {
-    const userId = getUserId(request);
+    const userId = await getUserId(request);
     const connected = await isGoogleCalendarConnected(userId);
     const account = connected ? await getGoogleCalendarAccount(userId) : null;
 

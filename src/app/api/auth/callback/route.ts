@@ -2,15 +2,14 @@ import { NextRequest, NextResponse } from 'next/server';
 import { OAuth2Client } from 'google-auth-library';
 import connectDB from '@/lib/db';
 import GoogleCalendarAccount from '@/lib/models/GoogleCalendarAccount';
-import { configurarWatchGoogleCalendar } from '@/lib/google-calendar/watch';
 import { cookies } from 'next/headers';
 
 /**
- * API Route para processar o callback do OAuth 2.0 do Google Calendar
- * GET /api/google-calendar/callback
+ * API Route para processar o callback do OAuth 2.0 do Google
+ * GET /api/auth/callback
  * 
  * Recebe o código de autorização do Google, troca por access_token e refresh_token,
- * e persiste o refresh_token no MongoDB
+ * salva no MongoDB e cria uma sessão para o usuário
  */
 export async function GET(request: NextRequest) {
   try {
@@ -29,10 +28,6 @@ export async function GET(request: NextRequest) {
         if (stateData.returnUrl) {
           returnUrl = stateData.returnUrl;
         }
-        // Compatibilidade com formato antigo
-        if (stateData.userId && !stateData.returnUrl) {
-          // Formato antigo, ignora
-        }
       } catch (e) {
         console.warn('⚠️ Não foi possível decodificar o state');
       }
@@ -40,7 +35,7 @@ export async function GET(request: NextRequest) {
 
     // Verifica se houve erro na autorização
     if (error) {
-      console.error('❌ Erro na autorização Google Calendar:', error);
+      console.error('❌ Erro na autorização Google:', error);
       return NextResponse.redirect(
         `${process.env.NEXT_PUBLIC_BASE_URL || 'http://localhost:3000'}/login?error=${encodeURIComponent(error)}`
       );
@@ -58,11 +53,11 @@ export async function GET(request: NextRequest) {
     const clientId = process.env.GOOGLE_CALENDAR_CLIENT_ID || process.env.GOOGLE_ADS_CLIENT_ID;
     const clientSecret = process.env.GOOGLE_CALENDAR_CLIENT_SECRET || process.env.GOOGLE_ADS_CLIENT_SECRET;
     const redirectUri = process.env.GOOGLE_CALENDAR_REDIRECT_URI || 
-      `${process.env.NEXT_PUBLIC_BASE_URL || 'http://localhost:3000'}/api/google-calendar/callback`;
+      `${process.env.NEXT_PUBLIC_BASE_URL || 'http://localhost:3000'}/api/auth/callback`;
 
     // Valida se as variáveis de ambiente estão configuradas
     if (!clientId || !clientSecret) {
-      console.error('❌ Credenciais do Google Calendar não configuradas');
+      console.error('❌ Credenciais do Google não configuradas');
       return NextResponse.redirect(
         `${process.env.NEXT_PUBLIC_BASE_URL || 'http://localhost:3000'}/login?error=config`
       );
@@ -118,27 +113,23 @@ export async function GET(request: NextRequest) {
       console.warn('⚠️ Não foi possível obter informações do usuário');
     }
 
-    // Usa o email como userId (não "default-user")
+    // Usa o email como userId (ou gera um ID único baseado no email)
     const userId = email || `user-${Date.now()}`;
 
     console.log('✅ Tokens obtidos com sucesso!');
     console.log('👤 User ID:', userId);
     console.log('📧 Email:', email);
     console.log('👤 Nome:', name);
-    console.log('🔑 Scope do token:', tokens.scope || 'não fornecido');
-    console.log('⏰ Token expira em:', tokens.expiry_date ? new Date(tokens.expiry_date).toISOString() : 'não fornecido');
 
     // Persiste ou atualiza o refresh_token no MongoDB
     const accountData = {
       userId: userId,
       refreshToken: refreshToken,
       email: email,
-      name: name,
-      picture: picture,
-      calendarId: 'primary', // Calendário principal por padrão
+      calendarId: 'primary',
     };
 
-    const savedAccount = await GoogleCalendarAccount.findOneAndUpdate(
+    await GoogleCalendarAccount.findOneAndUpdate(
       { userId: userId },
       accountData,
       {
@@ -149,7 +140,6 @@ export async function GET(request: NextRequest) {
     );
 
     console.log('✅ Refresh token salvo no MongoDB com sucesso!');
-    console.log('📝 Account ID:', savedAccount._id.toString());
 
     // Configura o watch (webhook) para receber notificações do Google Calendar
     try {
@@ -158,7 +148,6 @@ export async function GET(request: NextRequest) {
       await configurarWatchGoogleCalendar(userId);
     } catch (watchError) {
       console.error('⚠️ Erro ao configurar watch (não crítico):', watchError);
-      // Não falha o callback se o watch não puder ser configurado
     }
 
     // Cria uma sessão usando cookies

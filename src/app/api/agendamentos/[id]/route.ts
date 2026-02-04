@@ -48,7 +48,7 @@ export async function PUT(
     });
 
     // Sincroniza com Google Calendar se estiver conectado e tiver googleEventId
-    const userId = getUserId(request);
+    const userId = await getUserId(request);
     const googleCalendarConnected = await isGoogleCalendarConnected(userId);
     
     if (googleCalendarConnected && agendamento.googleEventId) {
@@ -160,7 +160,7 @@ export async function DELETE(
     }
 
     // Sincroniza com Google Calendar se estiver conectado e tiver googleEventId
-    const userId = getUserId(request);
+    const userId = await getUserId(request);
     const googleCalendarConnected = await isGoogleCalendarConnected(userId);
     
     if (googleCalendarConnected && agendamento.googleEventId) {
