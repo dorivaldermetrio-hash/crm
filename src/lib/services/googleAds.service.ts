@@ -334,9 +334,9 @@ export async function createCampaign(
       },
     };
 
-    const budgetResponse = await customer.campaignBudgets.create(
+    const budgetResponse = await customer.campaignBudgets.create([
       budgetOperation.create
-    );
+    ]);
 
     const budgetResourceNameCreated = budgetResponse.results?.[0]?.resource_name;
     const budgetId = budgetResourceNameCreated?.split('/')?.pop();
@@ -369,44 +369,40 @@ export async function createCampaign(
       },
     };
 
-    const campaignResponse = await customer.campaigns.create(
+    const campaignResponse = await customer.campaigns.create([
       campaignOperation.create
-    );
+    ]);
 
     const campaignId = campaignResponse.results?.[0]?.resource_name?.split('/')?.pop();
     console.log(`✅ Campanha criada: ${campaignId}`);
 
     // 3. Configurar targeting (localizações e idioma)
     console.log('🌍 Configurando targeting...');
-    const campaignCriterionOperations = [];
+    const campaignCriterionResources: any[] = [];
 
     // Adicionar localizações
     for (const locationCode of data.locations) {
-      campaignCriterionOperations.push({
-        create: {
-          campaign: `customers/${customerId}/campaigns/${campaignId}`,
-          location: {
-            geo_target_constant: `geoTargetConstants/${locationCode}`,
-          },
-          type: enums.CriterionType.LOCATION,
+      campaignCriterionResources.push({
+        campaign: `customers/${customerId}/campaigns/${campaignId}`,
+        location: {
+          geo_target_constant: `geoTargetConstants/${locationCode}`,
         },
+        type: enums.CriterionType.LOCATION,
       });
     }
 
     // Adicionar idioma
     const languageCode = data.language.split('-')[0].toUpperCase(); // 'pt-BR' -> 'PT'
-    campaignCriterionOperations.push({
-      create: {
-        campaign: `customers/${customerId}/campaigns/${campaignId}`,
-        language: {
-          language_constant: `languageConstants/${languageCode}`,
-        },
-        type: enums.CriterionType.LANGUAGE,
+    campaignCriterionResources.push({
+      campaign: `customers/${customerId}/campaigns/${campaignId}`,
+      language: {
+        language_constant: `languageConstants/${languageCode}`,
       },
+      type: enums.CriterionType.LANGUAGE,
     });
 
-    if (campaignCriterionOperations.length > 0) {
-      await customer.campaignCriteria.batchCreate(campaignCriterionOperations);
+    if (campaignCriterionResources.length > 0) {
+      await customer.campaignCriteria.create(campaignCriterionResources);
       console.log('✅ Targeting configurado');
     }
 
@@ -422,34 +418,32 @@ export async function createCampaign(
       },
     };
 
-    const adGroupResponse = await customer.adGroups.create(
+    const adGroupResponse = await customer.adGroups.create([
       adGroupOperation.create
-    );
+    ]);
 
     const adGroupId = adGroupResponse.results?.[0]?.resource_name?.split('/')?.pop();
     console.log(`✅ Grupo de anúncios criado: ${adGroupId}`);
 
     // 5. Criar Keywords
     console.log('🔑 Criando palavras-chave...');
-    const keywordOperations = data.keywords.map((kw, index) => ({
-      create: {
-        ad_group: `customers/${customerId}/adGroups/${adGroupId}`,
-        keyword: {
-          text: kw.keyword,
-          match_type:
-            kw.matchType === 'BROAD'
-              ? enums.KeywordMatchType.BROAD
-              : kw.matchType === 'PHRASE'
-              ? enums.KeywordMatchType.PHRASE
-              : enums.KeywordMatchType.EXACT,
-        },
-        cpc_bid_micros: data.manualCpc * 10000, // converte centavos para micros
+    const keywordResources = data.keywords.map((kw, index) => ({
+      ad_group: `customers/${customerId}/adGroups/${adGroupId}`,
+      keyword: {
+        text: kw.keyword,
+        match_type:
+          kw.matchType === 'BROAD'
+            ? enums.KeywordMatchType.BROAD
+            : kw.matchType === 'PHRASE'
+            ? enums.KeywordMatchType.PHRASE
+            : enums.KeywordMatchType.EXACT,
       },
+      cpc_bid_micros: data.manualCpc * 10000, // converte centavos para micros
     }));
 
-    if (keywordOperations.length > 0) {
-      await customer.adGroupCriteria.batchCreate(keywordOperations);
-      console.log(`✅ ${keywordOperations.length} palavra(s)-chave criada(s)`);
+    if (keywordResources.length > 0) {
+      await customer.adGroupCriteria.create(keywordResources);
+      console.log(`✅ ${keywordResources.length} palavra(s)-chave criada(s)`);
     }
 
     // 6. Criar Ad (Expanded Text Ad)
@@ -472,9 +466,9 @@ export async function createCampaign(
       },
     };
 
-    const adResponse = await customer.ads.create(
+    const adResponse = await customer.adGroupAds.create([
       adOperation.create
-    );
+    ]);
 
     const adId = adResponse.results?.[0]?.resource_name?.split('/')?.pop();
     console.log(`✅ Anúncio criado: ${adId}`);
