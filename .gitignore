@@ -47,7 +47,3 @@ next-env.d.ts
 /public/workbox-*.js.map
 /public/fallback-*.js
 /public/fallback-*.js.map
-
-# Large video files (use external storage or CDN)
-/public/login/vdbackground.mp4
-*.mp4
