@@ -94,10 +94,11 @@ export default function CampaignInsights({ campaignsData }: CampaignInsightsProp
     }
   });
 
-  if (bestCampaign) {
-    const campaign = bestCampaign.campaign;
-    if (campaign) {
-      const campaignName = campaign.name || 'Campanha sem nome';
+  // Verifica se há melhor campanha e se tem nome
+  if (bestCampaign !== null) {
+    const campaign = (bestCampaign as CampaignData).campaign;
+    if (campaign && campaign.name) {
+      const campaignName = campaign.name;
       insights.push({
         type: 'success',
         title: 'Oportunidade de investimento',
