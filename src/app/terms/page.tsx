@@ -437,7 +437,7 @@ const translations = {
         address: 'Rua Manoel Ferreira Gomes, número 55, Matinhos - PR, Brasil',
         hours: 'Segunda a domingo, das 8:00 às 18:00',
       },
-      acceptance: {
+      finalAcceptance: {
         title: '20. ACEITAÇÃO',
         description: 'Ao utilizar o AdvoSoft, você declara que:',
         items: [
@@ -857,7 +857,7 @@ const translations = {
         address: 'Rua Manoel Ferreira Gomes, número 55, Matinhos - PR, Brasil',
         hours: 'Monday to Sunday, 8:00 AM to 6:00 PM',
       },
-      acceptance: {
+      finalAcceptance: {
         title: '20. ACCEPTANCE',
         description: 'By using AdvoSoft, you declare that:',
         items: [
@@ -1306,14 +1306,14 @@ export default function TermsPage() {
 
             {/* 20. ACEITAÇÃO */}
             <section className="mb-8">
-              <h2 className="text-2xl font-bold text-slate-900 dark:text-white mb-4">{t.sections.acceptance.title}</h2>
-              <p className="text-slate-700 dark:text-slate-300 leading-relaxed mb-3">{t.sections.acceptance.description}</p>
+              <h2 className="text-2xl font-bold text-slate-900 dark:text-white mb-4">{t.sections.finalAcceptance.title}</h2>
+              <p className="text-slate-700 dark:text-slate-300 leading-relaxed mb-3">{t.sections.finalAcceptance.description}</p>
               <ul className="list-disc list-inside space-y-2 text-slate-700 dark:text-slate-300 ml-4 mb-4">
-                {t.sections.acceptance.items.map((item, idx) => (
+                {t.sections.finalAcceptance.items.map((item, idx) => (
                   <li key={idx}>{item}</li>
                 ))}
               </ul>
-              <p className="text-slate-700 dark:text-slate-300 leading-relaxed">{t.sections.acceptance.final}</p>
+              <p className="text-slate-700 dark:text-slate-300 leading-relaxed">{t.sections.finalAcceptance.final}</p>
             </section>
           </div>
         </div>
