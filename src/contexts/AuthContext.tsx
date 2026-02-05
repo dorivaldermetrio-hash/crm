@@ -28,7 +28,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const pathname = usePathname();
 
   // Rotas públicas que não precisam de autenticação
-  const publicRoutes = ['/login', '/api'];
+  const publicRoutes = ['/login', '/api', '/privacy', '/terms'];
 
   const isPublicRoute = (path: string) => {
     return publicRoutes.some(route => path.startsWith(route));

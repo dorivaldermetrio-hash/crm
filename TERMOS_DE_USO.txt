@@ -1,0 +1,312 @@
+TERMOS DE USO
+AdvoSoft - Sistema de Gerenciamento de Relacionamento com Clientes
+
+Última atualização: 15 de janeiro de 2025
+
+1. ACEITAÇÃO DOS TERMOS
+
+Ao acessar e utilizar o AdvoSoft, você concorda em cumprir e estar vinculado aos seguintes Termos de Uso. Se você não concordar com qualquer parte destes termos, não deve utilizar nossos serviços.
+
+Estes Termos de Uso, juntamente com nossa Política de Privacidade, regem sua relação conosco em relação ao uso da plataforma AdvoSoft.
+
+2. DESCRIÇÃO DO SERVIÇO
+
+O AdvoSoft é uma plataforma de CRM (Customer Relationship Management) que oferece as seguintes funcionalidades:
+
+2.1. Funcionalidades Principais
+- Gerenciamento de conversas via WhatsApp Business API
+- Gerenciamento de mensagens diretas do Instagram
+- Atendimento automatizado com Inteligência Artificial
+- Gerenciamento de contatos e clientes
+- Criação e gerenciamento de agendamentos
+- Sincronização com Google Calendar
+- Campanhas de marketing via WhatsApp e Email
+- Gerenciamento de produtos e serviços
+- Integração com Google Ads para gestão de campanhas publicitárias
+- Geração de relatórios e análises
+- Dashboard com métricas e insights
+
+2.2. Tecnologias Utilizadas
+- Next.js (framework web)
+- MongoDB (banco de dados)
+- Integração com APIs do Google (Calendar e Ads)
+- Integração com WhatsApp Business API
+- Integração com Instagram Graph API
+- Processamento de IA (Ollama e/ou OpenAI)
+- Cloudinary (armazenamento de mídias)
+
+3. CADASTRO E CONTA DE USUÁRIO
+
+3.1. Requisitos para Cadastro
+Para utilizar o AdvoSoft, você deve:
+- Ter pelo menos 18 anos de idade
+- Fornecer informações verdadeiras, precisas e completas
+- Manter e atualizar suas informações de cadastro
+- Ser responsável pela segurança de sua conta e senha
+- Notificar-nos imediatamente sobre qualquer uso não autorizado de sua conta
+
+3.2. Autenticação
+O acesso ao sistema é realizado através de autenticação OAuth com Google. Você é responsável por manter a segurança de suas credenciais de acesso.
+
+3.3. Conta Individual
+Cada conta é pessoal e intransferível. Você não pode compartilhar, transferir ou vender sua conta para terceiros.
+
+4. USO DO SERVIÇO
+
+4.1. Uso Permitido
+Você concorda em utilizar o AdvoSoft apenas para fins legais e de acordo com estes Termos de Uso. Você pode:
+- Gerenciar seus contatos e conversas
+- Criar e gerenciar agendamentos
+- Enviar campanhas de marketing (respeitando as leis aplicáveis)
+- Utilizar as funcionalidades de IA para atendimento automatizado
+- Integrar com serviços de terceiros autorizados (Google Calendar, Google Ads)
+
+4.2. Uso Proibido
+Você concorda em NÃO utilizar o AdvoSoft para:
+- Qualquer atividade ilegal ou não autorizada
+- Enviar spam, mensagens não solicitadas ou conteúdo abusivo
+- Violar direitos de propriedade intelectual de terceiros
+- Interferir ou interromper o funcionamento do serviço
+- Tentar acessar áreas restritas do sistema
+- Usar bots, scripts ou métodos automatizados não autorizados
+- Compartilhar credenciais de acesso com terceiros
+- Realizar engenharia reversa ou tentar extrair o código-fonte
+- Transmitir vírus, malware ou código malicioso
+- Coletar dados de outros usuários sem autorização
+- Utilizar o serviço de forma que possa danificar, sobrecarregar ou comprometer nossos servidores
+
+4.3. Responsabilidade pelo Conteúdo
+Você é o único responsável por todo o conteúdo que criar, enviar, publicar ou transmitir através do AdvoSoft, incluindo:
+- Mensagens enviadas via WhatsApp e Instagram
+- Dados de contatos e clientes
+- Conteúdo de campanhas de marketing
+- Informações de agendamentos
+- Qualquer outro conteúdo gerado ou armazenado na plataforma
+
+O Usuário (Advogado) é o único responsável por garantir que o uso das ferramentas de automação, marketing e envio de mensagens em massa esteja em conformidade com o Código de Ética e Disciplina da OAB e provimentos vigentes sobre publicidade jurídica.
+
+5. INTEGRAÇÕES E SERVIÇOS DE TERCEIROS
+
+5.1. Integração com WhatsApp Business API
+- Você deve possuir uma conta válida do WhatsApp Business API
+- É sua responsabilidade manter as credenciais de acesso atualizadas
+- O uso do WhatsApp Business API está sujeito aos Termos de Serviço do WhatsApp/Meta
+- Você é responsável por cumprir as políticas do WhatsApp relacionadas ao envio de mensagens
+
+5.2. Integração com Instagram
+- Você deve possuir uma conta válida do Instagram Business
+- O uso do Instagram Graph API está sujeito aos Termos de Serviço do Instagram/Meta
+- Você é responsável por cumprir as políticas do Instagram
+
+5.3. Integração com Google Services
+- Google Calendar: Para sincronização de agendamentos
+- Google Ads: Para gestão de campanhas publicitárias
+- O uso está sujeito aos Termos de Serviço do Google
+- Você deve cumprir a Política de Dados do Usuário dos Serviços de API do Google
+- Dados do Google não são compartilhados com IAs de terceiros para treinamento
+
+O AdvoSoft declara que o uso de informações recebidas das APIs do Google Ads adere à Política de Dados do Usuário dos Serviços de API do Google, não utilizando dados de campanhas para treinamento de modelos de IA de terceiros ou comercialização com parceiros.
+
+5.4. Outras Integrações
+- Cloudinary: Para armazenamento de mídias
+- MongoDB: Para armazenamento de dados
+- Serviços de email (SMTP): Para envio de campanhas
+
+6. INTELIGÊNCIA ARTIFICIAL
+
+6.1. Respostas Automáticas
+O AdvoSoft utiliza Inteligência Artificial para gerar respostas automáticas. Você entende e concorda que:
+- As respostas são geradas automaticamente e podem conter erros
+- Você é responsável por revisar e aprovar respostas antes do envio (quando aplicável)
+- A qualidade das respostas depende da configuração dos prompts e do contexto fornecido
+- Não garantimos precisão absoluta nas respostas geradas
+
+6.2. Modelos de IA
+O sistema pode utilizar:
+- Ollama (processamento local)
+- OpenAI (processamento em nuvem)
+
+6.3. Limitação de Responsabilidade
+Não nos responsabilizamos por:
+- Respostas inadequadas ou incorretas geradas pela IA
+- Consequências decorrentes do uso de respostas automáticas
+- Perda de dados ou informações devido a falhas no processamento de IA
+
+A Inteligência Artificial pode gerar informações imprecisas sobre prazos, leis ou jurisprudências ("alucinações"). O sistema AdvoSoft é uma ferramenta de suporte, e o Advogado deve revisar toda e qualquer informação jurídica ou agendamento gerado pela IA, sendo o único responsável técnico por tais informações perante seus clientes.
+
+7. PROPRIEDADE INTELECTUAL
+
+7.1. Propriedade do AdvoSoft
+Todo o conteúdo, funcionalidades, design, código, marcas, logotipos e outros elementos do AdvoSoft são de nossa propriedade ou licenciados para nós. Estes materiais estão protegidos por leis de direitos autorais, marcas registradas e outras leis de propriedade intelectual.
+
+7.2. Seus Dados
+Você mantém todos os direitos sobre os dados que você cria, envia ou armazena no AdvoSoft. Ao utilizar o serviço, você nos concede uma licença limitada, não exclusiva e revogável para:
+- Armazenar seus dados em nossos servidores
+- Processar seus dados para fornecer os serviços
+- Fazer backup e manter cópias de segurança dos seus dados
+
+7.3. Feedback e Sugestões
+Qualquer feedback, sugestão ou ideia que você fornecer sobre o AdvoSoft pode ser usado por nós sem qualquer obrigação de compensação.
+
+8. PAGAMENTOS E ASSINATURAS
+
+8.1. Planos e Preços
+O AdvoSoft pode oferecer diferentes planos de assinatura. Os preços, recursos e condições de cada plano estão disponíveis na plataforma e podem ser alterados a qualquer momento.
+
+8.2. Renovação Automática
+Se você possui uma assinatura paga, ela pode ser renovada automaticamente no final de cada período de cobrança, a menos que você cancele antes da data de renovação.
+
+8.3. Reembolsos
+Políticas de reembolso, quando aplicáveis, serão comunicadas no momento da compra ou conforme especificado em contrato específico.
+
+9. DISPONIBILIDADE DO SERVIÇO
+
+9.1. Manutenção e Interrupções
+Reservamo-nos o direito de:
+- Realizar manutenções programadas ou de emergência
+- Interromper temporariamente o serviço quando necessário
+- Modificar, suspender ou descontinuar qualquer funcionalidade
+
+9.2. Sem Garantias
+O AdvoSoft é fornecido "como está" e "conforme disponível". Não garantimos que:
+- O serviço estará sempre disponível ou livre de erros
+- Os resultados obtidos serão precisos ou confiáveis
+- Qualquer defeito será corrigido
+- O serviço atenderá a todas as suas necessidades
+
+10. LIMITAÇÃO DE RESPONSABILIDADE
+
+10.1. Exclusão de Danos
+Na máxima extensão permitida por lei, não seremos responsáveis por:
+- Danos diretos, indiretos, incidentais, especiais ou consequenciais
+- Perda de lucros, receita, dados ou oportunidades de negócio
+- Interrupção de negócios ou perda de informações
+- Danos resultantes do uso ou incapacidade de usar o serviço
+- Problemas decorrentes de integrações com serviços de terceiros
+- Ações ou omissões de terceiros
+
+10.2. Limitação de Valor
+Nossa responsabilidade total, em qualquer caso, não excederá o valor pago por você pelos serviços nos últimos 12 meses.
+
+11. INDENIZAÇÃO
+
+Você concorda em indenizar, defender e isentar o AdvoSoft, seus diretores, funcionários e parceiros de qualquer reclamação, dano, obrigação, perda, responsabilidade, custo ou despesa (incluindo honorários advocatícios) decorrentes de:
+- Seu uso do serviço
+- Violação destes Termos de Uso
+- Violação de direitos de terceiros
+- Conteúdo que você criar, enviar ou transmitir através do serviço
+
+12. PRIVACIDADE E PROTEÇÃO DE DADOS
+
+12.1. Política de Privacidade
+O uso do AdvoSoft também está sujeito à nossa Política de Privacidade, que descreve como coletamos, usamos e protegemos seus dados pessoais. Ao utilizar o serviço, você concorda com nossa Política de Privacidade.
+
+12.2. Conformidade com LGPD
+Nos comprometemos a cumprir a Lei Geral de Proteção de Dados (LGPD - Lei nº 13.709/2018) e outras leis aplicáveis de proteção de dados.
+
+13. MODIFICAÇÕES DOS TERMOS
+
+13.1. Direito de Modificar
+Reservamo-nos o direito de modificar estes Termos de Uso a qualquer momento. Alterações significativas serão comunicadas através de:
+- Notificação na plataforma
+- Email para usuários cadastrados
+- Atualização da data de "Última atualização" no início deste documento
+
+13.2. Continuidade do Uso
+O uso continuado do AdvoSoft após as modificações constitui sua aceitação dos novos termos. Se você não concordar com as modificações, deve cessar o uso do serviço.
+
+14. CANCELAMENTO E RESCISÃO
+
+14.1. Cancelamento por Você
+Você pode cancelar sua conta a qualquer momento através das configurações da plataforma ou entrando em contato conosco.
+
+14.2. Rescisão por Nós
+Podemos suspender ou encerrar sua conta imediatamente, sem aviso prévio, se você:
+- Violar estes Termos de Uso
+- Usar o serviço de forma fraudulenta ou ilegal
+- Não pagar taxas devidas (quando aplicável)
+- Criar risco ou exposição legal para nós
+- Violar políticas de serviços de terceiros integrados
+
+14.3. Efeitos da Rescisão
+Após a rescisão:
+- Seu acesso ao serviço será imediatamente encerrado
+- Você pode solicitar uma cópia dos seus dados (conforme permitido por lei)
+- Dados podem ser excluídos após período de retenção legal
+- Disposições que por sua natureza devem sobreviver permanecerão em vigor
+
+15. DADOS E BACKUP
+
+15.1. Responsabilidade pelos Dados
+Você é responsável por manter backups dos seus dados importantes. Embora façamos backups regulares, não garantimos a recuperação de dados em caso de perda.
+
+15.2. Retenção de Dados
+Mantemos seus dados pelo tempo necessário para fornecer os serviços e cumprir obrigações legais. Após o cancelamento, podemos reter dados conforme exigido por lei.
+
+16. COMUNICAÇÕES
+
+16.1. Notificações
+Ao utilizar o AdvoSoft, você concorda em receber comunicações eletrônicas de nossa parte, incluindo:
+- Notificações sobre o serviço
+- Atualizações de segurança
+- Informações sobre sua conta
+- Comunicações de marketing (você pode optar por não receber)
+
+16.2. Forma de Comunicação
+As comunicações serão enviadas para o endereço de email associado à sua conta ou através de notificações na plataforma.
+
+17. DISPUTAS E LEI APLICÁVEL
+
+17.1. Lei Aplicável
+Estes Termos de Uso são regidos pelas leis do Brasil, especialmente:
+- Código de Defesa do Consumidor (Lei nº 8.078/1990)
+- Marco Civil da Internet (Lei nº 12.965/2014)
+- Lei Geral de Proteção de Dados (LGPD - Lei nº 13.709/2018)
+
+17.2. Resolução de Disputas
+Em caso de disputas, as partes se comprometem a tentar resolver amigavelmente. Se não for possível, as disputas serão resolvidas:
+- Primeiro, através de mediação (quando aplicável)
+- Posteriormente, pelos tribunais competentes de Matinhos - PR, Brasil
+
+18. DISPOSIÇÕES GERAIS
+
+18.1. Integralidade do Acordo
+Estes Termos de Uso, juntamente com a Política de Privacidade, constituem o acordo completo entre você e o AdvoSoft em relação ao uso do serviço.
+
+18.2. Divisibilidade
+Se qualquer disposição destes termos for considerada inválida ou inexequível, as demais disposições permanecerão em pleno vigor.
+
+18.3. Renúncia
+A falha em exercer qualquer direito ou disposição destes termos não constitui uma renúncia a tal direito ou disposição.
+
+18.4. Cessão
+Você não pode ceder ou transferir estes termos sem nosso consentimento prévio por escrito. Podemos ceder estes termos a qualquer momento.
+
+18.5. Força Maior
+Não seremos responsáveis por falhas ou atrasos no desempenho resultantes de circunstâncias além de nosso controle razoável, incluindo desastres naturais, guerra, terrorismo, greves ou falhas de infraestrutura.
+
+19. CONTATO
+
+Para questões relacionadas a estes Termos de Uso, entre em contato conosco:
+
+Email: renato.devmaximiano@gmail.com
+Telefone: +55 41 8728-0741
+Endereço: Rua Manoel Ferreira Gomes, número 55, Matinhos - PR, Brasil
+
+Horário de atendimento: Segunda a domingo, das 8:00 às 18:00
+
+20. ACEITAÇÃO
+
+Ao utilizar o AdvoSoft, você declara que:
+- Leu e compreendeu estes Termos de Uso
+- Concorda em estar vinculado por estes termos
+- Tem capacidade legal para celebrar este acordo
+- Não está violando nenhuma lei ou regulamento ao utilizar o serviço
+
+Se você não concordar com estes termos, por favor, não utilize o AdvoSoft.
+
+---
+
+FIM DOS TERMOS DE USO
+
+© 2025 AdvoSoft. Todos os direitos reservados.

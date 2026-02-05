@@ -2,6 +2,7 @@
 
 import { useEffect, useState, Suspense } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
+import Link from 'next/link';
 import AnimatedLogo from '@/components/AnimatedLogo';
 import { useAuth } from '@/contexts/AuthContext';
 
@@ -149,19 +150,19 @@ function LoginContent() {
               {/* Link para Política e Termos */}
               <p className="text-sm text-white/80 text-center drop-shadow-sm">
                 Ao entrar, você concorda com nossa{' '}
-                <a 
-                  href="#" 
+                <Link 
+                  href="/privacy" 
                   className="text-blue-200 hover:text-blue-100 underline transition-colors font-medium"
                 >
                   Política de Privacidade
-                </a>
+                </Link>
                 {' '}e{' '}
-                <a 
-                  href="#" 
+                <Link 
+                  href="/terms" 
                   className="text-blue-200 hover:text-blue-100 underline transition-colors font-medium"
                 >
                   Termos de Uso
-                </a>
+                </Link>
               </p>
             </div>
           </div>

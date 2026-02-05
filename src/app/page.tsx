@@ -3,7 +3,9 @@
 import { useEffect, useState } from 'react';
 import Sidebar from '@/components/Sidebar';
 import { useSidebar } from '@/contexts/SidebarContext';
+import { useAuth } from '@/contexts/AuthContext';
 import { useServerEvents, ServerEvent } from '@/hooks/useServerEvents';
+import AnimatedLogo from '@/components/AnimatedLogo';
 import {
   HiOutlineUserGroup,
   HiOutlineChatBubbleLeftRight,
@@ -76,6 +78,7 @@ interface DashboardData {
 
 export default function DashboardPage() {
   const { isOpen, isMobile } = useSidebar();
+  const { isLoading: authLoading, isAuthenticated } = useAuth();
   const [data, setData] = useState<DashboardData | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -154,6 +157,51 @@ export default function DashboardPage() {
     };
     return colors[status] || 'bg-slate-100 text-slate-700 dark:bg-slate-700 dark:text-slate-300';
   };
+
+  // Mostra apenas loading enquanto verifica autenticação
+  if (authLoading) {
+    return (
+      <div className="flex min-h-screen bg-slate-50 dark:bg-slate-900 items-center justify-center relative overflow-hidden">
+        {/* Animação circular de loading ao redor */}
+        <div className="absolute inset-0 flex items-center justify-center">
+          <div className="w-96 h-96 border-4 border-blue-500/20 border-t-blue-500 rounded-full animate-spin" style={{ animationDuration: '2s' }} />
+        </div>
+        <div className="absolute inset-0 flex items-center justify-center">
+          <div className="w-80 h-80 border-4 border-purple-500/20 border-t-purple-500 rounded-full animate-spin" style={{ animationDuration: '1.5s', animationDirection: 'reverse' }} />
+        </div>
+        <div className="absolute inset-0 flex items-center justify-center">
+          <div className="w-64 h-64 border-4 border-pink-500/20 border-t-pink-500 rounded-full animate-spin" style={{ animationDuration: '1s' }} />
+        </div>
+        
+        {/* Logo e Nome no centro */}
+        <div className="relative z-10 flex flex-col items-center justify-center">
+          {/* Logo */}
+          <div className="mb-0">
+            <AnimatedLogo
+              className="w-40 h-40 md:w-48 md:h-48 lg:w-56 lg:h-56"
+              strokeWidth={3}
+            />
+          </div>
+          
+          {/* Nome do Sistema */}
+          <h1 className="text-3xl md:text-4xl lg:text-5xl font-bold tracking-tight text-center text-slate-900 dark:text-white -mt-12 md:-mt-14 lg:-mt-16">
+            AdvoSoft
+          </h1>
+          
+          {/* Subtítulo */}
+          <p className="text-xl md:text-2xl lg:text-3xl font-medium text-center mt-2 text-slate-600 dark:text-slate-400">
+            Assistant
+          </p>
+        </div>
+      </div>
+    );
+  }
+
+  // Se não estiver autenticado, o AuthContext já redireciona para /login
+  // Mas por segurança, também verificamos aqui
+  if (!isAuthenticated) {
+    return null; // O AuthContext vai redirecionar
+  }
 
   return (
     <div className="flex min-h-screen bg-slate-50 dark:bg-slate-900 overflow-x-hidden">

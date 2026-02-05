@@ -1,0 +1,285 @@
+POLÍTICA DE PRIVACIDADE
+AdvoSoft - Sistema de Gerenciamento de Relacionamento com Clientes
+
+Última atualização: 15 de janeiro de 2025
+
+1. INTRODUÇÃO
+
+Esta Política de Privacidade descreve como coletamos, usamos, armazenamos e protegemos suas informações pessoais quando você utiliza nosso sistema de CRM (Customer Relationship Management) para gerenciamento de conversas e atendimento via WhatsApp Business API e Instagram Direct Messages.
+
+Ao utilizar nossos serviços, você concorda com a coleta e uso de informações de acordo com esta política. Esta política está em conformidade com a Lei Geral de Proteção de Dados (LGPD - Lei nº 13.709/2018) e demais legislações aplicáveis.
+
+2. DADOS COLETADOS
+
+2.1. Dados de Contatos e Clientes
+Coletamos e armazenamos as seguintes informações sobre contatos e clientes que interagem conosco através do WhatsApp e Instagram:
+
+- Número de telefone (WhatsApp) ou identificador do Instagram
+- Nome do contato/cliente
+- Histórico completo de mensagens trocadas (texto, áudio, imagem, vídeo, documentos)
+- Transcrições de mensagens de áudio (quando aplicável)
+- Data e hora de cada mensagem
+- Status do contato no funil de vendas/atendimento
+- Tags e categorizações (Urgente, Importante, Cliente, Prospecto, etc.)
+- Notas e informações adicionais do caso
+- Nome completo (quando fornecido)
+- Resumo do caso ou situação
+- Informações sobre produtos ou serviços de interesse
+- Dados de agendamentos (nome, data, horário, duração, notas)
+
+2.2. Dados de Usuários do Sistema
+Para usuários que acessam a plataforma CRM, coletamos:
+
+- Email (através de autenticação OAuth com Google)
+- Nome completo
+- Foto de perfil (quando disponível)
+- Tokens de autenticação e sessão
+- Preferências de uso do sistema
+
+2.3. Dados de Integrações
+- Credenciais de acesso para integrações (Google Calendar, Google Ads)
+- Dados sincronizados de calendários (eventos, agendamentos)
+- Dados de campanhas publicitárias (quando aplicável)
+- Informações de contas vinculadas
+
+2.4. Dados Técnicos
+- Endereço IP
+- Tipo de navegador e dispositivo
+- Logs de acesso e uso do sistema
+- Cookies e tecnologias similares
+- Dados de performance e erros do sistema
+
+3. FINALIDADE DO USO DOS DADOS
+
+Utilizamos os dados coletados para as seguintes finalidades:
+
+3.1. Prestação de Serviços
+- Gerenciamento de conversas e atendimento ao cliente
+- Armazenamento e organização do histórico de comunicações
+- Processamento e resposta automática de mensagens através de Inteligência Artificial
+- Criação e gerenciamento de agendamentos
+- Sincronização com calendários (Google Calendar)
+- Envio de campanhas de marketing via WhatsApp e Email
+- Gerenciamento de produtos e serviços
+- Geração de relatórios e análises
+
+3.2. Melhoria dos Serviços
+- Análise de padrões de comunicação
+- Otimização de respostas automáticas
+- Melhoria da experiência do usuário
+- Desenvolvimento de novas funcionalidades
+
+3.3. Conformidade Legal
+- Cumprimento de obrigações legais e regulatórias
+- Resposta a solicitações de autoridades competentes
+- Proteção de direitos e segurança
+
+4. BASE LEGAL PARA PROCESSAMENTO
+
+O processamento de dados pessoais é realizado com base nas seguintes hipóteses legais previstas na LGPD:
+
+- Execução de contrato ou procedimentos preliminares (Art. 7º, V)
+- Cumprimento de obrigação legal ou regulatória (Art. 7º, II)
+- Legítimo interesse (Art. 7º, IX)
+- Consentimento do titular (Art. 7º, I)
+
+5. COMPARTILHAMENTO DE DADOS
+
+5.1. Prestadores de Serviços
+Compartilhamos dados com os seguintes prestadores de serviço, que atuam como operadores de dados:
+
+- MongoDB (armazenamento de dados)
+- Google Cloud Platform (autenticação, Google Calendar, Google Ads)
+- Meta/Facebook (WhatsApp Business API, Instagram Graph API)
+- Cloudinary (armazenamento de imagens e mídias)
+- Ollama (processamento de IA local, quando aplicável)
+- OpenAI (processamento de IA, quando configurado)
+
+5.2. Integrações Autorizadas
+- Google Calendar: para sincronização de agendamentos
+- Google Ads: para gerenciamento de campanhas publicitárias
+- Serviços de email (SMTP): para envio de campanhas
+
+5.3. Requisições Legais
+Podemos compartilhar dados quando exigido por lei, ordem judicial ou solicitação de autoridade competente.
+
+5.4. Transferências Internacionais
+Alguns dados podem ser processados e armazenados em servidores localizados fora do Brasil. Nesses casos, garantimos que os prestadores de serviço adotem medidas adequadas de proteção de dados.
+
+6. USO DE DADOS DE APIs DO GOOGLE
+
+O AdvoSoft utiliza as APIs do Google para fornecer funcionalidades de gerenciamento de campanhas publicitárias (Google Ads) e organização de agenda (Google Calendar).
+
+6.1. Uso Limitado (Limited Use)
+O uso e a transferência de informações recebidas das APIs do Google para qualquer outro aplicativo obedecerão à Política de Dados do Usuário dos Serviços de API do Google, incluindo os requisitos de Uso Limitado.
+
+6.2. Finalidade Específica - Google Ads
+Os dados do Google Ads (métricas, termos de pesquisa e campanhas) são acessados estritamente para visualização e gestão pelo usuário dentro do CRM. Esses dados não são compartilhados com modelos de inteligência artificial de terceiros (como OpenAI) para fins de treinamento, nem são vendidos ou utilizados para traçar perfis de usuários fora do contexto da própria conta do advogado.
+
+6.3. Finalidade Específica - Google Calendar
+O acesso à agenda destina-se exclusivamente à criação e edição de eventos de agendamento solicitados pelo usuário através da automação de atendimento. Os dados do calendário são utilizados apenas para sincronização de agendamentos e não são compartilhados com terceiros ou utilizados para outros fins além da gestão de agenda do próprio usuário.
+
+7. SEGURANÇA DOS DADOS
+
+Implementamos medidas técnicas e organizacionais para proteger seus dados pessoais:
+
+- Criptografia de dados em trânsito (HTTPS/TLS)
+- Criptografia de dados sensíveis em repouso
+- Controle de acesso baseado em autenticação
+- Monitoramento de segurança e detecção de anomalias
+- Backups regulares e planos de recuperação
+- Restrições de acesso baseadas em necessidade de conhecimento
+- Atualizações regulares de segurança
+
+8. RETENÇÃO DE DADOS
+
+Mantemos os dados pessoais pelo tempo necessário para:
+
+- Cumprir as finalidades descritas nesta política
+- Atender a obrigações legais, contratuais ou regulatórias
+- Resolver disputas e fazer cumprir nossos acordos
+
+Após o término do período de retenção, os dados serão excluídos ou anonimizados de forma segura, exceto quando a retenção for exigida por lei.
+
+9. INTELIGÊNCIA ARTIFICIAL E AUTOMAÇÃO
+
+9.1. Respostas Automáticas
+Utilizamos Inteligência Artificial (IA) para gerar respostas automáticas às mensagens recebidas. Os modelos de IA podem ser:
+
+- Ollama (processamento local)
+- OpenAI (processamento em nuvem)
+
+As respostas são geradas com base em:
+- Histórico de conversas
+- Prompts configuráveis
+- Contexto do atendimento
+- Informações do contato
+
+9.2. Processamento de Áudio
+Mensagens de áudio podem ser transcritas automaticamente usando tecnologias de reconhecimento de voz para facilitar o processamento e resposta.
+
+9.3. Análise e Melhoria
+Utilizamos os dados de interação para melhorar continuamente a qualidade das respostas automáticas e do atendimento.
+
+10. COOKIES E TECNOLOGIAS SIMILARES
+
+Utilizamos cookies e tecnologias similares para:
+
+- Manter sessões de usuário autenticadas
+- Armazenar preferências do usuário
+- Melhorar a performance e funcionalidade do sistema
+- Coletar dados analíticos (de forma anonimizada)
+
+Você pode gerenciar as preferências de cookies através das configurações do seu navegador.
+
+11. DIREITOS DO TITULAR DOS DADOS
+
+De acordo com a LGPD, você possui os seguintes direitos:
+
+11.1. Confirmação e Acesso
+Direito de obter confirmação sobre o tratamento de dados e acesso aos dados pessoais.
+
+11.2. Correção
+Direito de solicitar a correção de dados incompletos, inexatos ou desatualizados.
+
+11.3. Anonimização, Bloqueio ou Eliminação
+Direito de solicitar a anonimização, bloqueio ou eliminação de dados desnecessários, excessivos ou tratados em desconformidade com a LGPD.
+
+11.4. Portabilidade
+Direito de solicitar a portabilidade dos dados para outro fornecedor de serviço.
+
+11.5. Eliminação
+Direito de solicitar a eliminação dos dados pessoais tratados com base no consentimento.
+
+11.6. Informação sobre Compartilhamento
+Direito de obter informações sobre entidades públicas e privadas com as quais compartilhamos dados.
+
+11.7. Revogação do Consentimento
+Direito de revogar o consentimento a qualquer momento.
+
+11.8. Oposição
+Direito de se opor ao tratamento de dados em determinadas circunstâncias.
+
+Para exercer seus direitos, entre em contato conosco através dos canais indicados na seção "Contato" desta política.
+
+12. MENORES DE IDADE
+
+Nossos serviços não são direcionados a menores de 18 anos. Não coletamos intencionalmente dados pessoais de menores. Se tomarmos conhecimento de que coletamos dados de um menor sem o consentimento adequado, tomaremos medidas para excluir essas informações.
+
+13. ALTERAÇÕES NESTA POLÍTICA
+
+Podemos atualizar esta Política de Privacidade periodicamente. Notificaremos sobre alterações significativas através de:
+
+- Aviso em nosso sistema
+- Email para usuários cadastrados
+- Atualização da data de "Última atualização" no início desta política
+
+Recomendamos que você revise esta política periodicamente para se manter informado sobre como protegemos seus dados.
+
+14. ENCARREGADO DE PROTEÇÃO DE DADOS (DPO)
+
+Para questões relacionadas à proteção de dados pessoais, você pode entrar em contato com nosso Encarregado de Proteção de Dados (DPO) através dos canais indicados na seção "Contato".
+
+15. CONTATO
+
+Para exercer seus direitos, fazer perguntas sobre esta política ou reportar preocupações relacionadas à privacidade, entre em contato conosco:
+
+Email: renato.devmaximiano@gmail.com
+Telefone: +55 41 8728-0741
+Endereço: Rua Manoel Ferreira Gomes, número 55, Matinhos - PR, Brasil
+
+Horário de atendimento: Segunda a domingo, das 8:00 às 18:00
+
+16. LEGISLAÇÃO APLICÁVEL
+
+Esta política é regida pela legislação brasileira, especialmente pela Lei Geral de Proteção de Dados (LGPD - Lei nº 13.709/2018) e pelo Marco Civil da Internet (Lei nº 12.965/2014).
+
+17. CONSENTIMENTO
+
+Ao utilizar nossos serviços, você declara ter lido, compreendido e concordado com esta Política de Privacidade. Se você não concordar com esta política, por favor, não utilize nossos serviços.
+
+---
+
+ANEXO: DETALHAMENTO TÉCNICO
+
+A. Dados Coletados via WhatsApp Business API
+- wa_id (identificador único do WhatsApp)
+- Nome do perfil do WhatsApp
+- Conteúdo das mensagens (texto, mídias)
+- Metadados das mensagens (timestamp, tipo, IDs)
+- Status de entrega e leitura (quando disponível)
+
+B. Dados Coletados via Instagram Graph API
+- Instagram ID
+- Username do Instagram
+- Conteúdo das mensagens diretas
+- Metadados das mensagens
+
+C. Armazenamento
+- Banco de dados: MongoDB (coleção: crm-db)
+- Mídias: Cloudinary e GridFS (MongoDB)
+- Logs: Armazenados de forma segura e com retenção limitada
+
+D. Processamento de IA
+- Modelos utilizados: Ollama (llama3.1:8b) ou OpenAI (gpt-4o-mini)
+- Processamento: Local (Ollama) ou em nuvem (OpenAI)
+- Dados processados: Histórico de conversas, contexto do atendimento
+- Retenção de contexto: Durante a sessão de atendimento
+
+E. Integrações de Terceiros
+- Google Calendar: Sincronização de agendamentos (OAuth 2.0)
+- Google Ads: Gerenciamento de campanhas (OAuth 2.0)
+- Cloudinary: Armazenamento de imagens
+- Meta/Facebook: WhatsApp Business API e Instagram Graph API
+
+F. Medidas de Segurança Técnicas
+- Autenticação OAuth 2.0
+- Tokens de acesso com expiração
+- Validação de webhooks
+- Rate limiting
+- Sanitização de inputs
+- Validação de dados
+
+---
+
+FIM DA POLÍTICA DE PRIVACIDADE
