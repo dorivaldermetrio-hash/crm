@@ -21,6 +21,7 @@ import GoogleAdsDashboard from '@/components/GoogleAdsDashboard';
 import CampaignsTable from '@/components/CampaignsTable';
 import CampaignInsights from '@/components/CampaignInsights';
 import SearchTermsTable from '@/components/SearchTermsTable';
+import AnimatedLogo from '@/components/AnimatedLogo';
 
 export default function GoogleAdsPage() {
   const { isOpen, isMobile } = useSidebar();
@@ -493,21 +494,45 @@ export default function GoogleAdsPage() {
   };
 
   return (
-    <div className="flex min-h-screen bg-slate-50 dark:bg-slate-900 overflow-x-hidden relative">
-      <Sidebar />
-      
+    <>
       {/* Loading Overlay Global - Aparece enquanto carrega os dados */}
       {isLoadingCampaigns && (
-        <div className="fixed inset-0 bg-slate-900/50 dark:bg-slate-900/70 backdrop-blur-sm z-50 flex items-center justify-center">
-          <div className="bg-white dark:bg-slate-800 rounded-2xl p-8 sm:p-12 shadow-2xl max-w-md w-full mx-4 border border-slate-200 dark:border-slate-700">
-            <div className="flex flex-col items-center justify-center space-y-6">
-              {/* Spinner Elegante */}
-              <div className="relative">
-                <div className="animate-spin rounded-full h-20 w-20 border-4 border-slate-200 dark:border-slate-700"></div>
-                <div className="animate-spin rounded-full h-20 w-20 border-t-4 border-blue-600 absolute top-0 left-0"></div>
+        <div className="fixed inset-0 bg-slate-900/50 dark:bg-slate-900/70 backdrop-blur-sm z-[9999] flex items-center justify-center" style={{ top: 0, left: 0, right: 0, bottom: 0, position: 'fixed' }}>
+          <div className="bg-white dark:bg-slate-800 rounded-2xl p-8 sm:p-12 shadow-2xl max-w-md w-full mx-4 border border-slate-200 dark:border-slate-700 relative overflow-hidden">
+            {/* Animação circular de loading ao redor */}
+            <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
+              <div className="w-96 h-96 border-4 border-blue-500/20 border-t-blue-500 rounded-full animate-spin" style={{ animationDuration: '2s' }} />
+            </div>
+            <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
+              <div className="w-80 h-80 border-4 border-purple-500/20 border-t-purple-500 rounded-full animate-spin" style={{ animationDuration: '1.5s', animationDirection: 'reverse' }} />
+            </div>
+            <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
+              <div className="w-64 h-64 border-4 border-pink-500/20 border-t-pink-500 rounded-full animate-spin" style={{ animationDuration: '1s' }} />
+            </div>
+            
+            <div className="relative z-10 flex flex-col items-center justify-center space-y-6">
+              {/* Logo e Nome no centro */}
+              <div className="flex flex-col items-center justify-center">
+                {/* Logo */}
+                <div className="mb-0">
+                  <AnimatedLogo
+                    className="w-32 h-32 md:w-40 md:h-40 lg:w-48 lg:h-48"
+                    strokeWidth={3}
+                  />
+                </div>
+                
+                {/* Nome do Sistema */}
+                <h1 className="text-2xl md:text-3xl lg:text-4xl font-bold tracking-tight text-center text-slate-900 dark:text-white -mt-10 md:-mt-12 lg:-mt-14">
+                  AdvoSoft
+                </h1>
+                
+                {/* Subtítulo */}
+                <p className="text-lg md:text-xl lg:text-2xl font-medium text-center mt-2 text-slate-600 dark:text-slate-400">
+                  Assistant
+                </p>
               </div>
               
-              {/* Texto */}
+              {/* Texto explicativo */}
               <div className="text-center space-y-2">
                 <h3 className="text-lg sm:text-xl font-semibold text-slate-900 dark:text-white">
                   Carregando suas campanhas
@@ -516,17 +541,15 @@ export default function GoogleAdsPage() {
                   Buscando informações e detalhes do Google Ads...
                 </p>
               </div>
-              
-              {/* Barra de progresso animada */}
-              <div className="w-full max-w-xs h-1.5 bg-slate-200 dark:bg-slate-700 rounded-full overflow-hidden">
-                <div className="h-full bg-blue-600 rounded-full animate-pulse" style={{ width: '60%' }}></div>
-              </div>
             </div>
           </div>
         </div>
       )}
       
-      <main className={`flex-1 ${getMainMargin()} p-3 sm:p-4 md:p-6 lg:p-8 transition-all duration-300 w-0 min-w-0`}>
+      <div className="flex min-h-screen bg-slate-50 dark:bg-slate-900 overflow-x-hidden relative">
+        <Sidebar />
+        
+        <main className={`flex-1 ${getMainMargin()} p-3 sm:p-4 md:p-6 lg:p-8 transition-all duration-300 w-0 min-w-0`}>
         <div className="w-full max-w-full">
           {/* Header */}
           <div className="mb-4 sm:mb-6">
@@ -2214,7 +2237,8 @@ export default function GoogleAdsPage() {
           )}
         </div>
       </main>
-    </div>
+      </div>
+    </>
   );
 }
 

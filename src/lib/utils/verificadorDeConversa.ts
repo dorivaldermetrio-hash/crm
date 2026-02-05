@@ -105,6 +105,21 @@ export async function verificadorDeConversa(
       };
     }
 
+    // Se todas as propriedades do fluxo estão true (incluindo confirmaAgendamento)
+    // Executa o prompt "Atendimento Padrão" para continuar o atendimento
+    if (contato.saudacao && 
+        contato.pedidoResumo && 
+        contato.confirmacaoResumo && 
+        contato.urgenciaDefinida && 
+        contato.selecionandoData && 
+        contato.propostaAgendamento && 
+        contato.confirmaAgendamento) {
+      return {
+        promptNome: 'Atendimento Padrão',
+        // Não atualiza nenhuma propriedade, apenas responde
+      };
+    }
+
     // Por enquanto, retorna null para outros casos (será implementado no futuro)
     return null;
   } catch (error) {
