@@ -36,8 +36,15 @@ export async function configurarWatchGoogleCalendar(userId?: string): Promise<bo
     const webhookUrl = process.env.GOOGLE_CALENDAR_WEBHOOK_URL || 
       `${process.env.NEXT_PUBLIC_BASE_URL || 'http://localhost:3000'}/api/google-calendar/webhook`;
 
-    // Gera um ID único para este watch
-    const channelId = `watch-${user}-${Date.now()}`;
+    // Gera um ID único para este watch usando Base64 para evitar caracteres inválidos
+    // O Google Calendar requer que o Channel ID corresponda ao padrão [A-Za-z0-9\-_\+/=]+
+    // Base64 usa exatamente esses caracteres, então é perfeito para isso
+    const userEncoded = Buffer.from(user).toString('base64')
+      .replace(/\+/g, '-')  // Substitui + por - (Base64URL)
+      .replace(/\//g, '_')  // Substitui / por _ (Base64URL)
+      .replace(/=/g, '');    // Remove padding = (Base64URL)
+    const timestamp = Date.now();
+    const channelId = `watch-${userEncoded}-${timestamp}`;
     
     // Token para identificar o usuário no webhook
     const channelToken = user;
