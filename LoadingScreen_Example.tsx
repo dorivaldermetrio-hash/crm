@@ -190,7 +190,7 @@ export function Example4_CustomBackground() {
 // ============================================
 export function Example5_NextJSAppRouter() {
   const [loading, setLoading] = useState(true);
-  const [data, setData] = useState(null);
+  const [data, setData] = useState<any>(null);
 
   useEffect(() => {
     // Simula fetch de dados
@@ -221,7 +221,7 @@ export function Example5_NextJSAppRouter() {
 // ============================================
 export function Example6_ReactRouter() {
   const [loading, setLoading] = useState(true);
-  const [pageData, setPageData] = useState(null);
+  const [pageData, setPageData] = useState<{ message: string } | null>(null);
 
   useEffect(() => {
     // Simula carregamento de dados da página
