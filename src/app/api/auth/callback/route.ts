@@ -177,12 +177,16 @@ export async function GET(request: NextRequest) {
     console.log('✅ Sessão criada com sucesso!');
     console.log('🍪 Cookies definidos:', { userId, email });
 
-    // Cria a resposta de redirect
-    const redirectUrl = `${process.env.NEXT_PUBLIC_BASE_URL || 'http://localhost:3000'}${returnUrl}`;
-    console.log('🔄 Redirecionando para:', redirectUrl);
+    // Redireciona para uma página intermediária que faz o redirect no client-side
+    // Isso evita problemas com caminhos de assets após redirect server-side
+    const callbackUrl = `/auth/callback?returnUrl=${encodeURIComponent(returnUrl)}`;
+    console.log('🔄 Redirecionando para página intermediária:', callbackUrl);
     
     // Usa redirect temporário (307) para manter método GET e garantir que cookies sejam enviados
-    const response = NextResponse.redirect(redirectUrl, { status: 307 });
+    const response = NextResponse.redirect(
+      new URL(callbackUrl, request.url),
+      { status: 307 }
+    );
     
     // Garante que os cookies sejam enviados no header da resposta
     // IMPORTANTE: Em produção (HTTPS), secure deve ser true
@@ -194,7 +198,6 @@ export async function GET(request: NextRequest) {
       sameSite: 'lax',
       maxAge: 60 * 60 * 24 * 30,
       path: '/',
-      domain: isProduction ? undefined : undefined, // Deixa o navegador decidir o domain
     });
     response.cookies.set('userEmail', email, {
       httpOnly: false,
@@ -202,7 +205,6 @@ export async function GET(request: NextRequest) {
       sameSite: 'lax',
       maxAge: 60 * 60 * 24 * 30,
       path: '/',
-      domain: isProduction ? undefined : undefined,
     });
 
     return response;
