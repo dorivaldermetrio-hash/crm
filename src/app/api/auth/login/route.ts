@@ -15,8 +15,8 @@ export async function GET(request: NextRequest) {
 
     // Obtém as variáveis de ambiente
     const clientId = process.env.GOOGLE_CALENDAR_CLIENT_ID || process.env.GOOGLE_ADS_CLIENT_ID;
-    const redirectUri = process.env.GOOGLE_CALENDAR_REDIRECT_URI || 
-      `${process.env.NEXT_PUBLIC_BASE_URL || 'http://localhost:3000'}/api/auth/callback`;
+    // Sempre usa /api/auth/callback para o fluxo de login principal
+    const redirectUri = `${process.env.NEXT_PUBLIC_BASE_URL || 'http://localhost:3000'}/api/auth/callback`;
 
     // Valida se as variáveis de ambiente estão configuradas
     if (!clientId) {
@@ -30,16 +30,6 @@ export async function GET(request: NextRequest) {
       );
     }
 
-    if (!redirectUri) {
-      console.error('❌ GOOGLE_CALENDAR_REDIRECT_URI não está configurado no .env.local');
-      return NextResponse.json(
-        {
-          success: false,
-          error: 'GOOGLE_CALENDAR_REDIRECT_URI não está configurado',
-        },
-        { status: 500 }
-      );
-    }
 
     // Scopes necessários para Google Calendar API e Google Ads API
     const scopes = [
@@ -71,6 +61,8 @@ export async function GET(request: NextRequest) {
 
     console.log('🔐 Redirecionando para autorização Google OAuth...');
     console.log('📍 Return URL:', returnUrl);
+    console.log('🔗 Redirect URI enviado ao Google:', redirectUri);
+    console.log('🔑 Client ID:', clientId?.substring(0, 20) + '...');
 
     // Redireciona para a página de autorização do Google
     return NextResponse.redirect(authUrl.toString());

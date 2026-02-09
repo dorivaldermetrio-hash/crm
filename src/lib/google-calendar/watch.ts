@@ -36,21 +36,21 @@ export async function configurarWatchGoogleCalendar(userId?: string): Promise<bo
     const webhookUrl = process.env.GOOGLE_CALENDAR_WEBHOOK_URL || 
       `${process.env.NEXT_PUBLIC_BASE_URL || 'http://localhost:3000'}/api/google-calendar/webhook`;
 
-    // Gera um ID único para este watch usando Base64 para evitar caracteres inválidos
-    // O Google Calendar requer que o Channel ID corresponda ao padrão [A-Za-z0-9\-_\+/=]+
-    // Base64 usa exatamente esses caracteres, então é perfeito para isso
-    const userEncoded = Buffer.from(user).toString('base64')
-      .replace(/\+/g, '-')  // Substitui + por - (Base64URL)
-      .replace(/\//g, '_')  // Substitui / por _ (Base64URL)
-      .replace(/=/g, '');    // Remove padding = (Base64URL)
-    const timestamp = Date.now();
-    const channelId = `watch-${userEncoded}-${timestamp}`;
+    // Sanitiza o userId para usar apenas caracteres permitidos no channelId
+    // Google Calendar Watch API requer: [A-Za-z0-9\-_\+/=]+
+    // Substitui caracteres inválidos por underscore
+    const sanitizedUser = user.replace(/[^A-Za-z0-9\-_\+/=]/g, '_');
     
-    // Token para identificar o usuário no webhook
+    // Gera um ID único para este watch
+    const channelId = `watch-${sanitizedUser}-${Date.now()}`;
+    
+    // Token para identificar o usuário no webhook (pode manter o original)
     const channelToken = user;
 
-    // Log reduzido para evitar poluição no console
     console.log('📡 Configurando watch do Google Calendar...');
+    console.log('   Calendar ID:', calendarId);
+    console.log('   Webhook URL:', webhookUrl);
+    console.log('   Channel ID:', channelId);
 
     // Configura o watch usando requisição manual
     const response = await auth.request({
@@ -93,12 +93,10 @@ export async function configurarWatchGoogleCalendar(userId?: string): Promise<bo
 
     return false;
   } catch (error: any) {
-    // Erro não crítico - apenas loga de forma silenciosa
-    // Não deve interromper o fluxo de autenticação
-    if (error.response?.status === 400 && error.response?.data?.error?.errors?.[0]?.reason === 'channelIdInvalid') {
-      console.warn('⚠️ Channel ID inválido para watch do Google Calendar (não crítico)');
-    } else {
-      console.warn('⚠️ Erro ao configurar watch do Google Calendar (não crítico):', error.message || error);
+    console.error('❌ Erro ao configurar watch do Google Calendar:', error);
+    if (error.response) {
+      console.error('   Status:', error.response.status);
+      console.error('   Data:', JSON.stringify(error.response.data, null, 2));
     }
     return false;
   }

@@ -52,8 +52,8 @@ export async function GET(request: NextRequest) {
     // Obtém as variáveis de ambiente
     const clientId = process.env.GOOGLE_CALENDAR_CLIENT_ID || process.env.GOOGLE_ADS_CLIENT_ID;
     const clientSecret = process.env.GOOGLE_CALENDAR_CLIENT_SECRET || process.env.GOOGLE_ADS_CLIENT_SECRET;
-    const redirectUri = process.env.GOOGLE_CALENDAR_REDIRECT_URI || 
-      `${process.env.NEXT_PUBLIC_BASE_URL || 'http://localhost:3000'}/api/auth/callback`;
+    // Sempre usa /api/auth/callback para corresponder ao que o login envia
+    const redirectUri = `${process.env.NEXT_PUBLIC_BASE_URL || 'http://localhost:3000'}/api/auth/callback`;
 
     // Valida se as variáveis de ambiente estão configuradas
     if (!clientId || !clientSecret) {
@@ -64,6 +64,8 @@ export async function GET(request: NextRequest) {
     }
 
     console.log('🔄 Trocando código de autorização por tokens...');
+    console.log('📍 Redirect URI usado:', redirectUri);
+    console.log('🔑 Client ID:', clientId?.substring(0, 20) + '...');
 
     // Cria o cliente OAuth2
     const oauth2Client = new OAuth2Client({
@@ -142,17 +144,12 @@ export async function GET(request: NextRequest) {
     console.log('✅ Refresh token salvo no MongoDB com sucesso!');
 
     // Configura o watch (webhook) para receber notificações do Google Calendar
-    // Este é um processo não-crítico que não deve interromper o login
     try {
+      console.log('📡 Configurando watch do Google Calendar...');
       const { configurarWatchGoogleCalendar } = await import('@/lib/google-calendar/watch');
-      // Executa de forma assíncrona sem bloquear o fluxo
-      configurarWatchGoogleCalendar(userId).catch((watchError) => {
-        // Erro silencioso - não crítico para o login
-        console.warn('⚠️ Watch do Google Calendar não configurado (não crítico)');
-      });
+      await configurarWatchGoogleCalendar(userId);
     } catch (watchError) {
-      // Erro ao importar - também não crítico
-      console.warn('⚠️ Não foi possível configurar watch (não crítico)');
+      console.error('⚠️ Erro ao configurar watch (não crítico):', watchError);
     }
 
     // Cria uma sessão usando cookies

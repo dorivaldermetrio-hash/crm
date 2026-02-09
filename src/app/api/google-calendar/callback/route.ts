@@ -152,17 +152,13 @@ export async function GET(request: NextRequest) {
     console.log('📝 Account ID:', savedAccount._id.toString());
 
     // Configura o watch (webhook) para receber notificações do Google Calendar
-    // Este é um processo não-crítico que não deve interromper o login
     try {
+      console.log('📡 Configurando watch do Google Calendar...');
       const { configurarWatchGoogleCalendar } = await import('@/lib/google-calendar/watch');
-      // Executa de forma assíncrona sem bloquear o fluxo
-      configurarWatchGoogleCalendar(userId).catch((watchError) => {
-        // Erro silencioso - não crítico para o login
-        console.warn('⚠️ Watch do Google Calendar não configurado (não crítico)');
-      });
+      await configurarWatchGoogleCalendar(userId);
     } catch (watchError) {
-      // Erro ao importar - também não crítico
-      console.warn('⚠️ Não foi possível configurar watch (não crítico)');
+      console.error('⚠️ Erro ao configurar watch (não crítico):', watchError);
+      // Não falha o callback se o watch não puder ser configurado
     }
 
     // Cria uma sessão usando cookies
