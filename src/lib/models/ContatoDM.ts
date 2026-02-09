@@ -125,6 +125,11 @@ const ContatoDMSchema = new Schema(
       default: false,
       required: false,
     },
+    atendimentoIa: {
+      type: Boolean,
+      default: true,
+      required: false,
+    },
   },
   {
     timestamps: true, // Adiciona createdAt e updatedAt automaticamente
@@ -158,6 +163,7 @@ export interface IContatoDM {
   resumoCaso?: string;
   informacoesCaso?: string;
   inicialConcluido?: boolean;
+  atendimentoIa?: boolean;
   createdAt?: Date;
   updatedAt?: Date;
 }

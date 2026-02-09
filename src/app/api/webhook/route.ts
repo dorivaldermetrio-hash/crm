@@ -141,6 +141,21 @@ export async function POST(request: NextRequest) {
           try {
             await connectDB();
 
+            // Verifica se o atendimento com IA está habilitado para este contato
+            const ContatoModelCheck = (await import('@/lib/models/Contato')).default;
+            const contatoCheck = await ContatoModelCheck.findById(contatoId).select('atendimentoIa').lean();
+            
+            if (!contatoCheck) {
+              console.log('⚠️ Contato não encontrado. Pulando processamento de IA.');
+              return;
+            }
+
+            // Se atendimentoIa for false, interrompe o fluxo de conversa automática
+            if (contatoCheck.atendimentoIa === false) {
+              console.log('🔇 Atendimento com IA desabilitado para este contato. Mensagem recebida mas não processada.');
+              return;
+            }
+
             // Para áudio, busca a transcrição da mensagem
             let mensagemParaIA = extractedData.mensagem;
             
@@ -195,7 +210,10 @@ export async function POST(request: NextRequest) {
             return;
           }
 
-          console.log(`\n🔍 Verificação de conversa: Executando prompt "${verificacao.promptNome}"`);
+          // Log destacado do prompt que será executado
+          console.log('\n' + '═'.repeat(60));
+          console.log(`🤖 PROMPT EXECUTADO: ${verificacao.promptNome}`);
+          console.log('═'.repeat(60) + '\n');
 
           // 2. Busca o prompt do banco
           const promptDoc = await AtendimentoAI.findOne({ nome: verificacao.promptNome }).lean();
@@ -207,8 +225,7 @@ export async function POST(request: NextRequest) {
 
             // 3. Processa as variáveis de atendimento no prompt
             // Busca a última mensagem do contato para usar no prompt (ao invés de extractedData.mensagem que pode estar desatualizado)
-            const ContatoModel = (await import('@/lib/models/Contato')).default;
-            const contatoAtualizado = await ContatoModel.findById(contatoId).lean();
+            const contatoAtualizado = await ContatoModelCheck.findById(contatoId).lean();
             // Para áudio, usa a transcrição; para texto, usa a mensagem normal
             const ultimaMensagemTexto = mensagemParaIA || contatoAtualizado?.ultimaMensagem || extractedData.mensagem;
             

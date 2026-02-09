@@ -159,7 +159,7 @@ export async function GET() {
     // Busca todos os contatos, ordenados por data da última mensagem (mais recente primeiro)
     const contatos = await Contato.find({})
       .sort({ dataUltimaMensagem: -1, createdAt: -1 })
-      .select('contato contatoNome ultimaMensagem dataUltimaMensagem status tags nota favorito arquivar produtoInteresse informacoesCaso inicialConcluido createdAt')
+      .select('contato contatoNome ultimaMensagem dataUltimaMensagem status tags nota favorito arquivar produtoInteresse informacoesCaso inicialConcluido atendimentoIa saudacao pedidoResumo confirmacaoResumo urgenciaDefinida selecionandoData propostaAgendamento confirmaAgendamento createdAt')
       .lean();
 
     return NextResponse.json(
@@ -181,6 +181,14 @@ export async function GET() {
           produtoInteresse: contato.produtoInteresse ?? '',
           informacoesCaso: contato.informacoesCaso ?? '',
           inicialConcluido: contato.inicialConcluido ?? false,
+          atendimentoIa: contato.atendimentoIa ?? true,
+          saudacao: contato.saudacao ?? false,
+          pedidoResumo: contato.pedidoResumo ?? false,
+          confirmacaoResumo: contato.confirmacaoResumo ?? false,
+          urgenciaDefinida: contato.urgenciaDefinida ?? false,
+          selecionandoData: contato.selecionandoData ?? false,
+          propostaAgendamento: contato.propostaAgendamento ?? false,
+          confirmaAgendamento: contato.confirmaAgendamento ?? false,
           createdAt: contato.createdAt
             ? new Date(contato.createdAt).toISOString()
             : null,

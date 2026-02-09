@@ -69,9 +69,33 @@ export async function verificadorDeConversa(
       };
     }
 
+    // Se todas as propriedades do fluxo estão true (incluindo confirmaAgendamento)
+    // Executa o prompt "Atendimento Padrão" para continuar o atendimento
+    // IMPORTANTE: Esta verificação deve vir ANTES da verificação de "Validação de Agendamento"
+    // para evitar que execute "Validação de Agendamento" quando o agendamento já foi confirmado
+    if (contato.saudacao && 
+        contato.pedidoResumo && 
+        contato.confirmacaoResumo && 
+        contato.urgenciaDefinida && 
+        contato.selecionandoData && 
+        contato.propostaAgendamento && 
+        contato.confirmaAgendamento) {
+      return {
+        promptNome: 'Atendimento Padrão',
+        // Não atualiza nenhuma propriedade, apenas responde
+      };
+    }
+
     // Se todas as propriedades são true (incluindo urgenciaDefinida, selecionandoData e propostaAgendamento)
+    // MAS confirmaAgendamento é false (ainda não confirmou o agendamento)
     // Executa o fluxo: Validação de Agendamento -> (possivelmente) criar agendamento
-    if (contato.saudacao && contato.pedidoResumo && contato.confirmacaoResumo && contato.urgenciaDefinida && contato.selecionandoData && contato.propostaAgendamento) {
+    if (contato.saudacao && 
+        contato.pedidoResumo && 
+        contato.confirmacaoResumo && 
+        contato.urgenciaDefinida && 
+        contato.selecionandoData && 
+        contato.propostaAgendamento && 
+        !contato.confirmaAgendamento) {
       return {
         promptNome: 'Validação de Agendamento',
         precisaValidacaoAgendamento: true, // Flag especial para fluxo de validação de agendamento
@@ -102,21 +126,6 @@ export async function verificadorDeConversa(
       return {
         promptNome: 'Validação do Resumo e Incorporação',
         precisaValidacaoResumoIncorporacao: true, // Flag especial para fluxo complexo
-      };
-    }
-
-    // Se todas as propriedades do fluxo estão true (incluindo confirmaAgendamento)
-    // Executa o prompt "Atendimento Padrão" para continuar o atendimento
-    if (contato.saudacao && 
-        contato.pedidoResumo && 
-        contato.confirmacaoResumo && 
-        contato.urgenciaDefinida && 
-        contato.selecionandoData && 
-        contato.propostaAgendamento && 
-        contato.confirmaAgendamento) {
-      return {
-        promptNome: 'Atendimento Padrão',
-        // Não atualiza nenhuma propriedade, apenas responde
       };
     }
 

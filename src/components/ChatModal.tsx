@@ -3,7 +3,7 @@
 import { useEffect, useState, useRef, useCallback } from 'react';
 import { X, Play, Pause, MoreVertical, Download, Trash2, BookOpen, UserX } from 'lucide-react';
 import { HiInformationCircle } from 'react-icons/hi';
-import { HiOutlineQueueList } from 'react-icons/hi2';
+import { HiOutlineQueueList, HiOutlineCog6Tooth } from 'react-icons/hi2';
 import { FiBarChart2 } from 'react-icons/fi';
 import { RiRobotLine } from 'react-icons/ri';
 import { useServerEvents, ServerEvent } from '@/hooks/useServerEvents';
@@ -37,6 +37,14 @@ interface Contato {
   produtoInteresse?: string;
   informacoesCaso?: string;
   inicialConcluido?: boolean;
+  atendimentoIa?: boolean;
+  saudacao?: boolean;
+  pedidoResumo?: boolean;
+  confirmacaoResumo?: boolean;
+  urgenciaDefinida?: boolean;
+  selecionandoData?: boolean;
+  propostaAgendamento?: boolean;
+  confirmaAgendamento?: boolean;
 }
 
 interface ChatModalProps {
@@ -57,6 +65,7 @@ export default function ChatModal({ contatoId, isOpen, onClose }: ChatModalProps
   const [painelAnalyticsAberto, setPainelAnalyticsAberto] = useState(false);
   const [painelIAAberto, setPainelIAAberto] = useState(false);
   const [painelNotasAberto, setPainelNotasAberto] = useState(false);
+  const [painelConfiguracaoAberto, setPainelConfiguracaoAberto] = useState(false);
   const [imagemAmpliada, setImagemAmpliada] = useState<string | null>(null);
   const [modalDeletarAberto, setModalDeletarAberto] = useState(false);
   const [deletando, setDeletando] = useState(false);
@@ -97,6 +106,7 @@ export default function ChatModal({ contatoId, isOpen, onClose }: ChatModalProps
       setPainelAnalyticsAberto(false);
       setPainelIAAberto(false);
       setPainelNotasAberto(false);
+      setPainelConfiguracaoAberto(false);
       setModalDeletarAberto(false);
       setModalDeletarContatoAberto(false);
     }
@@ -594,7 +604,7 @@ export default function ChatModal({ contatoId, isOpen, onClose }: ChatModalProps
     <>
     <div className="fixed inset-0 z-50 flex items-center justify-center p-0 sm:p-4 bg-black/50 backdrop-blur-sm">
       <div className={`bg-white dark:bg-slate-800 rounded-none sm:rounded-2xl shadow-2xl h-full sm:h-[90vh] flex flex-col overflow-hidden transition-all duration-300 w-full ${
-        painelInfoAberto || painelAnalyticsAberto || painelIAAberto || painelNotasAberto ? 'sm:max-w-7xl' : 'sm:max-w-4xl'
+        painelInfoAberto || painelAnalyticsAberto || painelIAAberto || painelNotasAberto || painelConfiguracaoAberto ? 'sm:max-w-7xl' : 'sm:max-w-4xl'
       }`}>
         {/* Header */}
         <div className="flex items-center justify-between p-3 sm:p-4 md:p-6 border-b border-slate-200 dark:border-slate-700 bg-gradient-to-r from-slate-50 to-white dark:from-slate-800 dark:to-slate-900">
@@ -614,6 +624,29 @@ export default function ChatModal({ contatoId, isOpen, onClose }: ChatModalProps
           <div className="flex items-center gap-1 sm:gap-2 flex-shrink-0">
             <button
               onClick={() => {
+                // Se o painel Configuração já está aberto, fecha ele
+                if (painelConfiguracaoAberto) {
+                  setPainelConfiguracaoAberto(false);
+                } else {
+                  // Se não está aberto, fecha os outros painéis (se estiverem abertos) e abre o Configuração
+                  setPainelInfoAberto(false);
+                  setPainelAnalyticsAberto(false);
+                  setPainelIAAberto(false);
+                  setPainelNotasAberto(false);
+                  setPainelConfiguracaoAberto(true);
+                }
+              }}
+              className={`p-1.5 sm:p-2 rounded-lg transition-all duration-200 ${
+                painelConfiguracaoAberto
+                  ? 'bg-slate-100 dark:bg-slate-700 text-slate-700 dark:text-slate-200'
+                  : 'text-slate-500 hover:text-slate-700 hover:bg-slate-100 dark:hover:bg-slate-700 dark:text-slate-400 dark:hover:text-slate-200'
+              }`}
+              aria-label="Configurações"
+            >
+              <HiOutlineCog6Tooth className="w-4 h-4 sm:w-5 sm:h-5" />
+            </button>
+            <button
+              onClick={() => {
                 // Se o painel Notas já está aberto, fecha ele
                 if (painelNotasAberto) {
                   setPainelNotasAberto(false);
@@ -622,6 +655,7 @@ export default function ChatModal({ contatoId, isOpen, onClose }: ChatModalProps
                   setPainelInfoAberto(false);
                   setPainelAnalyticsAberto(false);
                   setPainelIAAberto(false);
+                  setPainelConfiguracaoAberto(false);
                   setPainelNotasAberto(true);
                 }
               }}
@@ -644,6 +678,7 @@ export default function ChatModal({ contatoId, isOpen, onClose }: ChatModalProps
                   setPainelInfoAberto(false);
                   setPainelAnalyticsAberto(false);
                   setPainelNotasAberto(false);
+                  setPainelConfiguracaoAberto(false);
                   setPainelIAAberto(true);
                 }
               }}
@@ -666,6 +701,7 @@ export default function ChatModal({ contatoId, isOpen, onClose }: ChatModalProps
                   setPainelInfoAberto(false);
                   setPainelIAAberto(false);
                   setPainelNotasAberto(false);
+                  setPainelConfiguracaoAberto(false);
                   setPainelAnalyticsAberto(true);
                 }
               }}
@@ -688,6 +724,7 @@ export default function ChatModal({ contatoId, isOpen, onClose }: ChatModalProps
                   setPainelAnalyticsAberto(false);
                   setPainelIAAberto(false);
                   setPainelNotasAberto(false);
+                  setPainelConfiguracaoAberto(false);
                   setPainelInfoAberto(true);
                 }
               }}
@@ -738,7 +775,7 @@ export default function ChatModal({ contatoId, isOpen, onClose }: ChatModalProps
         <div className="flex-1 flex overflow-hidden relative">
           {/* Chat Area */}
           <div className={`flex-1 flex flex-col transition-all duration-300 ${
-            painelInfoAberto || painelAnalyticsAberto || painelIAAberto || painelNotasAberto 
+            painelInfoAberto || painelAnalyticsAberto || painelIAAberto || painelNotasAberto || painelConfiguracaoAberto 
               ? 'hidden sm:flex sm:w-2/3' 
               : 'w-full'
           }`}>
@@ -1265,6 +1302,22 @@ export default function ChatModal({ contatoId, isOpen, onClose }: ChatModalProps
                 onSave={salvarContato}
                 onUpdate={fetchContatoCompleto}
                 onClose={() => setPainelNotasAberto(false)}
+              />
+            )}
+          </div>
+
+          {/* Painel de Configuração */}
+          <div className={`sm:border-l border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 transition-all duration-300 overflow-hidden ${
+            painelConfiguracaoAberto 
+              ? 'absolute sm:relative inset-0 sm:inset-auto w-full sm:w-1/3 opacity-100 z-10' 
+              : 'w-0 opacity-0 pointer-events-none'
+          }`}>
+            {painelConfiguracaoAberto && contatoCompleto && (
+              <PainelConfiguracao
+                contato={contatoCompleto}
+                onSave={salvarContato}
+                onUpdate={fetchContatoCompleto}
+                onClose={() => setPainelConfiguracaoAberto(false)}
               />
             )}
           </div>
@@ -2238,3 +2291,140 @@ function PainelNotas({ contato, onSave, onUpdate, onClose }: PainelNotasProps) {
   );
 }
 
+interface PainelConfiguracaoProps {
+  contato: Contato;
+  onSave: (dados: Partial<Contato>) => Promise<void>;
+  onUpdate: () => void;
+  onClose: () => void;
+}
+
+function PainelConfiguracao({ contato, onSave, onUpdate, onClose }: PainelConfiguracaoProps) {
+  // O estado sempre reflete o valor do contato.atendimentoIa (true = enable, false = disable)
+  // IMPORTANTE: Se atendimentoIa for false, o toggle deve estar desabilitado (cinza)
+  // Se for true ou undefined, o toggle deve estar habilitado (azul)
+  const atendimentoIAHabilitado = contato.atendimentoIa === false ? false : (contato.atendimentoIa ?? true);
+  const [salvando, setSalvando] = useState(false);
+  const [ativandoAtendimentoPadrao, setAtivandoAtendimentoPadrao] = useState(false);
+
+  // Debug: verifica o valor recebido
+  useEffect(() => {
+    console.log('🔍 PainelConfiguracao - contato completo:', contato);
+    console.log('🔍 PainelConfiguracao - atendimentoIa do contato:', contato.atendimentoIa, typeof contato.atendimentoIa);
+    console.log('🔍 PainelConfiguracao - atendimentoIAHabilitado calculado:', atendimentoIAHabilitado);
+  }, [contato, atendimentoIAHabilitado]);
+
+  // Verifica se todas as propriedades do fluxo estão true
+  const todasPropriedadesTrue = 
+    contato.saudacao === true &&
+    contato.pedidoResumo === true &&
+    contato.confirmacaoResumo === true &&
+    contato.urgenciaDefinida === true &&
+    contato.selecionandoData === true &&
+    contato.propostaAgendamento === true &&
+    contato.confirmaAgendamento === true;
+
+  const handleToggle = async () => {
+    if (salvando) return;
+
+    const novoValor = !atendimentoIAHabilitado;
+    setSalvando(true);
+
+    try {
+      await onSave({
+        atendimentoIa: novoValor,
+      });
+      // Atualiza o contato para refletir a mudança
+      await onUpdate();
+    } catch (error) {
+      console.error('Erro ao salvar configuração de atendimento IA:', error);
+      alert('Erro ao salvar configuração');
+    } finally {
+      setSalvando(false);
+    }
+  };
+
+  const handleAtivarAtendimentoPadrao = async () => {
+    if (ativandoAtendimentoPadrao || todasPropriedadesTrue) return;
+
+    setAtivandoAtendimentoPadrao(true);
+
+    try {
+      await onSave({
+        saudacao: true,
+        pedidoResumo: true,
+        confirmacaoResumo: true,
+        urgenciaDefinida: true,
+        selecionandoData: true,
+        propostaAgendamento: true,
+        confirmaAgendamento: true,
+      });
+      // Atualiza o contato para refletir a mudança
+      await onUpdate();
+    } catch (error) {
+      console.error('Erro ao ativar atendimento padrão:', error);
+      alert('Erro ao ativar atendimento padrão');
+    } finally {
+      setAtivandoAtendimentoPadrao(false);
+    }
+  };
+
+  return (
+    <div className="h-full flex flex-col overflow-hidden">
+      {/* Header do Painel */}
+      <div className="p-4 border-b border-slate-200 dark:border-slate-700 bg-gradient-to-r from-slate-50 to-white dark:from-slate-800 dark:to-slate-900">
+        <div className="flex items-center justify-between">
+          <h3 className="text-base sm:text-lg font-semibold text-slate-900 dark:text-white flex items-center gap-2 flex-1 min-w-0">
+            <HiOutlineCog6Tooth className="w-4 h-4 sm:w-5 sm:h-5 text-slate-600 dark:text-slate-400 flex-shrink-0" />
+            <span className="truncate">Configurações</span>
+          </h3>
+          <button
+            onClick={onClose}
+            className="p-1.5 sm:p-2 rounded-lg text-slate-500 hover:text-slate-700 hover:bg-slate-100 dark:hover:bg-slate-700 dark:text-slate-400 dark:hover:text-slate-200 transition-colors flex-shrink-0 ml-2"
+            aria-label="Fechar painel"
+          >
+            <X className="w-4 h-4 sm:w-5 sm:h-5" />
+          </button>
+        </div>
+      </div>
+
+      {/* Content */}
+      <div className="flex-1 flex flex-col overflow-hidden p-4 space-y-4">
+        <div className="flex items-center justify-between p-4 rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800">
+          <span className="text-sm sm:text-base font-medium text-slate-900 dark:text-white">
+            Atendimento com IA
+          </span>
+          <button
+            onClick={handleToggle}
+            disabled={salvando}
+            className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors focus:outline-none focus:ring-2 focus:ring-slate-500 focus:ring-offset-2 disabled:opacity-50 disabled:cursor-not-allowed ${
+              atendimentoIAHabilitado
+                ? 'bg-blue-600 dark:bg-blue-500'
+                : 'bg-slate-300 dark:bg-slate-600'
+            }`}
+            aria-label="Ativar/Desativar atendimento com IA"
+          >
+            <span
+              className={`inline-block h-4 w-4 transform rounded-full bg-white transition-transform ${
+                atendimentoIAHabilitado ? 'translate-x-6' : 'translate-x-1'
+              }`}
+            />
+          </button>
+        </div>
+
+        <div className="flex items-center justify-between p-4 rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800">
+          <span className="text-sm sm:text-base font-medium text-slate-900 dark:text-white">
+            Iniciar Atendimento Padrão
+          </span>
+          <button
+            onClick={handleAtivarAtendimentoPadrao}
+            disabled={todasPropriedadesTrue || ativandoAtendimentoPadrao}
+            className="px-4 py-2 text-sm font-medium text-white bg-blue-600 hover:bg-blue-700 dark:bg-blue-500 dark:hover:bg-blue-600 rounded-lg transition-colors focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:bg-blue-600 dark:disabled:hover:bg-blue-500"
+            aria-label="Ativar atendimento padrão"
+          >
+            {ativandoAtendimentoPadrao ? 'Ativando...' : 'Ativar'}
+          </button>
+        </div>
+      </div>
+    </div>
+  );
+}

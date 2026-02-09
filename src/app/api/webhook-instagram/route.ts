@@ -157,6 +157,21 @@ export async function POST(request: NextRequest) {
           try {
             await connectDB();
 
+            // Verifica se o atendimento com IA está habilitado para este contato
+            const ContatoDMModel = (await import('@/lib/models/ContatoDM')).default;
+            const contato = await ContatoDMModel.findById(contatoId).select('atendimentoIa').lean();
+            
+            if (!contato) {
+              console.log('⚠️ Contato não encontrado. Pulando processamento de IA.');
+              return;
+            }
+
+            // Se atendimentoIa for false, interrompe o fluxo de conversa automática
+            if (contato.atendimentoIa === false) {
+              console.log('🔇 Atendimento com IA desabilitado para este contato (Instagram). Mensagem recebida mas não processada.');
+              return;
+            }
+
           // 1. Verifica o estado da conversa e decide qual prompt executar
           const verificacao = await verificadorDeConversa(contatoId, true);
 
@@ -165,7 +180,10 @@ export async function POST(request: NextRequest) {
             return;
           }
 
-          console.log(`\n🔍 Verificação de conversa (Instagram): Executando prompt "${verificacao.promptNome}"`);
+          // Log destacado do prompt que será executado
+          console.log('\n' + '═'.repeat(60));
+          console.log(`🤖 PROMPT EXECUTADO (Instagram): ${verificacao.promptNome}`);
+          console.log('═'.repeat(60) + '\n');
 
           // 2. Busca o prompt do banco
           const promptDoc = await AtendimentoAI.findOne({ nome: verificacao.promptNome }).lean();

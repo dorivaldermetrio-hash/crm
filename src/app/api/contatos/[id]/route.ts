@@ -99,6 +99,38 @@ export async function PATCH(
       updateData.inicialConcluido = body.inicialConcluido;
       console.log('Inicial concluído atualizado:', body.inicialConcluido);
     }
+    if (body.atendimentoIa !== undefined) {
+      updateData.atendimentoIa = body.atendimentoIa;
+      console.log('Atendimento IA atualizado:', body.atendimentoIa);
+    }
+    if (body.saudacao !== undefined) {
+      updateData.saudacao = body.saudacao;
+      console.log('Saudação atualizada:', body.saudacao);
+    }
+    if (body.pedidoResumo !== undefined) {
+      updateData.pedidoResumo = body.pedidoResumo;
+      console.log('Pedido resumo atualizado:', body.pedidoResumo);
+    }
+    if (body.confirmacaoResumo !== undefined) {
+      updateData.confirmacaoResumo = body.confirmacaoResumo;
+      console.log('Confirmação resumo atualizada:', body.confirmacaoResumo);
+    }
+    if (body.urgenciaDefinida !== undefined) {
+      updateData.urgenciaDefinida = body.urgenciaDefinida;
+      console.log('Urgência definida atualizada:', body.urgenciaDefinida);
+    }
+    if (body.selecionandoData !== undefined) {
+      updateData.selecionandoData = body.selecionandoData;
+      console.log('Selecionando data atualizada:', body.selecionandoData);
+    }
+    if (body.propostaAgendamento !== undefined) {
+      updateData.propostaAgendamento = body.propostaAgendamento;
+      console.log('Proposta agendamento atualizada:', body.propostaAgendamento);
+    }
+    if (body.confirmaAgendamento !== undefined) {
+      updateData.confirmaAgendamento = body.confirmaAgendamento;
+      console.log('Confirma agendamento atualizada:', body.confirmaAgendamento);
+    }
 
     // Verifica se há algo para atualizar
     if (Object.keys(updateData).length === 0) {
@@ -134,6 +166,7 @@ export async function PATCH(
       nota: contatoSalvo.nota,
       favorito: contatoSalvo.favorito,
       arquivar: contatoSalvo.arquivar,
+      atendimentoIa: contatoSalvo.atendimentoIa,
     });
 
     return NextResponse.json(
@@ -152,6 +185,14 @@ export async function PATCH(
           produtoInteresse: contatoSalvo.produtoInteresse ?? '',
           informacoesCaso: contatoSalvo.informacoesCaso ?? '',
           inicialConcluido: contatoSalvo.inicialConcluido ?? false,
+          atendimentoIa: contatoSalvo.atendimentoIa ?? true,
+          saudacao: contatoSalvo.saudacao ?? false,
+          pedidoResumo: contatoSalvo.pedidoResumo ?? false,
+          confirmacaoResumo: contatoSalvo.confirmacaoResumo ?? false,
+          urgenciaDefinida: contatoSalvo.urgenciaDefinida ?? false,
+          selecionandoData: contatoSalvo.selecionandoData ?? false,
+          propostaAgendamento: contatoSalvo.propostaAgendamento ?? false,
+          confirmaAgendamento: contatoSalvo.confirmaAgendamento ?? false,
         },
       },
       { status: 200 }
