@@ -186,7 +186,7 @@ export async function GET(request: NextRequest) {
     
     // Garante que os cookies sejam enviados no header da resposta
     // IMPORTANTE: Em produção (HTTPS), secure deve ser true
-    const isProduction = process.env.NODE_ENV === 'production' || process.env.VERCEL === '1';
+    // (isProduction já foi definido acima na linha 159)
     
     response.cookies.set('userId', userId, {
       httpOnly: true,
