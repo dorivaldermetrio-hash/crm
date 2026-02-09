@@ -49,10 +49,8 @@ export async function configurarWatchGoogleCalendar(userId?: string): Promise<bo
     // Token para identificar o usuário no webhook
     const channelToken = user;
 
+    // Log reduzido para evitar poluição no console
     console.log('📡 Configurando watch do Google Calendar...');
-    console.log('   Calendar ID:', calendarId);
-    console.log('   Webhook URL:', webhookUrl);
-    console.log('   Channel ID:', channelId);
 
     // Configura o watch usando requisição manual
     const response = await auth.request({
@@ -95,10 +93,12 @@ export async function configurarWatchGoogleCalendar(userId?: string): Promise<bo
 
     return false;
   } catch (error: any) {
-    console.error('❌ Erro ao configurar watch do Google Calendar:', error);
-    if (error.response) {
-      console.error('   Status:', error.response.status);
-      console.error('   Data:', JSON.stringify(error.response.data, null, 2));
+    // Erro não crítico - apenas loga de forma silenciosa
+    // Não deve interromper o fluxo de autenticação
+    if (error.response?.status === 400 && error.response?.data?.error?.errors?.[0]?.reason === 'channelIdInvalid') {
+      console.warn('⚠️ Channel ID inválido para watch do Google Calendar (não crítico)');
+    } else {
+      console.warn('⚠️ Erro ao configurar watch do Google Calendar (não crítico):', error.message || error);
     }
     return false;
   }
