@@ -158,16 +158,16 @@ export async function POST(request: NextRequest) {
             await connectDB();
 
             // Verifica se o atendimento com IA está habilitado para este contato
-            const ContatoDMModel = (await import('@/lib/models/ContatoDM')).default;
-            const contato = await ContatoDMModel.findById(contatoId).select('atendimentoIa').lean();
+            const ContatoDMModelCheck = (await import('@/lib/models/ContatoDM')).default;
+            const contatoCheck = await ContatoDMModelCheck.findById(contatoId).select('atendimentoIa').lean();
             
-            if (!contato) {
+            if (!contatoCheck) {
               console.log('⚠️ Contato não encontrado. Pulando processamento de IA.');
               return;
             }
 
             // Se atendimentoIa for false, interrompe o fluxo de conversa automática
-            if (contato.atendimentoIa === false) {
+            if (contatoCheck.atendimentoIa === false) {
               console.log('🔇 Atendimento com IA desabilitado para este contato (Instagram). Mensagem recebida mas não processada.');
               return;
             }
@@ -195,8 +195,7 @@ export async function POST(request: NextRequest) {
 
             // 3. Processa as variáveis de atendimento no prompt
             // Busca a última mensagem do contato para usar no prompt (ao invés de extractedData.mensagem que pode estar desatualizado)
-            const ContatoDMModel = (await import('@/lib/models/ContatoDM')).default;
-            const contatoAtualizado = await ContatoDMModel.findById(contatoId).lean();
+            const contatoAtualizado = await ContatoDMModelCheck.findById(contatoId).lean();
             const ultimaMensagemTexto = contatoAtualizado?.ultimaMensagem || extractedData.mensagem;
             
             const promptProcessado = await processPromptVariables(
