@@ -809,7 +809,8 @@ export async function POST(request: NextRequest) {
               console.log('========================================\n');
 
               // Envia mensagem
-              const contato = await ContatoModel.findById(contatoId);
+              const ContatoModelSend = (await import('@/lib/models/Contato')).default;
+              const contato = await ContatoModelSend.findById(contatoId);
               if (!contato) {
                 console.error('❌ Contato não encontrado');
                 return;
