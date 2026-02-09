@@ -1,14 +1,13 @@
 'use client';
 
-import { useEffect } from 'react';
+import { useEffect, Suspense } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { useAuth } from '@/contexts/AuthContext';
 
 /**
- * Página intermediária para processar o callback do OAuth
- * Esta página recebe os cookies do servidor e redireciona para a página principal
+ * Componente interno que usa useSearchParams
  */
-export default function AuthCallbackPage() {
+function AuthCallbackContent() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const { checkAuth } = useAuth();
@@ -46,5 +45,26 @@ export default function AuthCallbackPage() {
         <p className="text-slate-600 dark:text-slate-400">Finalizando login...</p>
       </div>
     </div>
+  );
+}
+
+/**
+ * Página intermediária para processar o callback do OAuth
+ * Esta página recebe os cookies do servidor e redireciona para a página principal
+ */
+export default function AuthCallbackPage() {
+  return (
+    <Suspense
+      fallback={
+        <div className="flex min-h-screen bg-slate-50 dark:bg-slate-900 items-center justify-center">
+          <div className="flex flex-col items-center gap-4">
+            <div className="w-12 h-12 border-4 border-blue-500 border-t-transparent rounded-full animate-spin" />
+            <p className="text-slate-600 dark:text-slate-400">Carregando...</p>
+          </div>
+        </div>
+      }
+    >
+      <AuthCallbackContent />
+    </Suspense>
   );
 }
