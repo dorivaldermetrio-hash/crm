@@ -37,8 +37,9 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   // Verifica autenticação ao montar e quando a rota muda
   const checkAuth = useCallback(async () => {
     try {
-      // Pequeno delay para garantir que os cookies estejam disponíveis após redirect
-      await new Promise(resolve => setTimeout(resolve, 100));
+      // Delay maior após redirect para garantir que os cookies estejam disponíveis
+      // Especialmente importante em produção onde pode haver latência de rede
+      await new Promise(resolve => setTimeout(resolve, 300));
       
       const response = await fetch('/api/auth/me', {
         credentials: 'include', // Importante para enviar cookies
@@ -99,11 +100,12 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     // Se não está carregando e não há usuário, mas não é rota pública, verifica novamente
     // Isso é útil após um redirect de login, quando os cookies podem ainda não estar disponíveis
     if (!isLoading && !user && !isPublicRoute(pathname)) {
-      // Aguarda um pouco mais e verifica novamente (pode ser que os cookies ainda não estejam disponíveis)
+      // Aguarda mais tempo em produção para garantir que os cookies estejam disponíveis
+      const delay = process.env.NODE_ENV === 'production' ? 1000 : 500;
       const timeoutId = setTimeout(() => {
         console.log('🔄 Re-verificando autenticação após mudança de rota...');
         checkAuth();
-      }, 500);
+      }, delay);
       
       return () => clearTimeout(timeoutId);
     }

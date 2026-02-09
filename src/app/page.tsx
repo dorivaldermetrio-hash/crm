@@ -197,10 +197,17 @@ export default function DashboardPage() {
     );
   }
 
-  // Se não estiver autenticado, o AuthContext já redireciona para /login
-  // Mas por segurança, também verificamos aqui
+  // Se não estiver autenticado, mostra loading enquanto o AuthContext processa o redirecionamento
+  // Isso evita renderização vazia que pode quebrar os estilos
   if (!isAuthenticated) {
-    return null; // O AuthContext vai redirecionar
+    return (
+      <div className="flex min-h-screen bg-slate-50 dark:bg-slate-900 items-center justify-center">
+        <div className="flex flex-col items-center gap-4">
+          <div className="w-12 h-12 border-4 border-blue-500 border-t-transparent rounded-full animate-spin" />
+          <p className="text-slate-600 dark:text-slate-400">Verificando autenticação...</p>
+        </div>
+      </div>
+    );
   }
 
   return (

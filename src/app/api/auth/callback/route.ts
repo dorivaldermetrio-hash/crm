@@ -155,17 +155,20 @@ export async function GET(request: NextRequest) {
     // Cria uma sessão usando cookies
     const cookieStore = await cookies();
     
+    // Detecta se está em produção (Vercel sempre define VERCEL=1)
+    const isProduction = process.env.NODE_ENV === 'production' || process.env.VERCEL === '1';
+    
     // Define os cookies antes de redirecionar
     cookieStore.set('userId', userId, {
       httpOnly: true,
-      secure: process.env.NODE_ENV === 'production',
+      secure: isProduction,
       sameSite: 'lax',
       maxAge: 60 * 60 * 24 * 30, // 30 dias
       path: '/',
     });
     cookieStore.set('userEmail', email, {
       httpOnly: false, // Permite acesso no client-side para exibir
-      secure: process.env.NODE_ENV === 'production',
+      secure: isProduction,
       sameSite: 'lax',
       maxAge: 60 * 60 * 24 * 30,
       path: '/',
@@ -178,22 +181,28 @@ export async function GET(request: NextRequest) {
     const redirectUrl = `${process.env.NEXT_PUBLIC_BASE_URL || 'http://localhost:3000'}${returnUrl}`;
     console.log('🔄 Redirecionando para:', redirectUrl);
     
-    const response = NextResponse.redirect(redirectUrl);
+    // Usa redirect temporário (307) para manter método GET e garantir que cookies sejam enviados
+    const response = NextResponse.redirect(redirectUrl, { status: 307 });
     
     // Garante que os cookies sejam enviados no header da resposta
+    // IMPORTANTE: Em produção (HTTPS), secure deve ser true
+    const isProduction = process.env.NODE_ENV === 'production' || process.env.VERCEL === '1';
+    
     response.cookies.set('userId', userId, {
       httpOnly: true,
-      secure: process.env.NODE_ENV === 'production',
+      secure: isProduction,
       sameSite: 'lax',
       maxAge: 60 * 60 * 24 * 30,
       path: '/',
+      domain: isProduction ? undefined : undefined, // Deixa o navegador decidir o domain
     });
     response.cookies.set('userEmail', email, {
       httpOnly: false,
-      secure: process.env.NODE_ENV === 'production',
+      secure: isProduction,
       sameSite: 'lax',
       maxAge: 60 * 60 * 24 * 30,
       path: '/',
+      domain: isProduction ? undefined : undefined,
     });
 
     return response;
